@@ -69,6 +69,8 @@ class Config:
     capture: list[int] = field(default_factory=lambda: [860, 40, 240, 32])
     servers: list[str] = field(default_factory=lambda: list(EU_SERVERS))
     poll_interval_ms: int = 100
+    poll_idle_ms: int = 40          # image inchangée : revérification rapide (sans OCR)
+    show_freshness: bool = True     # « il y a 3 j » quand le score affiché est ancien
     # Le nom doit être lu identique N fois de suite avant la recherche (anti-bruit OCR).
     stable_reads: int = 2
     ocr_min_confidence: float = 0.6
@@ -122,6 +124,7 @@ class Config:
     dps_overlay_opacity: float = 0.85
     dps_overlay_rows: int = 6
     dps_record_observed: bool = False   # noter aussi les joueurs seulement « vus » par le réseau
+    observe_enabled: bool = False       # capture passive SANS DPS meter (préchargement seul)
     dps_prefetch: bool = True           # précharger GS/CP des joueurs observés (serveur connu)
     history_max_fights: int = 500
     history_max_encounters: int = 20000

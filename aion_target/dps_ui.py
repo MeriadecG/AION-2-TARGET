@@ -186,6 +186,16 @@ class DpsTab(QWidget):
         self.chk.setChecked(cfg.dps_enabled)
         self.chk.toggled.connect(self._toggle)
         g.addWidget(self.chk, 0, 0, 1, 3)
+        self.chk_obs_only = QCheckBox("Observation réseau légère (sans DPS) : précharger les GS/CP des "
+                                      "joueurs vus en jeu")
+        self.chk_obs_only.setToolTip(
+            "Même capture passive que le DPS meter, mais sans calcul affiché : les joueurs qui passent "
+            "dans le flux du jeu sont cherchés en mémoire (immédiat) puis, si besoin, sur shugo.gg "
+            "(débit limité), pour que leur score s'affiche tout de suite quand tu les cibles.\n"
+            "Ce n'est PAS la liste complète des joueurs de l'instance.")
+        self.chk_obs_only.setChecked(cfg.observe_enabled)
+        self.chk_obs_only.toggled.connect(self._toggle_observe)
+        g.addWidget(self.chk_obs_only, 6, 0, 1, 3)
         self.state = QLabel()
         self.state.setObjectName("status")
         self.state.setWordWrap(True)
@@ -319,7 +329,7 @@ class DpsTab(QWidget):
         self.refresh_fights()
         self.refresh_encounters()
         self._render_state({})
-        if cfg.dps_enabled:
+        if self._wanted():
             QTimer.singleShot(500, self._start)
 
     # --- moteur ---
@@ -327,21 +337,39 @@ class DpsTab(QWidget):
         setattr(self.cfg, attr, value)
         self.cfg.save()
 
-    def _toggle(self, on: bool):
-        if on and not self.cfg.dps_warning_ack:
-            ok = QMessageBox.question(self, "Activer le DPS meter", WARNING) == QMessageBox.StandardButton.Yes
-            if not ok:
-                self.chk.blockSignals(True)
-                self.chk.setChecked(False)
-                self.chk.blockSignals(False)
-                return
-            self.cfg.dps_warning_ack = True
-        self._set("dps_enabled", on)
-        if on:
+    def _wanted(self) -> bool:
+        return bool(self.cfg.dps_enabled or self.cfg.observe_enabled)
+
+    def _ack(self, box: QCheckBox) -> bool:
+        if self.cfg.dps_warning_ack:
+            return True
+        ok = QMessageBox.question(self, "Capture réseau passive", WARNING) == QMessageBox.StandardButton.Yes
+        if not ok:
+            box.blockSignals(True)
+            box.setChecked(False)
+            box.blockSignals(False)
+            return False
+        self.cfg.dps_warning_ack = True
+        return True
+
+    def _apply_engine(self):
+        if self._wanted():
             self._start()
         else:
             self._stop()
         self.overlay.apply()
+
+    def _toggle(self, on: bool):
+        if on and not self._ack(self.chk):
+            return
+        self._set("dps_enabled", on)
+        self._apply_engine()
+
+    def _toggle_observe(self, on: bool):
+        if on and not self._ack(self.chk_obs_only):
+            return
+        self._set("observe_enabled", on)
+        self._apply_engine()
 
     def _start(self):
         if self.engine is None:
@@ -355,6 +383,7 @@ class DpsTab(QWidget):
             if self.on_party:
                 self.engine.party.connect(self.on_party)
         err = self.engine.start()
+        self.engine.set_publish_dps(bool(self.cfg.dps_enabled))
         if err:
             self._render_state({"capture": "missing_engine", "detail": err})
 
@@ -370,7 +399,7 @@ class DpsTab(QWidget):
     def _render_state(self, st: dict):
         cap = st.get("capture")
         self.btn_fix.setVisible(False)
-        if not self.cfg.dps_enabled:
+        if not self._wanted():
             text = "Désactivé : aucune capture, aucune ressource utilisée."
         elif cap == "missing_engine":
             text = f"<span style='color:#E5484D'>●</span> {st.get('detail')}"
@@ -390,6 +419,8 @@ class DpsTab(QWidget):
                 text += " Lance Aion Target en administrateur, ou réinstalle Npcap sans restriction admin."
         elif cap == "running" and st.get("game_port"):
             text = f"<span style='color:#3DD68C'>●</span> Flux du jeu repéré (port {st['game_port']})."
+            if not self.cfg.dps_enabled:
+                text += " Observation seule (pas de DPS)."
         elif cap == "running":
             text = ("<span style='color:#E8B04B'>●</span> Capture active, en attente du jeu "
                     "(lance AION 2 ou change de zone).")

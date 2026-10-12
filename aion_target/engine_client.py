@@ -82,6 +82,7 @@ class EngineClient(QObject):
         self._wanted = False
         self.last_status: dict = {}
         self.ping_ms: int | None = None
+        self.publish_dps = True
 
     # --- cycle de vie ---
     def start(self) -> str | None:
@@ -99,6 +100,7 @@ class EngineClient(QObject):
         self.proc.readyReadStandardError.connect(
             lambda: self.log("Moteur : " + bytes(self.proc.readAllStandardError()).decode("utf-8", "replace").strip()[:300]))
         self.proc.finished.connect(self._finished)
+        self.proc.started.connect(lambda: self.publish_dps or self.send({"cmd": "publish_dps", "value": False}))
         self.proc.start()
         self.log(f"Moteur : démarrage ({self.path.name})")
         return None
@@ -123,6 +125,11 @@ class EngineClient(QObject):
 
     def reset(self):
         self.send({"cmd": "reset"})
+
+    def set_publish_dps(self, on: bool):
+        """Observation seule : le moteur n'envoie plus le DPS (commande ignorée par un ancien moteur)."""
+        self.publish_dps = on
+        self.send({"cmd": "publish_dps", "value": on})
 
     def set_mode(self, mode: str):
         self.mode = mode

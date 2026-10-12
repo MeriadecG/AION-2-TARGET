@@ -43,10 +43,10 @@ def speed_report(max_lines: int = 80) -> str:
     """Résumé à copier-coller : lignes utiles au diagnostic de vitesse, les plus récentes."""
     import platform
     lines = [l for l in LOG_RING if any(k in l for k in REPORT_KEYS)][-max_lines:]
-    from .metrics import STATS
+    from .metrics import STATS, extra_lines
     head = f"Aion Target — rapport de vitesse ({platform.system()} {platform.release()}, " \
            f"{os.cpu_count()} cœurs)"
-    pct = STATS.report()
+    pct = STATS.report() + extra_lines()
     body = [*pct, *lines] if (pct or lines) else ["(aucune lecture encore : cible des joueurs en jeu)"]
     return "\n".join([head, *body])
 
@@ -118,6 +118,8 @@ class Worker(QObject):
         self.generation = 0
         self._hint: str | None = None
         self._shown_gen: set[tuple[int, str]] = set()
+        self._skipped_seen = 0
+        self.paint_meta: tuple | None = None   # (nom, génération, début, étape, émis à)
         self.npcs = None                   # NpcIndex, chargé dans le thread de lecture
         self._last_npc: str | None = None
 
@@ -257,7 +259,10 @@ class Worker(QObject):
         if memo and memo[0] == raw:
             return memo[1], memo[2]
         tag = reader.last_tag
+        from .metrics import STATS
+        t_full = time.monotonic()
         full = reader.read_full(img)
+        STATS.add("full_reread", (time.monotonic() - t_full) * 1000)
         hit = self.lookup.resolve(full, reader.last_raw)
         result = (hit, "relecture complète") if hit else (ocr_name or full, "")
         reader.last_tag = reader.last_tag or tag
@@ -266,18 +271,25 @@ class Worker(QObject):
 
     def _show(self, name: str, info, fresh: bool = False, from_cache: bool = False):
         from .metrics import STATS
-        self.status.emit(name, info if info else "notfound")
         if not info:
+            self.status.emit(name, "notfound")
             return
         now = time.monotonic()
-        since_change = now - (self._change_at or self._first_seen.get(name, now))
+        start = self._first_seen.get(name, now)
+        since_change = now - start
         gen = self.generation
+        stage = None
         if (gen, "first") not in self._shown_gen:
             self._shown_gen.add((gen, "first"))
-            STATS.add("first_cache" if from_cache else "first_net", since_change * 1000)
+            stage = "first_cache" if from_cache else "first_net"
+            STATS.add(stage, since_change * 1000)
         if fresh and (gen, "fresh") not in self._shown_gen:
             self._shown_gen.add((gen, "fresh"))
+            stage = stage or "fresh"
             STATS.add("fresh", since_change * 1000)
+        # Pour la mesure du rendu RÉEL (l'overlay la complète une fois les cadres peints).
+        self.paint_meta = (name, gen, start, stage, now)
+        self.status.emit(name, info)
         if name not in self._timed:
             self._timed.add(name)
             log(f"Affiché {name} : {since_change * 1000:.0f} ms après le 1er texte lu"
@@ -319,8 +331,13 @@ class Worker(QObject):
                         t_cap = time.monotonic()
                         img = grabber.grab(*self.cfg.capture)
                         STATS.add("capture", (time.monotonic() - t_cap) * 1000)
-                        if getattr(grabber, "last_frame_at", 0):
+                        frame_age = getattr(grabber, "frame_age_ms", None)
+                        if frame_age is not None:
+                            age_ms = frame_age()               # âge réel (horodatage de l'image)
+                        elif getattr(grabber, "last_frame_at", 0):
                             age_ms = (time.monotonic() - grabber.last_frame_at) * 1000
+                        if age_ms is not None:
+                            STATS.add("frame_age", age_ms)
                         t_ocr = time.monotonic()
                         skipped_before = getattr(reader, "skipped", 0)
                         ocr_name = reader.read(img)
@@ -351,16 +368,23 @@ class Worker(QObject):
                             self.generation += 1          # nouvelle cible : nouvelle génération
                         last_name = name
                         if name:
-                            self._first_seen[name] = t0
+                            # Début de la mesure : l'image où le nom est apparu (son âge déduit).
+                            self._first_seen[name] = t0 - (age_ms or 0) / 1000
                             self._timed.discard(name)
                             # Recherche ANTICIPÉE : dès la 1re lecture, sans attendre la confirmation.
                             if is_plausible_player(name):
                                 self.lookup.prefetch(name, hint)
 
                     # Joueur connu (nom du dictionnaire) : validé dès la 1re lecture.
-                    known = bool(how) or (bool(name) and self.lookup.cached(name, hint) is not None)
+                    # Nom réel connu (dictionnaire, personnage observé, mémoire) : validé à la
+                    # 1re lecture. Sinon, deux lectures concordantes.
+                    known = bool(how) or (bool(name) and (
+                        name in self.lookup.names or name in getattr(self.lookup, "observed", ())
+                        or self.lookup.cached(name, hint) is not None))
                     target = self.tracker.feed(name, trusted=known)
                     if target:
+                        from .metrics import STATS
+                        STATS.add("confirm", (time.monotonic() - self._first_seen.get(target, t0)) * 1000)
                         log(f"Cible {target} validée en {(time.monotonic() - self._first_seen.get(target, t0)) * 1000:.0f} ms"
                             + (" (connue)" if known else ""))
                     if target is not None:
@@ -368,8 +392,11 @@ class Worker(QObject):
                     if target == "":
                         self.status.emit("", None)
                     elif target:
+                        from .metrics import STATS
+                        t_ram = time.monotonic()
                         amb = self.lookup.ambiguous(target, hint)
-                        cached = None if amb else self.lookup.get(target, hint)  # + rafraîchissement
+                        cached = None if amb else self.lookup.cached(target, hint)   # index RAM
+                        STATS.add("ram", (time.monotonic() - t_ram) * 1000)
                         if amb:
                             from .style import Ambiguous
                             log(f"Cible {target} : homonymes ({', '.join(amb)}), serveur inconnu → "
@@ -381,6 +408,8 @@ class Worker(QObject):
                             self.status.emit(target, "notfound")
                         else:
                             self.status.emit(target, "loading")
+                        if not amb:
+                            self.lookup.prefetch(target, hint)    # rafraîchissement APRÈS l'affichage
             except Exception:
                 # Une erreur ne doit JAMAIS arrêter la lecture : on la note et on continue.
                 errors += 1
@@ -392,7 +421,13 @@ class Worker(QObject):
                 self.status.emit(f"Erreur : {key[:120]}", "error")
                 time.sleep(0.5)
 
-            delay = self.cfg.poll_interval_ms / 1000 - (time.monotonic() - t0)
+            # Image inchangée (lecture sautée, quelques µs) : on revérifie plus souvent, pour voir
+            # un changement de cible au plus tôt ; sinon cadence normale (OCR coûteux).
+            skipped = getattr(reader, "skipped", 0)
+            idle = skipped != self._skipped_seen
+            self._skipped_seen = skipped
+            interval = self.cfg.poll_idle_ms if idle else self.cfg.poll_interval_ms
+            delay = interval / 1000 - (time.monotonic() - t0)
             if delay > 0:
                 time.sleep(delay)
 
@@ -601,7 +636,27 @@ class Overlay(QObject):
     def show_status(self, name: str, info):
         self._state = (name, info)
         self._preview_until = 0.0
-        self.repaint_all()
+        # Peinture IMMÉDIATE (pas de mise en file) : rien ne s'intercale entre le score et
+        # l'écran (écritures d'historique, autres signaux…).
+        for role, w in self.windows.items():
+            if role != "zone" and w.isVisible():
+                w.repaint()
+        self._measure_paint(name)
+
+    timing_source = None      # Worker : fournit paint_meta (mesure du rendu réel)
+    _painted: set = set()
+
+    def _measure_paint(self, name: str):
+        meta = getattr(self.timing_source, "paint_meta", None)
+        if not meta or meta[0] != name:
+            return
+        from .metrics import STATS
+        _, gen, start, stage, emitted = meta
+        now = time.monotonic()
+        STATS.add("deliver", (now - emitted) * 1000)       # émis par la lecture → peint
+        if stage and (gen, stage) not in self._painted:
+            self._painted = {k for k in self._painted if k[0] >= gen - 50} | {(gen, stage)}
+            STATS.add("paint_" + stage, (now - start) * 1000)
 
     def set_my_cp(self, cp):
         self.my_cp = cp
@@ -669,6 +724,7 @@ def run(cfg: Config) -> int:
 
     overlay = Overlay(cfg)
     worker = Worker(cfg, grabber)
+    overlay.timing_source = worker
     thread = QThread()
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
@@ -745,6 +801,9 @@ def run(cfg: Config) -> int:
         history = History(config_path().with_name("history.db"), cfg.history_max_fights,
                           cfg.history_max_encounters)
         prefetcher = Prefetcher(lambda: worker.lookup, cfg.region, cfg.servers, log=log)
+        from .metrics import REPORTERS
+        REPORTERS.append(prefetcher.report)
+        REPORTERS.append(lambda: worker.lookup and worker.lookup.report())
 
         def on_players(players):
             if cfg.dps_prefetch:
@@ -769,12 +828,14 @@ def run(cfg: Config) -> int:
                 if slug and worker.lookup and m.get("cp"):
                     worker.lookup.cache.put(CharacterInfo(m["name"], slug, m.get("gs") or None,
                                                           m.get("cp"), m.get("level") or None))
+            if cfg.dps_prefetch:          # après l'écriture : le groupe est « récent » localement
+                prefetcher.observe(members, source="groupe")
 
         dps_tab = DpsTab(cfg, history, control._card, log, on_players=on_players, on_party=on_party)
         control.set_dps(dps_tab)
         pf_timer = QTimer(app)
         pf_timer.timeout.connect(prefetcher.tick)
-        pf_timer.start(1000)
+        pf_timer.start(500)
 
         def on_target(name, info):
             from .shugo import CharacterInfo

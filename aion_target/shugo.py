@@ -6,7 +6,7 @@ import json
 import re
 import threading
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import quote
 
 import httpx
@@ -29,6 +29,8 @@ class CharacterInfo:
     char_class: str | None = None
     url: str = ""
     rank: int | None = None   # rang régional par CP (classement shugo.gg), si connu
+    # Horodatage (s, epoch) de la donnée en mémoire locale : affiché « il y a … » si ancienne.
+    updated: float | None = field(default=None, compare=False)
 
 
 def _to_int(s: str | None) -> int | None:
@@ -169,11 +171,37 @@ class ShugoClient:
         self.http.event_hooks.setdefault("response", []).append(self._watch_limits)
 
     BACKOFF = 300.0
+    BACKOFF_MIN, BACKOFF_MAX = 30.0, 3600.0
+    limit_hits = 0
+
+    @classmethod
+    def retry_after(cls, value: str | None, now: float) -> float | None:
+        """En-tête Retry-After (secondes ou date HTTP) → délai borné, ou None."""
+        if not value:
+            return None
+        value = value.strip()
+        try:
+            delay = float(value)
+        except ValueError:
+            from email.utils import parsedate_to_datetime
+            try:
+                delay = parsedate_to_datetime(value).timestamp() - now
+            except (TypeError, ValueError, IndexError):
+                return None
+        return min(cls.BACKOFF_MAX, max(cls.BACKOFF_MIN, delay))
 
     def _watch_limits(self, resp):
         if resp.status_code in (403, 429):
             import time
-            self.rate_limited_until = time.time() + self.BACKOFF
+            now = time.time()
+            # Le site dit quand revenir : on le respecte. Sinon 5 min, doublé à chaque refus
+            # rapproché (jusqu'à 1 h).
+            delay = self.retry_after(resp.headers.get("retry-after"), now)
+            if delay is None:
+                recent = now - self.rate_limited_until < self.BACKOFF
+                self.limit_hits = self.limit_hits + 1 if recent else 1
+                delay = min(self.BACKOFF_MAX, self.BACKOFF * 2 ** (self.limit_hits - 1))
+            self.rate_limited_until = max(self.rate_limited_until, now + delay)
 
     def rate_limited(self) -> bool:
         import time

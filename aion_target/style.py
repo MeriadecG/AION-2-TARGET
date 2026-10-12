@@ -16,6 +16,20 @@ def fmt(n: int | None) -> str:
     return f"{n:,}".replace(",", " ") if n is not None else "?"
 
 
+FRESH_HIDE = 600      # score de moins de 10 min : aucun indicateur
+
+
+def fmt_age(seconds: float | None) -> str | None:
+    """« il y a 25 min », « il y a 3 h », « il y a 4 j » ; None si récent ou inconnu."""
+    if seconds is None or seconds < FRESH_HIDE:
+        return None
+    if seconds < 3600:
+        return f"il y a {int(seconds // 60)} min"
+    if seconds < 48 * 3600:
+        return f"il y a {int(seconds // 3600)} h"
+    return f"il y a {int(seconds // 86400)} j"
+
+
 def threat(target_cp: int | None, my_cp: int | None) -> str | None:
     """« stronger » (pastille rouge), « weaker » (verte) ou None si on ne sait pas."""
     if not target_cp or not my_cp:
@@ -49,8 +63,11 @@ def frame_contents(info, cfg, my_cp: int | None = None) -> dict[str, Segments]:
     details: Segments = []
     if cfg.show_details:
         server = info.server.split("-", 1)[-1].replace("-", " ").title()
+        import time
+        age = fmt_age(time.time() - info.updated) if info.updated and getattr(cfg, "show_freshness", True) \
+            else None
         text = " · ".join(p for p in (info.char_class,
-                                       f"Nv {info.level}" if info.level else None, server) if p)
+                                       f"Nv {info.level}" if info.level else None, server, age) if p)
         details = [(text, cfg.detail_color)]
     return {
         "gs": [(f"GS {fmt(info.gear_score)}", cfg.gs_color)],

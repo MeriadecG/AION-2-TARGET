@@ -94,6 +94,17 @@ class FakeLookup:
                 return self.limited
         self.client = C()
 
+        class Cache:
+            def get(self, name, server=None):
+                return None, None
+        self.cache = Cache()
+
+    def ambiguous(self, name, hint=None):
+        return []
+
+    def cached(self, name, hint=None):
+        return None
+
     def prefetch(self, name, hint=None):
         self.calls.append((name, hint))
         return object()

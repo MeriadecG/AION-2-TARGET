@@ -46,15 +46,53 @@ class PlayerLookup:
         self._ambiguous: dict[str, tuple[list[str], float]] = {}   # nom → (serveurs, quand)
         self._lock = threading.Lock()
         self._pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="player")
+        self._target_keys: set[str] = set()   # recherches lancées pour la CIBLE (prioritaires)
         self.names = NameIndex(cache.all_names())      # ~0,3 s pour 21 000 noms
+        # Personnages OBSERVÉS cette session (réseau, groupe) : index prioritaire pour l'OCR.
+        self.observed = NameIndex()
 
     def rebuild_names(self):
         """Après un import : dictionnaire reconstruit (remplacé d'un coup, sans blocage)."""
         self.names = NameIndex(self.cache.all_names())
 
     def resolve(self, ocr_name: str, raw_line: str = "") -> str | None:
-        """Vrai nom de joueur correspondant à une lecture OCR (niveau collé, lettre mal lue…)."""
-        return self.names.resolve(ocr_name) or self.names.resolve_line(raw_line)
+        """Vrai nom de joueur correspondant à une lecture OCR (niveau collé, lettre mal lue…).
+
+        Ordre : correspondance exacte (personnages observés, puis dictionnaire), puis une lettre
+        mal lue — observés d'abord, mais refusé si le dictionnaire propose un AUTRE nom."""
+        def find(idx, **kw):
+            return idx.resolve(ocr_name, **kw) or idx.resolve_line(raw_line, **kw)
+        for idx in (self.observed, self.names):
+            hit = find(idx, fuzzy=False)
+            if hit:
+                return hit
+        obs, gen = find(self.observed, exact=False), find(self.names, exact=False)
+        if obs:
+            return obs if gen in (None, obs) else None    # rapprochement incertain : refusé
+        return gen
+
+    def report(self) -> str:
+        client = self.client
+        limited = getattr(client, "rate_limited", lambda: False)()
+        return (f"Mémoire : {len(self.names)} noms au dictionnaire · {len(self.observed)} observés · "
+                f"recherches en cours {len(self._inflight)} · introuvables mémorisés {len(self._missing)}"
+                + (" · site en pause (refus 403/429)" if limited else ""))
+
+    def observe_name(self, name: str):
+        """Nom vu par le réseau (pas forcément proche maintenant) : prioritaire pour l'OCR."""
+        if name and name not in self.observed:
+            self.observed.add(name)
+
+    def cached_age(self, name: str, hint: str | None = None) -> tuple[CharacterInfo | None, float | None]:
+        """(score, âge en s) pour CE personnage, depuis l'index RAM ; jamais un homonyme."""
+        if not hint and self.ambiguous(name):
+            return None, None
+        return self.cache.get(name, hint)
+
+    def target_busy(self) -> bool:
+        """Une recherche réseau pour la cible est en cours (le préchargement attend)."""
+        with self._lock:
+            return any(k in self._inflight for k in self._target_keys)
 
     def known_missing(self, name: str) -> bool:
         ts = self._missing.get(name.casefold())
@@ -85,11 +123,21 @@ class PlayerLookup:
     def _key(name: str, hint: str | None) -> str:
         return f"{name.casefold()}@{hint or ''}"
 
-    def prefetch(self, name: str, hint: str | None = None) -> Future | None:
+    def needs_network(self, name: str, hint: str | None = None) -> bool:
+        """Vrai si une requête externe apporterait quelque chose (rien de récent localement)."""
+        if self.known_missing(name) or self.is_fresh(name, hint) or self.ambiguous(name, hint):
+            return False
+        _, age = self.cache.get(name, hint)
+        return age is None or age >= RECENT_SCORE
+
+    def prefetch(self, name: str, hint: str | None = None, background: bool = False) -> Future | None:
         """Lance une recherche si rien de frais n'est connu et qu'aucune n'est en cours.
 
-        hint : serveur probable (balise Abysse « [Isr] ») → requête directe sur ce serveur."""
+        hint : serveur probable (balise Abysse « [Isr] ») → requête directe sur ce serveur.
+        background : préchargement (personnage observé) — jamais pendant une recherche de cible."""
         key = self._key(name, hint)
+        if background and self.target_busy():
+            return None
         if self.known_missing(name) or self.is_fresh(name, hint):
             return None
         if self.ambiguous(name, hint):
@@ -98,6 +146,16 @@ class PlayerLookup:
         if age is not None and age < RECENT_SCORE:
             return None                                  # score récent en mémoire : rien à faire
         with self._lock:
+            if not background and not hint and key not in self._inflight:
+                # Déjà en cours pour ce nom sur un serveur précis (préchargement d'un personnage
+                # observé) : on réutilise cette requête au lieu d'en lancer une seconde.
+                prefix = name.casefold() + "@"
+                same = [k for k in self._inflight if k.startswith(prefix)]
+                if len(same) == 1:
+                    key = same[0]
+            if not background:
+                self._target_keys = {k for k in self._target_keys if k in self._inflight}
+                self._target_keys.add(key)
             fut = self._inflight.get(key)
             if fut is None:
                 fut = self._pool.submit(self._run, name, hint)
@@ -122,6 +180,9 @@ class PlayerLookup:
         emit_lock = threading.Lock()
 
         def emit(info, stage):
+            from .metrics import STATS
+            STATS.add("remote_quick" if stage.startswith("base") else "remote_full",
+                      (time.monotonic() - t0) * 1000)
             if self.on_result:
                 self.on_result(name, info)
             self.log(f"  {stage} {name} : {(time.monotonic() - t0) * 1000:.0f} ms"

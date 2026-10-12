@@ -134,28 +134,31 @@ class NameIndex:
         found = {k for k in found if levenshtein_le1(q, k) and k[:1] == q[:1]}
         return self._exact[found.pop()] if len(found) == 1 else None
 
-    def resolve(self, text: str | None) -> str | None:
-        """Vrai nom correspondant à une lecture OCR, ou None si rien de sûr."""
+    def resolve(self, text: str | None, exact: bool = True, fuzzy: bool = True) -> str | None:
+        """Vrai nom correspondant à une lecture OCR, ou None si rien de sûr.
+
+        exact / fuzzy : étapes autorisées (correspondance exacte ou niveau collé ; une lettre
+        mal lue) — permet d'interroger plusieurs index dans un ordre de priorité."""
         if not text:
             return None
         bases = self._bases(text)
         variants = [v for b in bases for v in self._variants(b)]
         # Un niveau a-t-il été lu avant le nom ? (« 45 dN », « 45dN »)
         has_level = any(ch.isdigit() for ch in _norm(text)[:4])
-        for v in variants:
+        for v in (variants if exact else ()):
             hit = self._exact.get(v)
             if hit:
                 if len(v) < 2 or (len(v) == 2 and not has_level):
                     continue                          # « E », « DN » sans niveau : pas un joueur
                 return hit
-        for v in variants:
+        for v in (variants if fuzzy else ()):
             if _WORD_RE.match(v):
                 hit = self._fuzzy(v)
                 if hit:
                     return hit
         return None
 
-    def resolve_line(self, raw: str | None) -> str | None:
+    def resolve_line(self, raw: str | None, exact: bool = True, fuzzy: bool = True) -> str | None:
         """Même chose à partir d'une ligne brute (« 45 Corgoth2m », « leyndell [Isr]18 m »).
 
         Uniquement si, une fois distance et balise retirées, il reste UN seul mot
@@ -168,4 +171,4 @@ class NameIndex:
         if not compact or not _WORD_RE.match(compact.lstrip("".join(LEVEL_CHARS))
                                              if compact[:1] in LEVEL_CHARS else compact):
             return None
-        return self.resolve(s)
+        return self.resolve(s, exact, fuzzy)
