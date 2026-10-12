@@ -84,6 +84,7 @@ class EngineClient(QObject):
         self.last_status: dict = {}
         self.ping_ms: int | None = None
         self.publish_dps = True
+        self.features: set[str] | None = None     # inconnu tant que le moteur n'a rien dit
 
     # --- cycle de vie ---
     def start(self) -> str | None:
@@ -153,7 +154,12 @@ class EngineClient(QObject):
             self.log(f"Moteur : protocole {msg.get('v')} inattendu (attendu {PROTOCOL}) — réinstalle")
             return
         kind = msg.get("type")
-        if kind == "status":
+        if kind == "hello":
+            # Fonctions du moteur installé (un ancien moteur n'envoie pas « features »).
+            self.features = set(msg.get("features") or [])
+            self.last_status = {**self.last_status, "features": sorted(self.features)}
+            self.status.emit(dict(self.last_status))
+        elif kind == "status":
             self.last_status = {**self.last_status, **msg}
             self.status.emit(dict(self.last_status))
             if msg.get("game_port"):

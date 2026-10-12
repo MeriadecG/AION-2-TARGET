@@ -14,6 +14,7 @@
 //!   aion-engine --check              vérifie seulement libpcap / Npcap et les interfaces
 
 mod dispatch;
+mod kills;
 mod pcap;
 
 use std::collections::{HashMap, HashSet};
@@ -256,6 +257,9 @@ fn replay(path: &str, gd: &GameData, mode: &str) -> Result<(), String> {
     proc_.set_override_timestamp(None);
     publisher.players(&storage, gd);
     publisher.party(&storage, gd);
+    for ev in kills::KillTracker::new().scan(&storage, &gd.npcs, now_ms()) {
+        emit(ev);
+    }
     calc.set_every_fight(true);
     publisher.fights(&mut calc);
     publisher.dps(&mut calc, &ping);
@@ -313,6 +317,7 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
     });
 
     let mut publisher = Publisher::new();
+    let mut kill_tracker = kills::KillTracker::new();
     // Mode « observation légère » : l'interface peut couper l'envoi du DPS (préchargement seul).
     let mut publish_dps = true;
     let (mut last_dps, mut last_slow, mut last_players) = (Instant::now(), Instant::now(), Instant::now());
@@ -363,6 +368,10 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
         if last_players.elapsed() >= Duration::from_millis(250) {
             last_players = Instant::now();
             publisher.players(&storage, &gd);
+            // Morts de monstres en combat (familiers) : une seule fois chacune.
+            for ev in kill_tracker.scan(&storage, &gd.npcs, now_ms()) {
+                emit(ev);
+            }
         }
         if last_slow.elapsed() >= Duration::from_secs(2) {
             last_slow = Instant::now();
@@ -376,7 +385,8 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let arg = |name: &str| args.iter().position(|a| a == name).and_then(|i| args.get(i + 1)).cloned();
-    emit(json!({"v": PROTOCOL, "type": "hello", "engine": env!("CARGO_PKG_VERSION"), "parser": PARSER}));
+    emit(json!({"v": PROTOCOL, "type": "hello", "engine": env!("CARGO_PKG_VERSION"), "parser": PARSER,
+                "features": ["publish_dps", "kills", "players_ts"]}));
     if args.iter().any(|a| a == "--check") {
         match pcap::PcapLib::load().and_then(|l| l.devices()) {
             Ok(devs) => emit(json!({"v": PROTOCOL, "type": "check", "ok": true,

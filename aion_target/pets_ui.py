@@ -428,8 +428,13 @@ class PetsTab(QWidget):
         if self.store.data.get("auto"):
             text += (f"<br>Morts reçues : comptées {c['counted']} · ignorées {c['ignored']} · incertaines "
                      f"{c['uncertain']}")
+            feats = st.get("features")
             if st.get("state") not in ("active", "searching"):
                 text += "<br>" + AUTO_UNAVAILABLE
+            elif feats is not None and "kills" not in feats:
+                text += ("<br><span style='color:#E8B04B'>●</span> Moteur installé trop ancien : il ne "
+                         "signale pas les morts. Comptage automatique indisponible jusqu'à la mise à jour "
+                         "du moteur (automatique au lancement) ; le compteur manuel fonctionne.")
         self.auto_state.setText(text)
         self.btn_fix.setVisible(bool(fix))
         if fix:
