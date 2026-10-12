@@ -8,7 +8,10 @@ l'afficher immédiatement au lieu de chercher un joueur qui n'existe pas.
   retirés si le reste est un vrai nom. Uniquement s'il y a au moins un vrai chiffre dans le
   préfixe (« Sn1per » n'est pas « 5 » + « n1per »).
 - Une lettre mal lue / en trop / en moins : index « par suppression » (méthode SymSpell),
-  seulement pour les noms d'au moins 5 caractères et si UN SEUL nom correspond.
+  seulement pour les noms d'au moins 5 caractères et si UN SEUL nom correspond, et JAMAIS sur
+  la première lettre (« Vakron » n'est pas « akron » : deux joueurs différents).
+- Nom très court (1-2 caractères) : accepté seulement s'il suit un niveau lu (« 45 dN ») ;
+  une lettre isolée de l'interface (« E », « DN ») n'est pas un joueur.
 """
 from __future__ import annotations
 
@@ -122,17 +125,23 @@ class NameIndex:
             if v in self._exact and len(v) >= MIN_FUZZY_LEN:
                 found.add(v)                          # lettre en trop dans la lecture
             collect(v)                                # lettre différente
-        found = {k for k in found if levenshtein_le1(q, k)}
+        # Jamais de correction sur la 1re lettre : « Vakron » ≠ « akron », « Wakron » ≠ « Vakron ».
+        found = {k for k in found if levenshtein_le1(q, k) and k[:1] == q[:1]}
         return self._exact[found.pop()] if len(found) == 1 else None
 
     def resolve(self, text: str | None) -> str | None:
         """Vrai nom correspondant à une lecture OCR, ou None si rien de sûr."""
         if not text:
             return None
-        variants = [v for b in self._bases(text) for v in self._variants(b)]
+        bases = self._bases(text)
+        variants = [v for b in bases for v in self._variants(b)]
+        # Un niveau a-t-il été lu avant le nom ? (« 45 dN », « 45dN »)
+        has_level = any(ch.isdigit() for ch in _norm(text)[:4])
         for v in variants:
             hit = self._exact.get(v)
             if hit:
+                if len(v) < 2 or (len(v) == 2 and not has_level):
+                    continue                          # « E », « DN » sans niveau : pas un joueur
                 return hit
         for v in variants:
             if _WORD_RE.match(v):

@@ -4,7 +4,7 @@ import pytest
 from aion_target.names import NameIndex, levenshtein_le1
 
 REAL = ["Corgoth", "4llin", "gigawhaleYT", "Sn1per", "z079", "leyndell", "Krix", "白菜菜",
-        "Мокрая", "Soulea7er", "Tadas"]
+        "Мокрая", "Soulea7er", "Tadas", "akron", "dN", "E"]
 
 
 @pytest.fixture
@@ -45,9 +45,19 @@ def test_resolves_real_names(idx, ocr, expected):
     "", "45", "12m", "Marchand d'alchimie", "45Marchand d'alchimie12m",
     "Krax",                               # nom court : pas de correction approximative
     "Inconnu",
+    # Vrai cas en jeu (12/10/2026) : la cible « Vakron » (absente du dictionnaire) était
+    # « corrigée » en « akron », un AUTRE joueur, dont le score s'affichait.
+    "Vakron", "54Vakron", "54 Vakron", "4Vakron", "Wakron", "VakronD",
+    # Texte d'interface lu à la place d'une cible : jamais un joueur.
+    "E", "DN", "T",
 ])
 def test_no_false_match(idx, ocr):
     assert idx.resolve(ocr) is None
+
+
+def test_short_names_need_a_level_before_them(idx):
+    assert idx.resolve("45 dN") == "dN" and idx.resolve("45dN") == "dN"
+    assert idx.resolve("dN") is None and idx.resolve("E") is None
 
 
 def test_ambiguous_fuzzy_match_is_refused():
