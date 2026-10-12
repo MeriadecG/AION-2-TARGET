@@ -8,7 +8,7 @@ l'afficher immédiatement au lieu de chercher un joueur qui n'existe pas.
   retirés si le reste est un vrai nom. Uniquement s'il y a au moins un vrai chiffre dans le
   préfixe (« Sn1per » n'est pas « 5 » + « n1per »).
 - Une lettre mal lue / en trop / en moins : index « par suppression » (méthode SymSpell),
-  seulement pour les noms d'au moins 5 caractères et si UN SEUL nom correspond, et JAMAIS sur
+  seulement pour les noms ET les lectures d'au moins 5 caractères et si UN SEUL nom correspond, et JAMAIS sur
   la première lettre (« Vakron » n'est pas « akron » : deux joueurs différents).
 - Nom très court (1-2 caractères) : accepté seulement s'il suit un niveau lu (« 45 dN ») ;
   une lettre isolée de l'interface (« E », « DN ») n'est pas un joueur.
@@ -90,7 +90,12 @@ class NameIndex:
             return []
         out = []
         compact = t.replace(" ", "")
-        for c in (compact, t.split()[-1] if " " in t else None):
+        words = t.split()
+        # Dernier mot seul uniquement après un niveau (« 45 Corgoth ») : « 54 Vakron lis »
+        # ne donne jamais « Lis ».
+        last = words[-1] if len(words) > 1 and all(
+            all(ch in LEVEL_CHARS for ch in w) for w in words[:-1]) else None
+        for c in (compact, last):
             if c and c not in out:
                 out.append(c)
         return out
@@ -111,7 +116,7 @@ class NameIndex:
         return out
 
     def _fuzzy(self, q: str) -> str | None:
-        if len(q) < MIN_FUZZY_LEN - 1:
+        if len(q) < MIN_FUZZY_LEN:            # « TINA » n'est pas « Tiuna »
             return None
         found: set[str] = set()
 

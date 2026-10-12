@@ -1,0 +1,4070 @@
+# Noms de PNJ (source : A2Tools, GPL-3.0) - généré par tools/make_npc_names.py
+Abathur l'Intendant
+Abeille docile
+Abeille du jardin des roses
+Abeille gigantesque
+Abeille jaune des Collines
+Abeille rayée
+Abeille rayée géante
+Abeille sauvage féroce
+Abeille soldat des Collines
+Abeille travailleuse des Collines
+Abeille à armure noire
+Abeille à motifs noirs
+Abîme de Kromede
+Adar le vagabond
+Adepte de Balhash
+Adepte de Zikel
+Adepte sans âme
+Administrateur d'élite Draconute
+Administrateur de la Fonderie Draconute
+Administrateur des voleurs
+Administrateur Drakan
+Administrateur Dratona
+Administrateur du camp Léphariste
+Administrateur Krall modifié
+Administrateur Léphariste
+Administrateur Nasium
+Administratrice de la garde des Griffes Noires
+Adorateur de Zikel
+Adorateur Dekish
+Advir commandant général de la logistique
+Aed le guerrier noir
+Agent de patrouille des Mercenaires d'Astin
+Agent de patrouille Mumu
+Agent de patrouille Mumu de travaux forcés
+Agent spécial Léphariste
+Agrint arbre dépouillé
+Agrint aux feuilles ternes
+Agrint aux yeux rouges
+Agrint brûlé
+Agrint cendré des terres désolées
+Agrint contaminé
+Agrint contaminé de grotte des racines
+Agrint contaminé par la plante toxique
+Agrint d'Abysse
+Agrint d'Île
+Agrint de l'éternité
+Agrint de la forêt
+Agrint de la zone de la faille
+Agrint de rubis
+Agrint de soufre
+Agrint de soufre desséché
+Agrint de soufre squelettique
+Agrint des racines
+Agrint des ruines
+Agrint desséché
+Agrint desséché brûlé
+Agrint desséché de la zone de la faille
+Agrint desséché des glaces
+Agrint desséché instable
+Agrint du Canyon
+Agrint du Canyon desséché
+Agrint décomposé
+Agrint ensorcelé
+Agrint instable
+Agrint rétréci
+Agrint squelettique
+Agrint squelettique de la zone de la faille
+Agrint à feuilles sèches du crépuscule
+Agro exécuteur
+Agro le roi des esprits
+Air
+Airon au bec dur
+Airon au bec pointu
+Airon au long bec du plateau
+Airon au petit bec
+Airon d'étang féroce
+Airon de Tunapre
+Airon des plaines
+Airon du Canyon
+Akasha faucheur de Daevas
+Akula du chaos
+Alegos revenant
+Alturadon éveillé
+Amas de déchets
+Amur tenace
+Amurata capitaine des vigies
+Ancien chef Vigor
+Andsha chef de la garde
+Ansas sacré
+Antakhara
+Aponos entité fendue
+Apparition d'archer égaré
+Apparition d'ombre scellée
+Apparition de Grande Prêtresse enragée
+Apparition de guerrière égarée
+Apparition de Hystan
+Apparition de Minusha
+Apparition de Robere désespéré
+Apparition de soldat d'élite ancien
+Apparition de Zikel
+Apparition du Gladiateur d'Archon de destruction
+Apparition du religieux Drakan
+Apparition du soldat Drakan
+Apparition du Temple divin
+Apparition du Templier d'Archon de destruction
+Apprenti chaman Aullaeu
+Apôtre abandonné Shuska
+Apôtre de Roah dément
+Apôtre érodé Kalusha
+Arachnide
+Arachnide des glaces
+Araignée au sang toxique
+Araignée au sang toxique instable
+Araignée aux yeux rouges
+Araignée cactus des plaines
+Araignée cendrée
+Araignée cendrée instable
+Araignée d'arbre
+Araignée d'autel
+Araignée de cadavre
+Araignée de Drana de la zone de la faille
+Araignée de feu
+Araignée de givre
+Araignée de grotte
+Araignée de grotte à Od
+Araignée de l'ombre
+Araignée de la Forêt Aullaeu
+Araignée de lave
+Araignée de poussière
+Araignée de rubis
+Araignée des branches sèches
+Araignée des plaines enneigées fondue
+Araignée desséchée
+Araignée du cimetière
+Araignée du col
+Araignée du jardin
+Araignée du labyrinthe
+Araignée du tombeau des livres
+Araignée intoxiquée
+Araignée magique multidimensionnelle
+Araignée pillarde des ruines
+Araignée roche-flammes
+Araignée volcanique
+Araignée à Od
+Araignée à Od côtière
+Araignée à Od de la Citadelle
+Araignée à Od de la Forêt Aullaeu
+Araignée à Od de la zone de la faille
+Araignée à Od du marais
+Araignée à Od du plateau
+Araignée à Od robuste
+Araignée à sac robuste
+Arbalétrier ancien de la zone de la faille
+Arbalétrier Balaur vigilant
+Arbalétrier Draconute d'Abysse
+Arbalétrier Draconute de Takshaka
+Arbalétrier Draconute du camp de détention
+Arbalétrier Drakan de Takshaka
+Arbalétrier maraudeur du col
+Arbellune fumant
+Arbre guetteur de la zone de la faille
+Arbre à sève pourrie
+Arc de 89°
+Arc de 90°
+Arc de cercle de 89°
+Arc de cercle de 90°
+Arca d'enregistrement Eiron
+Arca des archives de la Tour barrière
+Arca explorateur d'Eiron
+Archer Aullaeu de la trajectoire
+Archer Balaur de Nartis
+Archer de l'unité d'extermination
+Archer de recherche Krall d'Abysse
+Archer des vigies d'Amurata
+Archer Draconute
+Archer Draconute novice
+Archer Drakan
+Archer du Bataillon d'Azrakar
+Archer gardien d'Île
+Archer Krall d'Abysse
+Archer Krall de la Rivière Ellun
+Archer Krall de Takshaka
+Archer Krall modifié
+Archer mort-vivant d'anéantissement
+Archer mort-vivant désespéré
+Archer rapace d'anéantissement
+Archer rapace du dépôt
+Archer rapace désespéré
+Archer rapace furieux
+Archer rapace inattendu
+Archer spectre hostile d'anéantissement
+Archer spectre hostile désespéré
+Archer supérieur Balaur vigilant
+Archer Sura abandonné
+Archer trafiquant
+Archer vagabond Aullaeu
+Archiprêtre Archon du destin
+Archiviste des Ruines suspectes
+Archiviste Vellum
+Archon corrompu Askolt
+Archon corrompu Duebledd
+Archon corrompu Ghatt
+Archon corrompu Verkron
+Archon de destruction sans âme
+Archon du destin altéré
+Archon du destin consumé
+Archon du destin gelé
+Archon du destin mystérieux
+Archère ancienne asservie
+Archère bandit
+Archère bandit des ruines
+Archère braconnière
+Archère contrebandière
+Archère Daeva consumée
+Archère de Légion des Hors-la-loi
+Archère des chasseurs de trésors errante
+Archère des Voleurs d'Akilo
+Archère des Voleurs de Moslan
+Archère des Voleurs de Rubek
+Archère escroc
+Archère gardienne de Kaisinel
+Archère Karas cachée
+Archère Karas du repaire
+Archère maraudeuse
+Archère maraudeuse de la forêt
+Archère morte-vivante du repaire
+Archère morte-vivante du tyran
+Archère morte-vivante furieuse
+Archère morte-vivante éveillée
+Archère spectre hostile du repaire
+Archère spectre hostile du tyran
+Archère spectre hostile furieuse
+Archère spectre hostile éveillée
+Archère Sura abandonnée
+Archère Sura de l'Antre d'Odylium
+Archère Sura errante
+Arita
+Armadon brillant
+Armadon de givre
+Armadon de la colline
+Armadon de la Source mystique
+Armadon de la vallée
+Armadon desséché
+Armadon pourpre
+Armadon sauvage du plateau
+Armadon variant du Temple divin
+Arme de la troupe aérienne Drakan consumée
+Arme de la troupe aérienne Drakan ensevelie
+Arme de la troupe aérienne Drakan furieuse
+Arme de la troupe aérienne Drakan éveillée
+Arme de Nazmun
+Arme de troupe aérienne Drakan de l'Abysse
+Arme de troupe aérienne du Bataillon de Bakarma
+Arme magique de la Citadelle
+Arme organique de Drana
+Arme organique de Drana géante
+Arme organique Krao
+Arme organique Krao géante
+Arme organique magique Sura
+Arme organique mutée
+Arme organique Sura
+Arme organique Sura mutée
+Arme secrète des Shugos
+Armure de chevalier égaré
+Armure imprégnée d'âme
+Askran
+Assaillant Biruta
+Assaillant Biruta des Collines
+Assaillant Biruta sauvage
+Assaillant d'élite des voleurs
+Assaillant de Hillslothir
+Assaillant des Mercenaires d'Astin
+Assaillant déserteur
+Assaillant Manduri
+Assaillant Manduri d'Île de l'Éternité
+Assaillant Manduri de rubis
+Assaillant Manduri des Griffes Noires
+Assaillant Manduri des terres désolées
+Assaillant Manduri errant
+Assaillant Pino de la Réserve des Racines
+Assassin Daeva renégat
+Assassin Daeva renégat suiveur
+Assassin Daeva tenace
+Assassin Daeva évadé
+Assistant Hugin
+Athéron élevé
+Atiel
+Atman déformé
+Attaquant des forces spéciales de Kurpak
+Attaquant Krall de Kurpak
+Attaque de base (Test d'échelle de niveau)
+Attaque de zone (Test d'échelle de niveau)
+Aulak affaiblissant
+Aulak de la capture
+Aulak tranchant
+Aulamus
+Auldor sacré
+Auldor sacré (spécimen)
+Aulisa le Ritualiste
+Aulla l'érudit
+Aullaeu exilé
+Aullamu le guerrier de la forêt
+Aulross l'oiseau monstrueux des racines
+Aultross
+Aura de protection
+Aura de soin
+Aura de Zumion
+Aura des ténèbres
+Aura sacrée
+Auto-soin (Test d'échelle de niveau)
+Avant-garde Brasha de la 32e division
+Avelcatus enragé
+Axios l'Archon des âmes égarées
+Ayas d'acier
+Aède Daeva du destin corrompu
+Bagsh de la troupe
+Bakarma tourmenté
+Bakarma transcendé
+Balakh le prédateur colossal
+Balgest de flamme
+Balhash
+Balkan solennel
+Bandit des Voleurs de Rubek
+Bannière de l'avant-poste
+Barama hallucinogène
+Barata de l'unité d'extermination
+Baratuna adulte
+Barghest au souffle de feu
+Barghest de lave
+Barghest de lave en ébullition
+Barghest du sanctuaire
+Bargott modifié
+Bargott muté
+Bargott polymère
+Barha assistant
+Barrière de protection de la Flamme sacrée
+Barthien le Bourreau
+Base Researcher
+Basilic cendré
+Basilic cendré des collines
+Basilic cendré des plaines
+Basilic de cendre noire
+Basilic des cendres
+Basilic gardien de lave
+Basilus le fourbe
+Bassin
+Batagon l'inflexible
+Batu le cœur de la lave
+Baumnute le sage
+Behit le Noble
+Belluaire Urugugu
+Beritra Air Raiders Weapon
+Beritra Combat Engineer
+Berk accomplie
+Berserker Archon du destin
+Berserker du Clan des Lames muté
+Berserker Gatu de la 32e division
+Berserker Varg
+Bestan de la perte éternelle
+Bibliothécaire Mesah
+Biruta dément
+Biruta violent
+Blades Bodyguard Mage
+Blat au sang noir
+Bomb
+Bombardier de l'Entrepôt
+Bombardier de l'Entrepôt de l'Anéantissement
+Bombardier de l'Entrepôt du Désespoir
+Bombardier de l'Entrepôt du Vide
+Bombardier de l'Entrepôt furieux
+Bombardier de l'Entrepôt Oublié
+Bombardier de l'Entrepôt élevé
+Bombardier de la Base de recherche Deus
+Bombardier de la réserve secrète
+Bombardier du Clan des Lames
+Bombardier du Clan des Lames de Sang
+Bombardier du Clan des Lames furtif
+Bombardier maraudeur
+Bombe
+Bombe aérienne
+Bombe aérienne Balaur
+Bombe aérienne de la Fonderie
+Bombe aérienne Draconute
+Bombe de spectre
+Bombe de Wadan
+Bombe mobile
+Bombe à retardement
+Bouclier de corruption
+Bouclier du Jugement
+Bourreau Archon du destin
+Bourreau Varkash
+Braconnier de Tolbas
+Braconnier des Mercenaires d'Astin
+Braconnier des Ruines suspectes
+Braconnier intoxiqué
+Braconnier Varg
+Bras droit Krall de Kurpak
+Brax
+Brax de la forêt
+Brax des plaines
+Brax du champ
+Brax du plateau docile
+Brax vorace
+Brhons le Veilleur
+Brute Dratona
+Brute Dratona maraudeur
+Brute du Poste Dratona
+Brute mutante terne
+Buffs personnels (augmentation : ATQ PHY, ATQ MAG, DÉF PHY, DÉF MAG) (Test d'échelle de niveau)
+Bulagan le veilleur fou
+Butam flétri
+Bébé Skama des Collines
+Bébé Zaif déchaîné
+Bébé Zirka de lave
+Bébé Zirka des ruines
+Bête adepte de Ludra
+Bête apprivoisée
+Bête apprivoisée du Clan des Lames
+Bête armée d'Avant-garde Drakan
+Bête armée de l'avant-garde Drakan
+Bête armée de patrouille Drakan
+Bête armée des vigies
+Bête armée des vigies du sanctuaire
+Bête armée Drakan
+Bête armée Drakan consumée
+Bête armée Drakan de l'Abysse
+Bête armée Drakan ensevelie
+Bête armée Drakan furieuse
+Bête armée Drakan éveillée
+Bête d'Abîme
+Bête d'élite entraînée
+Bête de garde Drakan
+Bête de la base secrète
+Bête de repérage de la troupe de poursuite
+Bête Drakan
+Bête gardienne de Fafnium
+Bête volante entraînée
+Bête éclaireuse Drakan des Abysses
+Cadavre animé de Karas
+Cadavre de chevalier enragé
+Cadavre de Fossa
+Cadavre de Fossa apprivoisé (spécimen)
+Cadavre Karas des plaines enneigées
+Caelid
+Caillot de contamination
+Caillot de sang toxique de la Source mystique
+Caillot géant de contamination
+Cancérid de grotte
+Cancérid moussu du marais
+Cancérid muté de Drana
+Cancérid plat
+Candidat Archon exécuté
+Canon des voleurs
+Canon défensif de Hillslothir
+Canon défensif de l'Entrepôt
+Canon défensif de l'Entrepôt de l'Anéantissement
+Canon défensif de l'Entrepôt du Désespoir
+Canon défensif de l'Entrepôt du Vide
+Canon défensif de l'Entrepôt Oublié
+Canon défensif de l'Entrepôt sauvage
+Canon défensif de l'Entrepôt élevé
+Canon défensif des maraudeurs
+Canon défensif des voleurs d'Hernon
+Canon défensif du Clan des Lames
+Capitaine d'assaut de l'Entrepôt
+Capitaine d'assaut de l'Entrepôt de l'Anéantissement
+Capitaine d'assaut de l'Entrepôt du Désespoir
+Capitaine d'assaut de l'Entrepôt du Vide
+Capitaine d'assaut de l'Entrepôt Oublié
+Capitaine d'assaut de l'Entrepôt sauvage
+Capitaine d'assaut de l'Entrepôt élevé
+Capitaine d'assaut du Clan des Lames
+Capitaine d'assaut Gavir de la 32e division
+Capitaine d'assaut Sahga de la 32e division
+Capitaine d'avant-poste Tarakha
+Capitaine d'entraînement Drakan consumé
+Capitaine d'entraînement Drakan de l'Abysse
+Capitaine d'entraînement Drakan enseveli
+Capitaine d'entraînement Drakan furieux
+Capitaine d'entraînement Drakan éveillé
+Capitaine d'unité d'assaut de la base de ressources
+Capitaine d'unité d'exécution de Takshaka
+Capitaine de combat Mau à cornes féroces
+Capitaine de garde Draconute
+Capitaine de l'avant-garde Tamatha de la 32e division
+Capitaine de l'unité d'exécution de Beritra
+Capitaine de l'unité d'exécution Drakan d'Abysse
+Capitaine de l'unité d'exécution Drakan de Takshaka
+Capitaine de la garde Dharvata
+Capitaine de la troupe aérienne de Beritra A
+Capitaine de la troupe Krall d'Abysse
+Capitaine de mission Draconute
+Capitaine de ravitaillement d'Entrepôt de Plantation
+Capitaine de recherche du Clan des Lames
+Capitaine de troupe aérienne de Beritra
+Capitaine de troupe aérienne de Takshaka
+Capitaine des gardiens Draconute
+Capitaine des soldats d'assaut de la base du Clan des Lames
+Capitaine des soldats d'assaut Sharad de la 32e division
+Capitaine des éclaireurs Arishu de la 32e division
+Capitaine des éclaireurs de la base de ressources
+Capitaine des éclaireurs Rohita de la 32e division
+Capitaine Draconute d'Abysse
+Capitaine Draconute de Takshaka
+Capitaine Drakan de la traque
+Capitaine du Clan de Gargos
+Capitaine du Clan de Miros
+Capitaine guerrier du Roi des esprits
+Capitaine Nagto
+Capitaine Rubek
+Capitaine Sura dénaturé
+Capitaine Ugaros
+Capitaine éclaireur Krall de Takshaka
+Captured Elyos Resident
+Carapace de Marchutan
+Carlotte renégat
+Catapulteur Duduka
+Catapulteur Duduka féroce
+Catapulteur Duduka invoqué
+Catecoa
+Cauchemar de Kaisinel
+Cauchemar de Zikel
+Cave Dratona Larva
+Cave Octaside
+Cave Vivel
+Centurion Demiros
+Chadma de l'aube de la 32e division
+Chakkerman soldat gardien
+Chaman Aullaeu
+Chaman Aullaeu des racines
+Chaman de la base du Clan des Lames
+Chaman de la garde des Griffes Noires
+Chaman de surveillance de la forêt
+Chaman de surveillance des travaux de la forêt
+Chaman de troupe des Griffes Noires
+Chaman des âmes Draconute
+Chaman Draconute
+Chaman du totem Aullaeu
+Chaman du totem des racines
+Chaman du totem responsable Aullaeu
+Chaman du totem supérieur Aullaeu
+Chaman du vent Urugugu
+Chaman du Village Aullaeu
+Chaman hérétique Aullaeu
+Chaman intermédiaire Aullaeu
+Chaman Krall
+Chaman Naga
+Chaman soigneur Mau
+Chaman supérieur Aullaeu
+Chaman Urugugu
+Champ de poison
+Champ magnétique Krao
+Champ magnétique rotatif
+Champ magnétique électrique
+Chapardeur
+Chapardeuse cachée
+Charretier Shulack déchaîné
+Charretier Shulack intoxiqué
+Charretier Shulack muté
+Charretier Shulack sans âme
+Chasseur Archon du destin
+Chasseur de Hillslothir
+Chasseur de primes
+Chasseur de rats
+Chasseur de Tolbas
+Chauve-souris de grotte de l'éxil
+Chauve-souris des ruines
+Chauve-souris mutée de Drana
+Chef chapardeur
+Chef d'avant-garde braconnier
+Chef de guerre Broksha de la 32e division
+Chef de guerre Dregthor de la 32e division
+Chef de guerre Grumghar de la 32e division
+Chef de guerre Tarkhan de la 32e division
+Chef de la garde amélioré
+Chef de la garde d'anéantissement
+Chef de la garde de la haine
+Chef de la garde du sanctuaire
+Chef de la garde désespéré
+Chef de la garde furieux
+Chef de la Légion des Hors-la-loi
+Chef de recherche Krall d'Abysse
+Chef de surveillance Kobold
+Chef des bandits
+Chef des braconniers
+Chef des maraudeurs
+Chef des maraudeurs Daeva
+Chef des miséreux Aullaeu
+Chef des voleurs
+Chef des voleurs Hernon
+Chef Detlef
+Chef Drakan amélioré
+Chef Drakan du sanctuaire
+Chef Drakan furieux
+Chef Drakan méprisé
+Chef du dépôt Arya
+Chef du Poste de Drana
+Chef Hernon
+Chef hérétique
+Chef Korin
+Chef maraudeur
+Chef Miros
+Chef Torben
+Chef Zaif
+Chercheur assistant Léphariste
+Chercheur de dieu artificiel
+Chercheur de l'équipe de recherche léphariste
+Chercheur de la bibliothèque suspect
+Chercheur de la tour de guet Léphariste
+Chercheur des Ruines suspectes
+Chercheur du laboratoire Léphariste
+Chercheur fou Sellutey
+Chercheur Léphariste
+Chercheur maraudeur
+Chercheur supérieur Léphariste
+Chevalier ancien en décomposition
+Chevalier d'élite déformé
+Chevalier Daeva consumé
+Chevalier Daeva corrompu
+Chevalier des chasseurs de trésors rancunier
+Chevalier du rêve
+Chevalier du temple ressuscité
+Chevalier défiant la mort
+Chevalier gardien du rêve
+Chevalier mort-vivant du cimetière
+Chevalier ressuscité
+Chevalier revenant ancien
+Chevalier revenant d'armurerie
+Chevalier Sura
+Chevalier Sura intoxiqué
+Chevalier Sura oublié
+Chien de chasse du Clan des Lames
+Chien de garde d'Entrepôt de Plantation
+Chien de garde Drakan
+Chien de garde Drakan de Nahid
+Chien de garde Drakan de Takshaka
+Chien de garde Drakan des plaines enneigées
+Chien de garde du Bataillon de Lagta
+Chien de garde du Clan des Lames
+Chien éclaireur déserteur
+Chloris d'Abîme
+Chroma
+Chute de pierres
+Châtieuse de la source suspecte
+Claudia
+Clerc Archon du destin
+Clerc Daeva corrompu
+Coastal Starturtle
+Cobaye altéré
+Cobaye amélioré
+Cobaye Arca
+Cobaye artificiel Léphariste
+Cobaye consumé
+Cobaye d'élite Krao abrogé (spécimen)
+Cobaye de Drana
+Cobaye de Drana géant
+Cobaye de Drana muté
+Cobaye destructeur
+Cobaye diablotin
+Cobaye diablotin écrasé
+Cobaye du Vide
+Cobaye défectueux
+Cobaye désespéré
+Cobaye funèbre
+Cobaye funèbre magique
+Cobaye funèbre magique sadique
+Cobaye funèbre sadique
+Cobaye furieux
+Cobaye gardien
+Cobaye géant Krao
+Cobaye Hoka
+Cobaye Hoka féroce
+Cobaye Karas
+Cobaye Karas déchaîné
+Cobaye Karas enragé
+Cobaye Krall
+Cobaye Krao amélioré
+Cobaye Krao de grotte
+Cobaye Krao de rubis
+Cobaye Lupyllini
+Cobaye Léphariste
+Cobaye magique consumé
+Cobaye magique de grotte
+Cobaye magique destructeur
+Cobaye magique du désespoir
+Cobaye magique du Vide
+Cobaye magique furieux
+Cobaye magique Krao
+Cobaye magique sadique consumé
+Cobaye magique sadique destructeur
+Cobaye magique sadique du désespoir
+Cobaye magique sadique du Vide
+Cobaye magique sadique furieux
+Cobaye magique sadique éveillé
+Cobaye magique éveillé
+Cobaye mort-vivant d'anéantissement
+Cobaye mort-vivant du repaire
+Cobaye mort-vivant du tyran
+Cobaye mort-vivant désespéré
+Cobaye mort-vivant furieux
+Cobaye mort-vivant éveillé
+Cobaye Pretor
+Cobaye Prédateur de Drana
+Cobaye rejeté
+Cobaye sadique consumé
+Cobaye sadique destructeur
+Cobaye sadique du désespoir
+Cobaye sadique du Vide
+Cobaye sadique furieux
+Cobaye sadique éveillé
+Cobaye Sura
+Cobaye Trogas
+Cobaye éveillé
+Cohta le capitaine du détachement
+Collecteur suspect
+Collectrice des Mercenaires d'Astin
+Colonie d'essaim d'Abysse
+Colonie d'essaim de la zone de la faille
+Colonie d'essaim de sous-espace
+Colonie d'insectes de minerai
+Combattant ancien de la zone de la faille
+Combattant d'amélioration des vigies
+Combattant de l'éternité d'Abysse
+Combattant des Griffes Noires
+Combattant des vigies du sanctuaire
+Combattant Draconute
+Combattant Draconute d'Abysse
+Combattant Draconute de prison
+Combattant Draconute de Takshaka
+Combattant Draconute supérieur
+Combattant Drakan
+Combattant Drakan d'Abysse
+Combattant Drakan de Takshaka
+Combattant Dratona
+Combattant du Clan des Lames
+Combattant du détachement Balaur
+Combattant englouti
+Combattant Krall
+Combattant Krall amélioré
+Combattant Krall modifié
+Combattant Manduri des Griffes Noires
+Combattant sanglant Urugugu
+Combattant supérieur Draconute d'Abysse
+Combattant supérieur Lamnah
+Combattant éclaireur Balaur
+Combattante des Griffes Noires
+Combattante du Clan des Lames
+Commandant braconnier
+Commandant contrebandier
+Commandant d'escouade devenu Sura
+Commandant d'escouade Draconute d'Abysse
+Commandant d'escouade Draconute de Takshaka
+Commandant d'invasion de Beritra
+Commandant d'élite mutant
+Commandant Daeva corrompu
+Commandant Daeva des ruines
+Commandant Daeva du temple
+Commandant Daeva renégat
+Commandant de combat Draconute
+Commandant de la Base du plateau
+Commandant de la troupe aérienne Gahana
+Commandant de la troupe aérienne Tahla
+Commandant de terrain Krall
+Commandant des Voleurs de Rubek
+Commandant Draconute du camp de détention
+Commandant Drakan
+Commandant Drakan d'Abysse
+Commandant Drakan d'Abîme
+Commandant Drakan d'anéantissement
+Commandant Drakan de Nartis
+Commandant Drakan de Takshaka
+Commandant Drakan désespéré
+Commandant du Clan des Lames
+Commandant du site d'exécution
+Commandant déformé Arunt
+Commandant déformé Bhasti
+Commandant déformé Droha
+Commandant déformé Irisha
+Commandant déformé Murak
+Commandant déformé Narakha
+Commandant déformé Rakhta
+Commandant déformé Samaya
+Commandant déformé Uchanda
+Commandant déformé Uparha
+Commandant déformé Vaira
+Commandant déformé Vashid
+Commandant déformé Vishaka
+Commandant déserteur
+Commandant en chef Marktasha
+Commandant exécutant fanatique
+Commandant Flauke
+Commandant forestier corrompu
+Commandant Karkoti de la troisième unité
+Commandant Krall
+Commandant maraudeur de Cantas
+Commandant maraudeur de la forêt
+Commandant maraudeur du Canyon
+Commandant maraudeur mystérieux
+Commandant Minasara de la troisième unité
+Commandant pillard furtif
+Commandant pilleur de tombes
+Commandant Taruna
+Commandante déformée Miunah
+Connecteur d'amélioration ancien
+Conseiller Archon du destin
+Console du voile
+Contaminated Clot
+Contaminated Shulak Laborer
+Contaminated Shulak Overseer
+Contaminated Shulak Sentinel
+Contaminated Slime
+Contaminated Soul Binder
+Contaminated Water Spirit
+Contrebandier Shulack
+Convertisseur de Fafnium du Dredgion
+Coradon côtier
+Coradon d'Abysse
+Coradon d'éternité
+Coradon d'éternité d'Abysse
+Coradon d'éternité de la zone de la faille
+Coradon de la colline
+Coradon de la forêt
+Coradon des terres sauvages
+Coradon du jardin
+Coradon variant
+Corps sans âme
+Coursier Kobold
+Coursier Kuru rassasié
+Coursier Kuru vorace
+Crabe moussu
+Crabe moussu côtier
+Crabe moussu d'Abîme
+Crabe moussu de l'éternité
+Crabe moussu de la forêt
+Crabe moussu de la mer du Nord d'Iralcig
+Crabe moussu de rubis
+Crabe moussu rouge
+Crabe rocheux de lave solidifiée
+Crasaur
+Crasaur aux écailles d'eau
+Crasaur de l'éternité
+Crasaur docile
+Crasaur sensible
+Crash Site Lepharist Pugilist
+Crash Site Lepharist Researcher
+Creion intoxiqué
+Crestlich
+Crestlich au bec de pierre
+Crestlich bleu
+Crestlich du plateau
+Crestlich femelle de la Rivière Ellun
+Crestlich femelle du plateau
+Crestlich mâle de la Rivière Ellun
+Crestlich mâle du plateau
+Criminel recherché de Hillslothir
+Criminel recherché des voleurs Hernon
+Criminelle recherchée des Ruines de la Garnison
+Criminelle recherchée du Canyon
+Criminelle recherchée du Clan de Gargos
+Criminelle recherchée du Clan de Miros
+Cristal
+Cristal d'Athéron
+Croka
+Croka artilleur
+Croka distordu
+Croyant Aullaeu d'oratoire
+Cueilleur au sang toxique
+Cueilleur Dracuni
+Cueilleur Shulack
+Cueilleuse Kobold de plantation
+Cultivateur de Drana
+Cœur de Minusha
+Cœur déchaîné
+Daeva abandonné
+Daeva brisé
+Daeva corrompu de la zone de la faille
+Daeva corrompu par le Joyau
+Daeva déchaîné des plaines enneigées
+Daeva en furie
+Daeva gelé
+Daeva gladiateur blessé
+Daeva guerrier revenant
+Daeva mystérieux
+Daeva renégat
+Daeva renégat suiveur
+Daeva renégat suiveur supérieur
+Daeva sacrifié
+Daeva suspect
+Daeva suspecte
+Daine des larmes
+Daithi déformé
+Danahan chasseur
+Danar le fondu
+Danger public Vajradant
+Dark Root Cave Poison Grass
+Darkhe assistant
+Dartan la Silencieuse
+Dazran poursuivant
+Debry des Collines
+Debry des glaces
+Debry des plaines enneigées
+Debry du nid
+Debry flétri
+Defense Cannon
+Dehinon muté
+Deios corrompu
+Deltras
+Deltras's Frozen Heart
+Deovar
+Derk muté Karas
+Destructeur ancien d'Abîme
+Destructeur ancien muté d'Abîme
+Destruction Archon Elite Soldier
+Destruction Archon Gladiator
+Destruction Archon Soldier
+Destruction Archon Templar
+DGT de zone (Test d'échelle de niveau_Attribution de tous les effets de compétences)
+Dhakan
+Digunaka
+Digunaka fonceur
+Dinakra
+Dinasha le capitaine de patrouille
+Dionae cendré
+Dionae de la séduction
+Dionae des Collines
+Dionae du Canyon
+Dionae flétri
+Dirigeant Tyrkes
+Dirta arrogant de la 32e division
+Disciple Kraka
+Disciple trompé
+Disciple trompée
+Dispositif d'alerte Archon du destin
+Dispositif d'alerte Balaur
+Dispositif d'alerte de la Fonderie
+Dispositif d'alerte de la Forteresse du ciel
+Dispositif d'alerte de la Tour d'énergie
+Dispositif d'alimentation de Fafnium
+Dispositif d'autodestruction de l'avant-poste
+Dispositif d'autodestruction de la base
+Dispositif d'entrave
+Dispositif d'Entrave suspect
+Dispositif de défense du temple
+Dispositif de garde de Manuscrits anciens
+Dispositif de piège
+Dispositif de sorcellerie Léphariste
+Dispositif de surveillance
+Dispositif de surveillance surchauffé
+Dispositif de sécurité Balaur
+Dispositif de sécurité de prison souterraine
+Dispositif de sécurité du site des ruines
+Dispositif des ruines anciennes
+Dispositif des Ruines brisé
+Dispositif des Ruines du Plateau d'Altamia
+Dispositif gardien de Fafnium
+Dispositif gardien des ruines
+Dispositif magique
+Dmark rusé
+Dodori rapace aux yeux ouverts
+Dosha la Griffe vengeresse
+Dracuni consumé
+Dracuni destructeur
+Dracuni domestiqué
+Dracuni du Vide
+Dracuni désespéré
+Dracuni funèbre
+Dracuni furieux
+Dracuni éveillé
+Draid contaminé
+Drakan adepte de Ludra
+Drakan d'Oracle
+Drakan d'élite d'Abysse
+Drakan de l'unité d'Ishtar
+Drakan de régénération
+Drakan Fafnir
+Drakan invincible
+Drakan supérieur amélioré
+Drakan supérieur d'Abysse
+Drakan supérieur d'anéantissement
+Drakan supérieur de la haine
+Drakan supérieur du sanctuaire
+Drakan supérieur désespéré
+Drakan supérieur furieux
+Drakan Vanguard Commander
+Dramata furieux
+Dramata muté furieux
+Dramos l'exécuteur
+Drana Bioweapon
+Drana consumée
+Drana destructrice
+Drana du Vide
+Drana désespérée
+Drana funèbre
+Drana furieuse
+Drana Mutant Spider
+Drana solidifié
+Drana éveillée
+Drant esprit gardien
+Drapeau Balaur
+Drapeau de combat Balaur
+Drapeau de combat d'élite Balaur
+Drapeau de patrouille Drakan
+Dratona
+Dratona altéré
+Dratona amélioré
+Dratona Brute
+Dratona d'amélioration du ralliement
+Dratona de la forêt
+Dratona de la forêt muté
+Dratona de la Forêt rouge
+Dratona du ralliement
+Dratona Egg
+Dratona faible de la forêt
+Dratona maraudeur
+Dratona muté
+Dratona muté géant
+Dresseur de Dratona
+Dresseur des Mercenaires d'Astin
+Dresseur des Voleurs de Moslan
+Dresseur Vaikul de la 32e division
+Dresseuse Sinandash
+Driton
+Driton aquatique
+Driton d'étang
+Driton de la chute de la Rivière Ellun
+Driton de la Vallée de Cantas
+Driton de la zone contaminée
+Driton de Tranein
+Driton du Canyon
+Driton du col
+Driton du lac
+Driton du lac de la Forêt de Tolbas
+Driton du lac de la Rivière Ellun
+Driton du lac du Canyon
+Driznak d'obsidienne
+Driznak de colline
+Driznak des cendres
+Driznak des terres désolées
+Driznak flétri
+Driznak robuste
+Duanka nécromancienne
+Ducal le traître
+Duduri au barrage de plumes
+Duduri le trafiquant
+Durdara général de division
+Durek réprouvé
+Durgal de la colline
+Durgal de lave
+Durgal des cendres
+Durgal des Collines
+Durgal des glaces
+Durgal des plaines enneigées
+Durgal du canyon
+Durvati décomposée
+Dvahn fanatique
+Décapiteur Archon du destin
+Décimateur Archon du destin
+Décimateur Biruta
+Décomposé Durvati (spécimen)
+Défenseur Drakan de Nahid
+Défunt ancien décomposé
+Défunt du cimetière enragé
+Défunt du cimetière errant
+Défunt du Néant
+Défunt décomposé
+Défunt errant
+Défunt maudit
+Défunt rancunier
+Défunt vorace
+Démon de lave de Muspel
+Dépôt de Goldrin
+Désir de Kromede
+Détecteur Drakan
+Eau
+Eaux usées
+Egetis vorace
+Ekan le verbeux
+Eldric l'archon déformé
+Ellyde chantant
+Eloen
+Elvida
+Emon englouti
+Encensoir Aullaeu des racines
+Enchanteur Sura contaminé
+Enfant 20/All/Exceed
+Enfant 20/All/None
+Enfant 20/Exceed/Exceed
+Enfant 20/Exceed/None
+Enfant 20/None/Exceed
+Enquêteur Drakan
+Entité malfaisante ancienne du temple
+Entité malfaisante destructrice
+Entité malfaisante terrifiante
+Entrave d'épines de Vakron (spécimen)
+Entraves de Krall de Kurpak
+Entraîneur Dratona
+Entrepôt d'énergie Drana
+Enveloppe abandonnée
+Ermite Chayamu
+Erne l'exécuteur gelé
+Espion Daeva renégat
+Espion Sura abandonné
+Esprit ancien
+Esprit ancien déchaîné
+Esprit contaminé
+Esprit corrompu
+Esprit corrompu d'Abysse
+Esprit corrompu de la zone de la faille
+Esprit d'eau bouillante
+Esprit d'eau intermédiaire instable
+Esprit d'eau supérieur instable
+Esprit d'eau vive
+Esprit d'embrasement
+Esprit d'embrun
+Esprit d'embrun de la fosse
+Esprit d'humus
+Esprit d'Od du filon
+Esprit d'Od terne
+Esprit d'écumes contaminé
+Esprit d'étincelle impitoyable
+Esprit de brise
+Esprit de flamme
+Esprit de flamme explosif
+Esprit de flamme impitoyable
+Esprit de givre
+Esprit de gouttelettes contaminé
+Esprit de l'air
+Esprit de l'eau
+Esprit de l'eau 1
+Esprit de l'eau ancien
+Esprit de l'eau chuchotant
+Esprit de l'eau contaminé
+Esprit de l'eau cruel
+Esprit de l'eau de l'éternité
+Esprit de l'eau de la fosse
+Esprit de l'eau du Néant
+Esprit de l'eau enragé
+Esprit de l'eau errant
+Esprit de l'eau fragmenté
+Esprit de l'eau immortel
+Esprit de l'eau niveau 1 (spécimen)
+Esprit de l'eau égaré
+Esprit de la forêt
+Esprit de la forêt cendré
+Esprit de la Forêt de la fosse
+Esprit de la forêt du Canyon profond
+Esprit de la forêt du col
+Esprit de la terre
+Esprit de la terre ancien
+Esprit de la terre contaminé
+Esprit de la terre cruel
+Esprit de la terre de l'éternité
+Esprit de la terre des Collines
+Esprit de la terre déchaîné
+Esprit de la terre enragé
+Esprit de la terre faible
+Esprit de la terre immortel
+Esprit de la terre impétueux niveau 4
+Esprit de la terre perdu
+Esprit de la terre égaré
+Esprit de liane altéré
+Esprit de pierre brillant
+Esprit de pierre de la colline
+Esprit de pierre de lave
+Esprit de pierre des plaines enneigées
+Esprit de pierre Od du crépuscule
+Esprit de pierre solide
+Esprit de pierre terne
+Esprit de roche étrange
+Esprit de transformation de Drana
+Esprit de vagues contaminé
+Esprit de vigne contaminé
+Esprit de vigne du Canyon
+Esprit de vigne du marais
+Esprit des flammes
+Esprit des ténèbres
+Esprit des ténèbres corrompu
+Esprit des ténèbres de la Base de recherche Deus
+Esprit des ténèbres enchaîné
+Esprit des étincelles
+Esprit disparu
+Esprit distordu
+Esprit distordu de Drana
+Esprit du feu
+Esprit du feu 1
+Esprit du feu 2
+Esprit du feu ancien
+Esprit du feu contaminé
+Esprit du feu cruel
+Esprit du feu de l'éternité
+Esprit du Feu déchaîné
+Esprit du feu enragé
+Esprit du feu faible
+Esprit du feu géant
+Esprit du feu immortel
+Esprit du feu infernal
+Esprit du feu intermédiaire instable
+Esprit du feu persistant
+Esprit du feu protecteur
+Esprit du feu supérieur instable
+Esprit du feu vagabond
+Esprit du feu violent
+Esprit du rocher
+Esprit du rocher d'Abîme
+Esprit du rocher d'Od
+Esprit du rocher enragé
+Esprit du tourbillon
+Esprit du vent
+Esprit du vent ancien
+Esprit du vent cruel
+Esprit du vent de l'éternité
+Esprit du vent glacial
+Esprit du vent immortel
+Esprit du vent égaré
+Esprit déchaîné
+Esprit explosif
+Esprit furieux
+Esprit féroce
+Esprit gardien
+Esprit gardien affaibli
+Esprit immémorial 1
+Esprit impétueux
+Esprit maléfique Yatu
+Esprit mutant de Drana
+Esprit obscur déchaîné
+Esprit obscur égaré
+Esprit perdu
+Essaim contaminé
+Essaim d'Abysse
+Essaim d'Abysse - Ruche (Spécimen)
+Essaim d'Abîme amélioré
+Essaim d'Abîme d'anéantissement
+Essaim d'Abîme de la haine
+Essaim d'Abîme du sanctuaire
+Essaim d'Abîme désespéré
+Essaim d'Abîme furieux
+Essaim de Drana
+Essaim de Drana de rubis
+Essaim de la zone de la faille
+Essaim de sous-espace
+Essaim du tunnel souterrain
+Essaim parasitaire de sous-espace
+Explorateur des troupes de la garnison de Patamor
+Explosion
+Exterminateur Drakan d'Abysse
+Extracteur de Drana
+Exécuteur Daeva corrompu
+Exécuteur du corridor
+Exécuteur à l'épée magique
+Factionnaire du détachement Balaur
+Faded Mutant
+Fafnir's Poison Blood (Specimen)
+Fafnium
+Fafnium de la réserve
+Fafnium Laboratory Chief
+Fafnium Laboratory Dratona
+Fafnium Laboratory Guard
+Fafnium Laboratory Overseer
+Fafnium Laboratory Researcher
+Fafnium Laboratory Sentinel
+Fafnium Laboratory Sentry
+Fafnium moyen
+Fafnium moyen des plaines enneigées
+Fafnium moyen préservé
+Faille
+Faille de la Base de recherche Deus
+Faille temporelle
+Familier hérétique Fossa
+Fanatics' Den Guard
+Fanatics' Den Zealot
+Fanatique d'Antre des Fanatiques
+Fanatique hérétique
+Fanatique Ulimus
+Fanatique Uraga de la 32e division
+Fantassin d'assaut aérien Drakan
+Fantassin d'assaut Krall
+Fantassin d'élite du Temple divin
+Fantassin Draconute
+Fantôme d'illusion
+Fantôme d'illusion divisé
+Fantôme des plaines enneigées
+Fantôme du cimetière
+Fantôme errant
+Fate Daeva Combatant
+Fate Daeva Mage
+Fate Daeva Recruit
+Faucheur de l'Entrepôt
+Faucheur de l'Entrepôt de l'Anéantissement
+Faucheur de l'Entrepôt du Désespoir
+Faucheur de l'Entrepôt du Vide
+Faucheur de l'Entrepôt Oublié
+Faucheur de l'Entrepôt sauvage
+Faucheur de l'Entrepôt élevé
+Faux de Ketu
+Faux gardien Mumu
+Feruk furieux
+Fidèle de Kaisinel
+Fios aux ailes du feu infernal
+Flammes
+Flammes d'Iscariel
+Fleur de lave
+Fleur de lave géante
+Fleur mutante de lave
+Fleur toxique
+Fleur toxique du col
+Fleur toxique enivrante
+Fleur toxique flétrie
+Fleur toxique sucrée
+Floating Temple Fate Daeva Chanter
+Flotteur altéré de la Tour barrière
+Flotteur consumé
+Flotteur de la dimension de Drana
+Flotteur destructeur
+Flotteur du Vide
+Flotteur désespéré
+Flotteur funèbre
+Flotteur furieux
+Flotteur terne
+Flotteur éveillé
+Flèche de la séduction
+Fondeur Draconute
+Forestier brûlé
+Forestier des cendres
+Fossa apprivoisé
+Fossa apprivoisé de Cantas
+Fossa Croc-de-glace
+Fossa Croc-de-glace docile
+Fossa Daeva renégat
+Fossa des Mercenaires d'Astin
+Fossa des Ruines de la Garnison
+Fossa des terres sauvages
+Fossa des Voleurs d'Akilo
+Fossa en patrouille
+Fossa entraîné
+Fossa fugitif
+Fossa féroce
+Fossa herboriste
+Fossa scélérat
+Fossa scélérat du Canyon
+Fossa sensible
+Fossa éclaireur du Clan de Gargos
+Fragment d'illusion
+Fragment d'âme déformée
+Fragment d'épée du gardien
+Franc-tireur renégat
+Frelon féroce
+Frondeur Duduka de la Corne abyssale
+Frondeur Manduri de Drana
+Frondeur Manduri de rubis
+Frozen Fate Chanter
+Frozen Fate Cleric
+Frozen Fate Observer
+Frugon de givre
+Frugon des Collines
+Frugon des plaines
+Frugon des plaines enneigées
+Frugon des terres sauvages
+Frugon du canyon
+Fungen
+Fungen aux herbes médicinales
+Fungen de grotte
+Fungen à chapeau rouge
+Fungie
+Fungie de grotte
+Fungie de Grotte aux Champignons
+Fungie du marais
+Fungie à chapeau d'escargot
+Fungie à chapeau rouge
+Fungie à escargot
+Fungie à petit champignon
+Fungpus précieux
+Fée contaminée
+Fée corrompue
+Fée de rubis
+Fée desséchée
+Fée instable
+Fée jalouse
+Fée mutante déchaînée
+Gadioton délaissé
+Ganetri de la lave
+Garde Archon du destin
+Garde armé Draconute
+Garde Aullaeu des racines
+Garde chaman Aullaeu
+Garde d'entrepôt
+Garde d'entrepôt des trésors
+Garde d'entrepôt du Clan des Lames
+Garde d'énergie Drana
+Garde de l'Antre des fanatiques
+Garde de l'avant-poste
+Garde de l'entrepôt
+Garde de l'Entrepôt
+Garde de l'Entrepôt de l'Anéantissement
+Garde de l'Entrepôt du Désespoir
+Garde de l'Entrepôt du Vide
+Garde de l'Entrepôt furieux
+Garde de l'Entrepôt Oublié
+Garde de l'Entrepôt élevé
+Garde de la Base de recherche Deus
+Garde de Nahid brutal
+Garde de Prison des Exilés
+Garde de surveillance de la Forêt Aullaeu
+Garde des Griffes Noires
+Garde Draconute
+Garde Drakan
+Garde Drakan de plantation
+Garde Dratona
+Garde du baraquement Aullaeu
+Garde du Bataillon d'Azrakar
+Garde du Bataillon de Lagta
+Garde du Clan des Lames
+Garde du Clan des Lames de Sang
+Garde du Conclave
+Garde du corps Aulamus
+Garde du corps Aullaeu
+Garde du corps de l'unité du chef
+Garde du corps Drakan
+Garde du corps du Bataillon de Lagta
+Garde du corps rattaché à Muqaka
+Garde du Village Aullaeu
+Garde immortel
+Garde immortel d'Abysse
+Garde Léphariste
+Garde maraudeur
+Garde Mumu
+Garde patrouilleur Aullaeu
+Garde Shulack de la base expérimentale
+Garde soldat du camp Léphariste
+Garde soldat Léphariste
+Garde-chiourme englouti
+Gardha déformé
+Gardien altéré de la Tour barrière
+Gardien Aullaeu muté
+Gardien chaman
+Gardien d'anéantissement
+Gardien d'autel
+Gardien d'entrepôt de Goldrin
+Gardien d'Entrepôt de Plantation
+Gardien d'entrepôt Pino
+Gardien d'élite Arcanis
+Gardien d'élite libéré
+Gardien d'élite Nagarant
+Gardien de Fafnium
+Gardien de l'esprit de l'eau immortel
+Gardien de l'esprit de la terre immortel
+Gardien de l'esprit du feu immortel
+Gardien de l'esprit du vent immortel
+Gardien de la forêt enragé
+Gardien de la Forêt instable
+Gardien de la forêt muté
+Gardien de la porte de flammes (spécimen)
+Gardien de la voie céleste du camp est
+Gardien de la voie céleste du camp ouest
+Gardien de la voie céleste méridionale de Latesran
+Gardien de la voie céleste septentrionale de Latesran
+Gardien de la zone sacrée
+Gardien des portes du Sanctuaire Auldor
+Gardien des portes Krall
+Gardien des portes supérieur Krall
+Gardien des provisions Balaur
+Gardien Draconute
+Gardien Draconute d'élite
+Gardien du cauchemar
+Gardien du ciel de Dukysas
+Gardien du ciel de Krotan
+Gardien du cimetière
+Gardien du Clan des Lames muté
+Gardien du jardin
+Gardien du laboratoire
+Gardien du labyrinthe Hurukak
+Gardien du Marais Contaminé
+Gardien du Miroir
+Gardien du rêve
+Gardien du sceau Krao
+Gardien du Temple Souterrain
+Gardien déformé
+Gardien déformé Lankris
+Gardien désespéré
+Gardien esprit consumé
+Gardien esprit du feu enragé
+Gardien esprit du feu violent
+Gardien furieux
+Gardien Garzykan
+Gardien Garzykan enragé
+Gardien Krall
+Gardien Krao modifié
+Gardien Léphariste
+Gardien supérieur Drakan
+Gardienne du lac
+Gardiens des clés du Clan des Lames
+Gargaum
+Gargos, criminel recherché
+Garmon immortel
+Garsan le Prédateur
+Garshim le Ritualiste
+Gartua de l'immortalité
+Gartua de l'éternité
+Gartua le briseur de pacte
+Gauss le gardien du sanctuaire
+Gaz
+Gaz nocif
+Gaztan superviseur
+Gelcos
+Gemme d'âme de la zone de la faille
+Gemme d'âme du mortel
+Gemme d'âme évoluée d'Abysse
+Gemme d'âme évoluée de la zone de la faille
+Gerod
+Gerod muté
+Gestionnaire de transformation de Drana
+Geôlier Krall
+Geôlier Mumu
+Ghula de la grotte souterraine
+Ghula des glaces
+Ghula du lac des glaces
+Ghula du lac gelé
+Ghula à écailles empoisonnées
+Ghula à écailles épineuses
+Giboro dénonciateur
+Giselle le spectre hostile
+Giselle le spectre hostile (spécimen)
+Glacia aux larmes azur
+Gladiateur Archon d'armurerie
+Gladiateur Archon de la Halte
+Gladiateur Archon sans âme
+Gladiateur Daeva corrompu
+Gladiateur Daeva renégat
+Gladiateur Daeva sans âme
+Gladiateur des Chevaliers de l'affection
+Gladiateur mort-vivant d'anéantissement
+Gladiateur mort-vivant du repaire
+Gladiateur mort-vivant du tyran
+Gladiateur mort-vivant désespéré
+Gladiateur mort-vivant furieux
+Gladiateur mort-vivant éveillé
+Gladiateur revenant d'Archon
+Gladiateur sans âme des plaines enneigées
+Glassvein
+Gottfred le pilleur de tombes
+Granach, criminel recherché
+Grand dispositif de sorcellerie
+Grand totem Aullaeu
+Grande chamane des Griffes Noires
+Grandios
+Granir le solitaire
+Gravarax conditionné
+Gravarax de lave
+Gravarax des Collines
+Gravarax du canyon
+Gravarax rétréci
+Gravi
+Gravi de la colline de la Rivière Ellun
+Gravi de Tolbas
+Gravi instable
+Gravi magique d'illusion
+Gravi magique de la Forêt de purification
+Gravi magique de Tolbas
+Gravi magique rétréci
+Gravi rose
+Gravi rétréci
+Gravi à grandes feuilles
+Gravi à grandes feuilles rétréci
+Gravi à tige rouge
+Griosa, la bête maudite
+Grollack le crasseux
+Grymnir Volcandarche
+Guardite contaminé
+Guardite d'élite de la Légion
+Guardite de haut rang déchaîné
+Guardite de la Légion
+Guardite de surveillance de la Légion
+Guardite déchaîné
+Guardite garde des archives
+Guardite incontrôlable
+Guardite protecteur des archives
+Guerrier abandonné Hector
+Guerrier ancien d'Abîme
+Guerrier Archon exécuté
+Guerrier Archon sans âme
+Guerrier Aullaeu asservi
+Guerrier Aullaeu muté
+Guerrier Balaur amélioré
+Guerrier Balaur d'anéantissement
+Guerrier Balaur de la haine
+Guerrier Balaur de Nartis
+Guerrier Balaur du sanctuaire
+Guerrier Balaur désespéré
+Guerrier Balaur furieux
+Guerrier bandit
+Guerrier bandit des ruines
+Guerrier Biruta
+Guerrier braconnier
+Guerrier consumé d'Abîme
+Guerrier contrebandier
+Guerrier corrompu d'Abysse
+Guerrier Daeva hors-la-loi du tombeau rocheux
+Guerrier Daeva sans âme
+Guerrier de garde du Clan des Lames
+Guerrier de garde du jardin des roses
+Guerrier de garde du Roi des esprits
+Guerrier de Gribade Mumu
+Guerrier de l'Entrepôt
+Guerrier de l'Entrepôt de l'Anéantissement
+Guerrier de l'Entrepôt du Désespoir
+Guerrier de l'Entrepôt du Vide
+Guerrier de l'Entrepôt furieux
+Guerrier de l'Entrepôt Oublié
+Guerrier de l'Entrepôt élevé
+Guerrier de l'unité d'extermination
+Guerrier de l'équipe de recherche léphariste
+Guerrier de la Base de recherche Deus
+Guerrier de la réserve secrète
+Guerrier de la tour de guet Léphariste
+Guerrier de la troupe de poursuite Varg
+Guerrier de Légion des Hors-la-loi
+Guerrier de reconnaissance Léphariste
+Guerrier de sécurité Léphariste
+Guerrier des forces spéciales de Kurpak
+Guerrier des maraudeurs du col
+Guerrier des troupes de la garnison de Patamor
+Guerrier des vigies d'Amurata
+Guerrier des Voleurs d'Akilo
+Guerrier des voleurs d'Eiron
+Guerrier des Voleurs de Moslan
+Guerrier des Voleurs de Rubek
+Guerrier Draconute
+Guerrier Draconute brave
+Guerrier Draconute d'Abysse
+Guerrier Draconute de la forêt
+Guerrier Draconute des vigies
+Guerrier Draconute du camp de détention
+Guerrier Draconute novice
+Guerrier Drakan
+Guerrier du Bataillon d'Azrakar
+Guerrier du Clan des Lames
+Guerrier du Clan des Lames de Sang
+Guerrier du Clan des Lames furtif
+Guerrier du laboratoire Léphariste
+Guerrier du repaire
+Guerrier déserteur du Clan des Lames
+Guerrier escroc
+Guerrier esprit du vieil arbre
+Guerrier gardien de Kaisinel
+Guerrier gardien Naga des grottes
+Guerrier gardien Nagarant
+Guerrier gardien Nagarant d'Iralcig
+Guerrier gardien Nagarant de Takshaka
+Guerrier hors-la-loi des plaines enneigées
+Guerrier Karas caché
+Guerrier Karas des plaines enneigées
+Guerrier Karas du repaire
+Guerrier Krall de Kurpak
+Guerrier Krall de la Rivière Ellun
+Guerrier Krall modifié
+Guerrier Léphariste
+Guerrier maraudeur
+Guerrier maraudeur d'Odylium
+Guerrier maraudeur de la forêt
+Guerrier mort-vivant d'anéantissement
+Guerrier mort-vivant du repaire
+Guerrier mort-vivant du tyran
+Guerrier mort-vivant désespéré
+Guerrier mort-vivant furieux
+Guerrier mort-vivant éveillé
+Guerrier Mumu de travaux forcés
+Guerrier Mumu du labyrinthe
+Guerrier Nagarant d'Abysse
+Guerrier poursuivant Léphariste
+Guerrier rancunier
+Guerrier rapace d'anéantissement
+Guerrier rapace de la trajectoire
+Guerrier rapace du dépôt
+Guerrier rapace désespéré
+Guerrier rapace furieux
+Guerrier rapace inattendu
+Guerrier revenant enragé
+Guerrier sans âme décomposé
+Guerrier sentinelle d'élite Draconute
+Guerrier sentinelle Draconute
+Guerrier sentinelle Drakan
+Guerrier supérieur des vigies du sanctuaire
+Guerrier supérieur Draconute
+Guerrier supérieur Dratona muté
+Guerrier supérieur vigilant
+Guerrier Sura abandonné
+Guerrier Sura d'anéantissement
+Guerrier Sura de l'Antre d'Odylium
+Guerrier Sura du repaire
+Guerrier Sura du tyran
+Guerrier Sura désespéré
+Guerrier Sura errant
+Guerrier Sura furieux
+Guerrier Sura oublié
+Guerrier Sura éveillé
+Guerrier vagabond Aullaeu
+Guerrier Varg
+Guerrier Varg de l'Antre Hurlant
+Guerrier Wasti
+Guerrier à deux lames Pillard du col
+Guerrier érodé Stakard
+Guerrière de Légion des Hors-la-loi
+Guerrière des voleurs
+Guerrière des Voleurs d'Akilo
+Guerrière escroc
+Guerrière à deux armes maraudeuse
+Guetteur Aullaeu
+Guetteur cobaye de Nahid
+Guetteur d'anéantissement
+Guetteur d'autel
+Guetteur de l'Antre des Klaws
+Guetteur de l'avant-poste
+Guetteur de la garde des Griffes Noires
+Guetteur des voleurs
+Guetteur Draconute d'escouade
+Guetteur Drakan
+Guetteur Drakan de la Tour d'énergie
+Guetteur Dratona
+Guetteur du Bataillon de Lagta
+Guetteur du cauchemar
+Guetteur du poste
+Guetteur du Poste Dratona
+Guetteur du rêve
+Guetteur déformé
+Guetteur désespéré
+Guetteur englouti
+Guetteur furieux
+Guetteur Krall
+Guetteur Krall amélioré
+Guetteur Krall du sous-sol
+Guetteur Mumu
+Guetteuse des Griffes Noires
+Guhamu le sauvage
+Guide Turret
+Guruta l'arme de troupe Drakan
+Guérisseur Krall de Kurpak
+Guérisseur Mau
+Guérisseur Mau de la Corne abyssale
+Guérisseur mutant
+Général de division déformé Durdhara
+Générateur de bombes aériennes
+Habitant asservi
+Habitante asservie
+Hansamu le vagabond
+Harcon amélioré
+Hardirun l'intoxiqué
+Harkhan Givre-armure
+Hatched Sparkie
+Hateful Armor Knight
+Hateful Revenant Knight
+Hateful Specter
+Hateful Undead Warrior
+Hateful Wraith Knight
+Haut commandant déformé Lagta
+Haut commandant déformé Nahid
+Haut commandant déformé Zunewgishe
+Haut Commandant Lagta
+Haut Commandant Nahid
+Haut Commandant Nirmala
+Haut commandant sadique Baranath
+Haut commandant sadique Zorshiv
+Haut Commandant Taytra
+Haute commandante déformée Nirmala
+Hebera
+Heladrir
+Herb Cave Bat
+Herb Cave Rat
+Herb Rafflesia
+Herbe sauvage
+Herbe somnifère
+Herbe toxique
+Herbe toxique vénéneuse
+Herboriste Biruta
+Herboriste Biruta des Collines
+Herboriste Biruta sauvage
+Herboriste illégale
+Hillslothir
+Homish chef du camp de détention
+Hors-la-loi d'Eiron Drok
+Hors-la-loi de Hillslothir
+Hérétique Archon du destin
+Iagosh le geôlier
+Idris
+Ignus de flamme rouge
+Illusion Bomb
+Illusion de gardien
+Illusion de Grande Prêtresse
+Illusion de Kaisinel
+Illusion de Kaisinel (spécimen)
+Illusion de Nathara
+Illusion du Grand Prêtre
+Incomplete Braunt
+Indnath
+Infecté muté de Drana
+Ingénieur d'invasion de Beritra
+Ingénieur de combat Drakan
+Ingénieur de démolition Drakan
+Injecteur d'énergie Drana
+Injecteur de Drana
+Insecte d'Abîme décomposé
+Insecte d'Abîme mangeur d'Od
+Insecte de cadavre
+Insecte de cadavre contaminé
+Insecte de cadavre contaminé (spécimen)
+Insecte de cadavre de Drana
+Insecte de cadavre de grotte
+Insecte de cadavre lumineux
+Insecte de minerai
+Insecte de minerai adulte
+Insecte de minerai géant
+Insecte de minerai géant adulte
+Insecte du Néant vorace
+Insecte explosif au Drana
+Insecte explosif des terres désolées
+Insecte explosif entraîné
+Insecte explosif suiveur
+Insecte intoxiqué au Drana
+Insecte mutant d'Od d'Abysse
+Insecte mutant rouge d'Abysse
+Insecte muté de Drana d'Abysse
+Insecte venimeux géant
+Inspecteur Daeva cassé
+Instructeur Archon exécuté
+Instructeur de magie Drakan d'Abysse
+Instructeur en chef Archon du destin
+Instructeur en chef Daeva du destin corrompu
+Instructeur hérétique
+Instructeur mort-vivant furieux
+Intendant Kobold
+Intrus du printemps
+Invocateur Aullaeu des racines
+Ionos le gardien du rêve
+Irima de la garde personnelle
+Iscariel
+Jardinier de l'affection
+Jardinier du jardin des roses
+Jeune Airon du Canyon
+Jeune araignée de grotte
+Jeune araignée du marais
+Jeune araignée à Od
+Jeune Coradon
+Jeune Coradon côtier
+Jeune Coradon de la colline
+Jeune Coradon des terres sauvages
+Jeune Coradon du jardin
+Jeune Dratona de grotte
+Jeune Dratona du ralliement
+Jeune Dratona éclos
+Jeune Driton aquatique
+Jeune insecte de minerai
+Jeune Kailin
+Jeune Kailin de la Rivière Ellun
+Jeune Kailin des glaces
+Jeune Kailin des plaines
+Jeune Kailin instable
+Jeune monstre à nageoires
+Jeune Octaside
+Jeune Octaside vorace
+Jeune Slink
+Jeune Slink côtier
+Jeune Slink d'Abysse
+Jeune Slink de la forêt
+Jeune Slink de la Terre humide
+Jeune Slink de la zone de la faille
+Jeune Slink de Tolbas
+Jeune Slink des Collines
+Jeune Slink des terres désolées
+Jeune Sylphène
+Jeune Tog
+Jeune Tog affamé
+Jeune Tog de la colline
+Jeune Tog de la colline de la Rivière Ellun
+Jeune Tog du champ
+Jeune Tog rayé sauvage
+Jeune Tog vorace
+Jeune Ursus
+Jeune Ursus de la colline
+Jeune Ursus à cornes
+Jeune Zaif
+Jeune Zaif de la Forêt du plateau
+Jeune Zaif des plaines enneigées
+Jeune Zaif du plateau
+Jeune Zaif à crinière jaune
+Jonas imprudent
+Joyau du voile
+Joyau du voile instable
+Juge Archon du destin
+Juge du Temple Souterrain
+Juge Urahum
+Jugement
+Jump Laser
+K'nash la sentinelle
+K'tima premier cobaye
+Kabira intendant des ressources
+Kabloom des neiges
+Kailin
+Kailin de la Rivière Ellun
+Kailin des glaces
+Kailin des plaines
+Kailin du Canyon
+Kailin instable
+Kailin à la crinière de lave
+Kaira exécutrice
+Kaira la veilleuse
+Kalahanta
+Kalakar
+Kaldrix
+Kalgolem
+Kalgolem bleu
+Kalgolem bleu d'Abysse
+Kalgolem bleu de Grotte Rocheuse
+Kalgolem bleu de la zone de la faille
+Kalgolem brillant
+Kalgolem cendré
+Kalgolem courroucé
+Kalgolem d'Abysse
+Kalgolem d'Abîme
+Kalgolem de Grotte Rocheuse
+Kalgolem des cendres
+Kalgolem des cendres volcaniques
+Kalgolem des plaines enneigées
+Kalgolem des racines
+Kalgolem des ruines
+Kalgolem du crépuscule
+Kalgolem du filon
+Kalgolem du Site de crash
+Kalgolem dur
+Kalgolem fragmenté de la Tour barrière
+Kalgolem rigide
+Kalgolem robuste
+Kalgolem scintillant
+Kalgolem solide
+Kalgolem terne
+Kalgolem érodé
+Kalsek
+Kandhak impitoyable
+Kapu
+Karas adorateur des Balaurs
+Karas des plaines enneigées d'élite
+Karas du souterrain
+Karas décomposé
+Karas décomposé caché
+Kardon l'Exterminateur
+Karlix
+Karnif altéré apprivoisé
+Karnif apprivoisé
+Karnif Archon
+Karnif assaillant
+Karnif d'Abysse
+Karnif d'Azrakar
+Karnif de l'équipe de recherche léphariste
+Karnif de la troupe d'Abysse
+Karnif de sécurité Léphariste
+Karnif de Takshaka
+Karnif de Tolbas
+Karnif du Clan des Lames
+Karnif du plateau
+Karnif du tombeau rocheux
+Karnif en exploration
+Karnif entraîné
+Karnif familier du capitaine
+Karnif féroce
+Karnif garde Léphariste
+Karnif géant Istan
+Karnif herboriste
+Karnif Krall
+Karnif Krall Chandala
+Karnif Krall Makarah
+Karnif Mutant
+Karnif muté
+Karnif robuste
+Karnif scélérat de Tolbas
+Karnif sensible
+Karnif vigilant
+Karnif violent
+Karnif à crinière coriace du plateau
+Karnif à croc altéré
+Karnif éclaireur
+Karnif éclaireur apprivoisé
+Karnif éclaireur Léphariste
+Karotei déformé
+Karsha enragé
+Karuka le Visionnaire
+Kashapa le dominateur des âmes
+Kasia du rêve illusoire
+Kaulynx
+Kavanda déformé
+Ked capitaine de la troupe
+Kelpina la Vague bleue
+Keneire
+Keneire agile
+Keneire rapide
+Kernon cruel
+Kernon de l'ouest
+Ketu aux ailes d'Abîme
+Khumar affamé
+Kiane possédé par le pouvoir
+Kirilion
+Kius, criminel recherché
+Klaw
+Klaw altéré d'Abysse
+Klaw consumé
+Klaw d'Abysse
+Klaw de l'éternité
+Klaw de la zone de la faille
+Klaw des Abysses
+Klaw errant
+Klaw manipulé
+Klaw modifié
+Klaw muté
+Klaw muté d'Abysse
+Klawfly prédateur
+Kobold domestiqué
+Konutin
+Konutin d'anéantissement
+Konutin de la trajectoire
+Konutin du dépôt
+Konutin désespéré
+Konutin fidèle
+Konutin furieux
+Konutin inattendu
+Konutin manipulé
+Konutin Worker
+Koragh ascète
+Korhe le Chef des escrocs
+Korin en floraison
+Kouros déchu
+Krache planton
+Kragvald déformé
+Krall Jailor
+Krall modifié furieux
+Krall responsable des travaux
+Krao condensé
+Krosh destructeur
+Krovan d'anéantissement
+Krumms massacreur
+Kumbahum la Chamane
+Kusan le Berserker
+Kutar le Putréfié
+Kutira sadique de la 32e division
+Kwapo le chien de garde
+Kérubar
+Kérubar d'Hippatia
+Kérubar de la Forêt de Daminu
+Kérubar de Munihelle
+Kérubar de patience
+Kérubar des archives
+Kérubar garde des archives
+Kérubar éternel
+Kérubian
+Kérubian d'Hippatia
+Kérubian d'éternité
+Kérubian de la Forêt de Daminu
+Kérubian de patience
+Kérubian des archives
+Kérubian garde des archives
+Kérubiel
+Kérubiel de l'éternité
+Kérubiel des Archives de la Sagesse
+Lab Director Zylus
+Lagur des plaines enneigées
+Lagur du canyon
+Lagur robuste
+Lagur sauvage
+Lahas l'avare
+Laksha déformé
+Lakshmi assommant
+Lakshmi du sommeil
+Lakshmi onirique
+Lame
+Lame piège
+Lamiphedon
+Lamnah capitaine éclaireur
+Lamphu attiseur de lave
+Lamphu au souffle de lave
+Lamphu au souffle glacial
+Lamphu de cristal de glace
+Lamphu des abysses de Muspel
+Lamphu des plaines enneigées
+Lamphu du Temple divin souterrain
+Lamphu féroce du Temple divin souterrain
+Lamphus de l'agonie
+Lamuatan
+Lance de destruction
+Lanceur Manduri des terres désolées
+Lanceur Pretor
+Lannar le guerrier de sang
+Larson le terne
+Larve d'insecte de minerai
+Larve Sylphène
+Laser
+Laser de la Base de recherche Deus
+Laser de la Garnison
+Laser de surveillance
+Laser des archives
+Laser du Temple
+Laser sautant
+Latoha magique d'Iralcig
+Latoha rapide d'Iralcig
+Latri l'obscur de la 32e division
+Lave de Muspel
+Lave géante de Muspel
+Lawa aux tentacules noires
+Layla l'apostate
+Legion Outlaws Archer
+Legion Outlaws Warrior
+Lenara oublié
+Lepharist Chief Guard
+Lepharist Guard
+Lepharist Guard Captain
+Lepharist Test Subject Manager
+Lianes d'épines de Vakron
+Lieutenant Hebran
+Lieutenant Krall
+Lieutenant Sineora
+Linx le Chef des opérations spéciales
+Lisansa la Saccageuse
+Lisra acharné
+Lofman, criminel recherché
+Lokhand du frisson
+Lothar
+Lucant le dément
+Ludra de perpétuité
+Lupyllini cendré
+Lupyllini cobaye décomposé
+Lupyllini d'Abîme
+Lupyllini d'habitat
+Lupyllini d'élite d'habitat
+Lupyllini de l'éternité
+Lupyllini de la colline
+Lupyllini de la colline jaune
+Lupyllini de la colline modifié
+Lupyllini de la Corne abyssale
+Lupyllini de la vallée
+Lupyllini des cendres
+Lupyllini des Collines
+Lupyllini des falaises
+Lupyllini des ruines
+Lupyllini du canyon
+Lupyllini du plateau contaminé
+Lupyllini décomposé
+Lupyllini décomposé du canyon
+Lupyllini farouche
+Lupyllini féroce
+Lupyllini modifié
+Lupyllini oiseau monstrueux
+Lupyllini robuste
+Lupyllini rouge de la Colline
+Lupyllini à griffe décomposé
+Lupyllini à queue emplumée
+Luteros
+Lutteur Archon du destin
+Lutteur d'élite amélioré
+Lutteur d'élite d'anéantissement
+Lutteur d'élite de la haine
+Lutteur d'élite du sanctuaire
+Lutteur d'élite désespéré
+Lutteur de Kumbahum
+Lutteur Drakan d'Abysse
+Lutteur du Bataillon d'Azrakar
+Lutteur esclave de la Forteresse du ciel
+Lutteur escroc
+Lutteur maraudeur
+Lutteur Mau
+Lutteur Mau de la Corne abyssale
+Lutteur Mau exilé
+Lutteur Mau à cornes féroces
+Lutteur Nagarant d'Abysse
+Lutteur spectre hostile d'anéantissement
+Lutteur spectre hostile du repaire
+Lutteur spectre hostile du tyran
+Lutteur spectre hostile désespéré
+Lutteur spectre hostile éveillé
+Lutteur Sura intoxiqué
+Lutteur Urugugu
+Lutteur vagabond Aullaeu
+Léphariste suspect
+Mad Klominster
+Mad Researcher
+Mage Aullaeu
+Mage de garde du Clan des Lames
+Mage de l'Entrepôt
+Mage de l'Entrepôt de l'Anéantissement
+Mage de l'Entrepôt du Désespoir
+Mage de l'Entrepôt du Vide
+Mage de l'Entrepôt furieux
+Mage de l'Entrepôt Oublié
+Mage de l'Entrepôt élevé
+Mage de la Base de recherche Deus
+Mage de la tour de guet Léphariste
+Mage de reconnaissance Léphariste
+Mage de sécurité Léphariste
+Mage des ténèbres Naga d'Abysse
+Mage des ténèbres Naga de Takshaka
+Mage du Clan des Lames
+Mage du Clan des Lames de Sang
+Mage du laboratoire Léphariste
+Mage guerrier Aullaeu
+Mage guerrier de l'Entrepôt
+Mage guerrier de l'Entrepôt de l'Anéantissement
+Mage guerrier de l'Entrepôt du Désespoir
+Mage guerrier de l'Entrepôt du Vide
+Mage guerrier de l'Entrepôt furieux
+Mage guerrier de l'Entrepôt Oublié
+Mage guerrier de l'Entrepôt élevé
+Mage guerrier maraudeur
+Mage guerrière adepte de Ludra
+Mage guerrière d'assaut aérien Drakan
+Mage guerrière d'invasion de Beritra
+Mage guerrière de garde Drakan
+Mage guerrière de la garde Drakan de la réserve
+Mage guerrière de la réserve secrète
+Mage guerrière Drakan
+Mage guerrière du Clan des Lames
+Mage guerrière garde de plantation
+Mage guerrière supérieure Drakan
+Mage Léphariste
+Mage maraudeuse d'Odylium
+Mage Naga d'Abysse
+Mage noir d'anéantissement
+Mage noir désespéré
+Mage noire d'autel
+Mage noire du cauchemar
+Mage noire déformée
+Mage noire furieuse
+Mage Sura
+Mage Sura de la Fosse aux Immondices
+Mage Sura empoisonnée
+Mage Sura mutée
+Mage Urugugu
+Magicien Drakan amélioré
+Magicien Drakan d'anéantissement
+Magicien Drakan de la haine
+Magicien Drakan du sanctuaire
+Magicien Drakan désespéré
+Magicien Drakan furieux
+Majordome Karas
+Malgerre altéré
+Malicious Anatomist
+Manduri de la colline
+Manduri farouche
+Manduri féroce
+Mannequin
+Mannequin d'entraînement
+Mannequin d'entraînement (spécimen)
+Mantash le capitaine de patrouille
+Manœuvre Dratona maraudeur
+Maraka d'anéantissement
+Maraudeur de Hillslothir
+Maraudeur de la Forteresse du ciel
+Maraudeur de Tolbas
+Maraudeur des Mercenaires d'Astin
+Maraudeur des voleurs
+Maraudeur des voleurs Hernon
+Maraudeur du Clan des Lames de Sang
+Maraudeur du printemps
+Maraudeur mystérieux
+Maraudeuse des Ruines de la Garnison
+Maraudeuse mystérieuse
+Mare de sang toxique de Fafnir
+Mare toxique
+Marque de malédiction affaiblie
+Marque maudite
+Marteau de la faille déformé
+Massacreur maraudeur
+Massacreur maraudeur du col
+Masse de Drana solidifié
+Masse de Grotte souterraine profonde
+Masse de lave
+Masse de lave du Temple Divin du Feu
+Masse de lave géante
+Masse de lave instable
+Masse de sang toxique
+Masse de sang toxique (spécimen)
+Masse de sang toxique instable
+Masse de vignes contaminées
+Masse de vignes mutées
+Masse distordue
+Masse terne
+Maître Draconute
+Meganodh l'arbitre
+Membre de l'unité d'exécution de Beritra
+Membre de l'unité d'exécution Drakan de Takshaka
+Membre Drakan de l'unité d'exécution d'Abysse
+Membre Drakan de l'unité d'exécution de Beritra
+Meneur de rats
+Menox
+Mercenaire de Hillslothir
+Mercenaire de l'équipe de recherche léphariste
+Mercenaire responsable de la Forêt Aullaeu
+Merciless Bodyguard
+Messager du Clan des Lames
+Milice de Brise Légère
+Milicien sans âme
+Mine explosive
+Minerai brut d'Odylium instable
+Minerai d'Odylium
+Mineur Shulack contaminé
+Mineur Shulack intoxiqué
+Mineur Shulack muté
+Mineuse Kobold de plantation
+Mini totem Balaur
+Mino à trois cornes
+Minusha Drake géant
+Mistmane Mau Brawler
+Mistmane Mau Healer
+Mistmane Mau Sentry
+Miséreux Aullaeu
+Module de transmission d'élite Drakan
+Module de transmission Drakan
+Molosse de guerre Drakan
+Monolith of Glory
+Monolith of Pride
+Monstre (spécimen)
+Monstre d'entraînement Asmodien
+Monstre d'entraînement Élyséen
+Monstre des abysses de Muspel
+Monstre du marais d'Abysse
+Monstre du marais de la zone de la faille
+Monstre moyen
+Monstre test_Hidden
+Monstre unique Drakan
+Monstre à nageoires
+Monstre électrocutant
+Moratya le sinistre
+Morien conscrit de la 32e division
+Mort-vivant du cimetière
+Moshav le superviseur de la récolte
+Mostey conscrit de la 32e division
+Mouche à morts des plaines enneigées
+Moulrat chaman-dragon
+Mozhant insensible
+Mudthorn du laboratoire
+Mudthorn intoxiqué
+Muka déformé
+Mumu de Munihelle
+Mumu espiègle
+Muqaka chef du Clan des Griffes Noires
+Murute de fumée noire
+Mutant Agrint
+Mutant amélioré touché par la sorcellerie
+Mutant contaminé
+Mutant d'essaim d'Abysse
+Mutant de Drana
+Mutant de Drana d'Abysse
+Mutant de Drana d'élite
+Mutant de Drana d'Île de l'Éternité
+Mutant de Drana de grotte
+Mutant de Drana de Grotte souterraine profonde
+Mutant de Drana de l'Abysse
+Mutant de Drana de rubis
+Mutant de Drana distordu
+Mutant de Drana géant
+Mutant de Drana raté
+Mutant de Grotte souterraine profonde
+Mutant de la zone de la faille
+Mutant destructeur
+Mutant distordu
+Mutant du Vide
+Mutant décoloré
+Mutant déformé
+Mutant désespéré
+Mutant funèbre
+Mutant furieux
+Mutant géant contaminé
+Mutant géant d'Abysse
+Mutant Géant de Drana de l'Abysse
+Mutant géant de la zone de la faille
+Mutant imparfait de Drana
+Mutant Klaw d'Abysse
+Mutant Krao
+Mutant terne
+Mutant touché par la sorcellerie
+Mutant à la force terne
+Mutant éveillé
+Mutants expérimentaux furieux
+Mutated Pilgrim
+Mutated Test Subject
+Mute mutée de Drana
+Mécanisme du Clan des Lames
+Mécanisme explosif (spécimen)
+Météore
+N'attaque pas (Test d'échelle de niveau)
+Nadin, commandant exécutant du Clan des Lames
+Nahma le seigneur gardien
+Nahma le seigneur gardien enragé
+Nahma Seigneur gardien (spécimen)
+Nahrum capitaine éclaireur
+Narat l'ascète
+Narun
+Nasarak
+Nathara
+Nauton du Vent d'ouest
+Nayatman d'éclosion
+Nazmun
+Neikel de l'est
+Nemok bourreau
+Nepenthes
+Nepenthes de la zone de la faille
+Nepenthes de Tolbas
+Nepenthes du Canyon
+Nepenthes du plateau rouge
+Nepenthes fétide d'Abysse
+Nettoyeur de cadavres d'Iralcig
+Nettoyeur de cadavres de forteresse
+Nettoyeur de cadavres des ruines
+Nettoyeur de cadavres du temple
+Nettoyeur de cadavres féroce
+Nettoyeur des ruines
+Nettoyeur Klaw
+Newbold le Profanateur
+Nihogg furibond
+Nikolai
+Nishad déformé
+Nornir corrompue
+Nornir du Néant
+Nornir sans âme
+Notun le gardien de la Forteresse
+Nouvelle recrue du Village Aullaeu
+Noyau des Asmodiens
+Noyau des Élyséens
+Noyau dimensionnel
+Noyau électrisant
+Nua bourreau (spécimen)
+Nua le Bourreau
+Nuakum à cornes féroces
+Nuraka la sentinelle
+Nutah le Chef superviseur
+Observateur Archon du destin gelé
+Observateur Daeva du destin corrompu
+Observateur Daeva mystérieux d'entrepôt secret
+Observateur de patrouille Drakan
+Observateur Kérubar des archives
+Obsession de Valter
+Octaside au noyau bleu
+Octaside aux pattes fines
+Octaside des cairns
+Octaside humide
+Octaside variant contaminé
+Octaside à coquille blanche
+Oculazen
+Oculazen d'exécution
+Oculazen observateur
+Oculazen observateur des travaux
+Oculazen responsable des travaux
+Oditium
+Oditium de l'éternité
+Odyle Laboratory Laser
+Officier adepte de Ludra
+Officier commandant mort-vivant d'anéantissement
+Officier commandant mort-vivant désespéré
+Officier d'élite d'Abysse
+Officier d'élite de l'unité d'exécution de Beritra
+Officier d'élite Drakan (spécimen)
+Officier d'élite Drakan de Takshaka
+Officier de combat Drakan
+Officier de l'unité d'exécution de Beritra
+Officier de troupe aérienne de Beritra
+Officier Drakan d'Abysse
+Officier Drakan de l'unité d'exécution de Beritra
+Officier Drakan de Takshaka
+Officier du Conclave
+Officier du détachement Balaur
+Officier en chef de Latrima
+Officier en chef mort-vivant du repaire
+Officier en chef mort-vivant du tyran
+Officier en chef mort-vivant furieux
+Officier en chef mort-vivant éveillé
+Officier ingénieur de l'unité d'exécution de Beritra
+Officier mage Drakan d'Abîme
+Officier éclaireur Drakan d'Abîme
+Officière de patrouille du Clan des Lames
+Officière de patrouille forestière corrompue
+Oga érodé
+Ombre de la douleur
+Ombre de Teina
+Ombre distordue
+Ombre déformée
+Ombre illusoire
+Orateur du Conclave
+Orbe des vœux
+Orbe vert chargé
+Orbe vert surchargé
+Orbe écarlate chargé
+Orbe écarlate surchargé
+Ordix Daeva renégat
+Ouvrier de carrière Pretor
+Ouvrier de transformation Dracuni
+Ouvrier Dratona
+Ouvrier Kobold
+Ouvrier Kobold de plantation
+Ouvrier Krall muté
+Ouvrier Pino
+Ouvrier Shulack intoxiqué
+Ouvrier Shulack muté
+Ouvrière Kobold de la récolte
+Overseer Gromkas
+Pachyron des falaises
+Pachyron des glaces
+Pachyron des plaines
+Pachyron du canyon
+Pallarus maudit
+Pang
+Papis
+Papis de grotte
+Papis de la Rivière Ellun
+Papis des Collines
+Papis des plaines
+Papis docile
+Papis du jardin
+Papis terni
+Parasite du Marais Contaminé
+Parents 40/All/Exceed
+Parents 40/All/None
+Parents 40/Exceed/Exceed
+Parents 40/Exceed/None
+Parents 40/None/Exceed
+Parents 40/None/None
+Pargon le vagabond des frontières
+Passez par la brèche
+Patalajya le Fléau
+Patamor Durgal
+Paton intact
+Patrouille Daeva mystérieuse de l'entrepôt secret
+Patrouille de Daeva tenace
+Patrouilleur d'entrepôt
+Patrouilleur Daeva d'anéantissement
+Patrouilleur Daeva désespéré
+Patrouilleur de Hillslothir
+Patrouilleur de la Base du plateau
+Patrouilleur des voleurs
+Patrouilleur des Voleurs des terres sauvages
+Patrouilleur du baraquement
+Patrouilleur maraudeur Daeva
+Patrouilleur vagabond Aullaeu
+Patrouilleure Daeva des ruines
+Patrouilleuse Daeva d'autel
+Patrouilleuse Daeva du cauchemar
+Patrouilleuse Daeva du repaire
+Patrouilleuse Daeva déformé
+Patrouilleuse Daeva furieuse
+Patrouilleuse Daeva furtive
+Patrouilleuse Daeva renégate
+Patrouilleuse du col
+Patrouilleuse du site d'exécution
+Patrouilleuse déserteuse
+Patrouilleuse pilleuse de tombes
+Pelleir asservie
+Petit Driton de la forêt
+Petit esprit de l'eau
+Petit Esprit du feu furtif
+Petit Latoha d'Iralcig
+Petit totem Aullaeu
+Petite tour de guet
+Phernos
+Phénix de l'Île céleste
+Pierre d'attaque
+Pierre d'attaque affaiblie
+Pierre d'esprit de brume
+Pierre d'esprit de la terre contaminé
+Pierre d'esprit des ténèbres
+Pierre d'esprit du feu contaminé
+Pierre d'esprit du vent contaminé
+Pierre d'occupation de la Garnison
+Pierre de barrière
+Pierre de Domination
+Pierre de défense
+Pierre de défense affaiblie
+Pierre de Réincarnation
+Pierre de surveillance Balaur
+Pierre de vie
+Pierre de vie affaiblie
+Pierre flottante
+Pierre électrique flottante
+Pilier
+Pillard Daeva du repaire
+Pillard Daeva furtif
+Pillard de la Base du plateau
+Pillard des voleurs
+Pillard du Canyon
+Pillard du Clan de Gargos
+Pillard du Clan de Miros
+Pillard du col
+Pillard du site d'exécution
+Pillard déserteur
+Pillard Ugaros
+Pilleur de Hillslothir
+Pilleur de tombes des Ruines suspectes
+Pino
+Pino de la trajectoire
+Pino en patrouille
+Pino enragé
+Pino ensorcelé
+Pino inattendu
+Pino responsable des travaux
+Pinopi le gardien des portes
+Pisteur Konutin de Tolbas
+Pisteuse des Mercenaires d'Astin
+Piège autodestructif Balaur
+Piège contraignant
+Piège des ruines anciennes
+Piège explosif
+Piège pétrifiant
+Piège pétrifiant (spécimen)
+Piège pétrifiant de Hillslothir
+Piège à bombe funèbre
+Piège à explosion
+Piège à explosion de la Forteresse du ciel
+Piégeur de rats
+Plante carnivore féroce transformée
+Plante toxique
+Planton des Mercenaires d'Astin
+Planton Mumu
+Plume de protection incarnée
+Plume magique
+Pnyn aux crocs sanglants
+Poche de poison
+Poche de venin
+Poche de venin contaminée
+Poche de venin de piège
+Poche de venin du cimetière
+Poche de venin dénaturée
+Pokus de lave des Collines
+Pokus de lave du canyon
+Pokus des Collines
+Pokus des plaines
+Portail vert
+Portail violet
+Portail écarlate
+Porteur Draconute d'entrepôt
+Porteur Kobold
+Porteur Kobold de plantation
+Porteur Shulack de la base expérimentale
+Poursuivant d'élite de Hillslothir
+Poursuivant de Nagarant
+Poursuivant des ruines suspect
+Poursuiveur Aullaeu
+Prapha de la 32e division
+Prasada seigneur gardien
+Presse hydraulique
+Prideful Atiel
+Projection de Zumion
+Prospectrice Kobold de plantation
+Prédateur consumé
+Prédateur d'Abîme
+Prédateur de Drana
+Prédateur de Drana de rubis
+Prédateur destructeur
+Prédateur du Vide
+Prédateur désespéré
+Prédateur funèbre
+Prédateur furieux
+Prédateur terne
+Prédateur éveillé
+Prétorien d'Unavarun Nagarant
+Prêtre acolyte de l'affection
+Prêtre ancien en décomposition
+Prêtre Archon du destin
+Prêtre Aullaeu asservi
+Prêtre Aullaeu des racines
+Prêtre Aullaeu exilé
+Prêtre d'élite Arcanis
+Prêtre d'élite d'Abysse
+Prêtre d'élite de l'affection
+Prêtre d'élite Drakan de Takshaka
+Prêtre d'élite Naga
+Prêtre de l'affection
+Prêtre de la chambre forte de la forteresse
+Prêtre de la grotte Naga
+Prêtre de Roah
+Prêtre de Roah déformé
+Prêtre Drakan de Takshaka
+Prêtre du Cavalier d'illusion
+Prêtre Karas
+Prêtre Karas des plaines enneigées
+Prêtre Kraka
+Prêtre Naga d'Iralcig
+Prêtre Naga des grottes
+Prêtre novice sans âme
+Prêtre revenant d'armurerie
+Prêtre sans âme
+Prêtre Sura oublié
+Prêtre érudit ancien
+Prêtresse Naga
+Prêtresse Soirel
+Pshatcha décomposé
+Pugiliste de la tour de guet Léphariste
+Pugiliste de sécurité Léphariste
+Pugiliste du laboratoire Léphariste
+Pugiliste Léphariste
+Puissant Leumas
+Pulke
+Purificateur de contamination refluant
+Pydeon des profondeurs
+Pèlerin Sura
+Pétrification de Thamon
+Quartier-maître Tyius
+Racine pourrie de Meltlim
+Racketteur de Cantas
+Racketteur Paitron
+Racon d'invasion de Beritra
+Racon féroce
+Racon vigilant
+Radbima général de division
+Rafflesia
+Rafflesia antitoxique
+Rafflesia de l'affection
+Rafflesia de rubis
+Rafflesia instable
+Rafflesia magique multidimensionnelle
+Rahald sans âme
+Rahasa furieux
+Rahu de la disjonction
+Rajit le fidèle
+Rakut
+Rampant altéré de la Tour barrière
+Rat contaminé
+Rat d'égout
+Rat de tombe affamé
+Rat de tombe de grotte
+Rat de tombe pourri
+Rat du cimetière
+Rat du tombeau des livres
+Rat sauvage brûlé
+Rathman le Faucheur d'âmes
+Ratisseur Kobold de plantation
+Raur le Capitaine de la garde
+Ravageur de la Forteresse du ciel
+Ravageur des Ruines de la Garnison
+Ravageur des Voleurs des terres sauvages
+Ravageur des voleurs Hernon
+Ravitailleur Draconute
+Razekin détraqué
+Reaver de Hillslothir
+Reda enragée
+Reine abeille féroce
+Reine Karat
+Reine Klaw mutée
+Rekhorn oublié
+Renulf la tempête pourpre
+Renégat Archon du destin
+Resana le Conseiller
+Responsable des cobayes lépharistes
+Responsable des récoltes Ashat de la 32e division
+Responsable des récoltes Karda de la 32e division
+Responsable Drana Léphariste
+Restes d'un Daeva éliminé
+Revenant ancien d'Abîme
+Revenant archer Daeva de la vie
+Revenant Archon de forteresse
+Revenant Archon du destin
+Revenant assassin Daeva de la vie
+Revenant chevalier Daeva de la vie
+Revenant d'anéantissement
+Revenant d'Uruthumheim ancien
+Revenant du repaire
+Revenant du tyran
+Revenant désespéré
+Revenant emprisonné
+Revenant errant
+Revenant furieux
+Revenant gardien de forteresse
+Revenant glouton
+Revenant guerrier Daeva furieux
+Revenant maudit
+Revenant patrouilleur Daeva de la vie
+Revenant éveillé
+Rhodar cruel
+Rimus apostat
+Ritualiste de Kraka
+Robstino
+Robzev
+Roche de gaz
+Rocher
+Rogherr le débauché
+Roi des esprits (spécimen)
+Rotan
+Rotan de la zone de la faille
+Rotan lame d'argent (spécimen)
+Rotan rouillé de l'Abysse
+Rotan sadique
+Rotan usé d'Abysse
+Rotan à la lame d'argent
+Rotan à la lame d'argent d'Abysse
+Rotan à la lame usée
+Rotan à la lame usée d'Abysse
+Rugissement
+Ruines d'Arca
+Ruthilis de la douleur
+Ruthless Technician
+Réacteur à fusion auxiliaire d'Abîme
+Réacteur à fusion central d'Abîme
+Réparateur Kobold
+Réverbération
+Rôdeuse Daeva renégate
+Rôdeuse Daeva évadée
+Rôle : Ami devenu Karas
+Rôle : Karas
+Rôle : Villageois
+Rôle : Villageoise
+Sabga du venin
+Saccageur Daeva du repaire
+Saccageur Daeva furtif
+Saccageur de la Base du plateau
+Saccageur du Canyon
+Saccageur du Clan de Gargos
+Saccageur du Clan de Miros
+Saccageur du col
+Saccageur du site d'exécution
+Saccageur déserteur
+Saccageur maraudeur
+Saccageur maraudeur du col
+Saccageur Ugaros
+Saccageuse Ugaros
+Sage Aullaeu d'oratoire
+Sahar pisteur
+Samaf la Griffe d'ébène
+Samdiya du Crépuscule de la 32e division
+Sandha le Veilleur
+Sandstorm Legion Decanus
+Sandstorm Legion Elite
+Sandstorm Legion Gladiator
+Sandstorm Legion Soldier
+Sandstorm Legion Templar
+Sang toxique
+Sang toxique bouillant de la Source mystique
+Sang toxique de Fafnir
+Sang toxique de la Source mystique
+Sang toxique dégoulinant
+Sang toxique dénaturé
+Sang toxique instable
+Sang toxique maudit
+Santian pèlerin
+Santras le gardien de prison
+Sapeur de l'Avant-garde Drakan consumé
+Sapeur de l'avant-garde Drakan de l'Abysse
+Sapeur de l'Avant-garde Drakan enseveli
+Sapeur de l'Avant-garde Drakan furieux
+Sapeur de l'Avant-garde Drakan éveillé
+Saraswati le Prédateur
+Saule avide de Drana de l'Abysse
+Saursus enragée
+Savant biologique de Nahid
+Savant d'énergie Drana
+Savant de Drana Léphariste
+Savant de reconnaissance Léphariste
+Savant Drakan
+Savant du Bataillon de Lagta
+Savante Drakan
+Sbire de Kalakar
+Sbire niveau 1
+Sbire niveau 2
+Sbire niveau 3
+Sbire niveau 4
+Scafid forestier
+Scorpion contaminé
+Scorpion de Fafnite
+Scorpion de la colline
+Scorpion de minerai
+Scorpion des Collines
+Scorpion des terres désolées
+Scribe
+Sculpture de gardien noble
+Sculpture gardienne du Temple Divin du Feu
+Sculpture gardienne oubliée
+Secousse de caméra
+Secret Repository Sentry
+Sehna capitaine d'avant-poste
+Seigneur gardien de la faille Mahabali
+Seigneur gardien de la faille Tamapala
+Selmar exécuteur
+Sentinelle Aullaeu
+Sentinelle d'armée Draconute
+Sentinelle d'élite du Clan des Lames
+Sentinelle de l'unité du chef
+Sentinelle de la réserve Aullaeu
+Sentinelle des Griffes Noires
+Sentinelle Draconute
+Sentinelle Drakan
+Sentinelle du Bataillon de Lagta
+Sentinelle du Clan des Lames
+Sentinelle du Clan des Lames de Sang
+Sentinelle du détachement Balaur
+Sentinelle du Village Aullaeu
+Sentinelle Krall
+Sentinelle Léphariste
+Sentinelle paresseuse Draconute
+Sentinelle Shulack déchaînée
+Sentinelle Shulack intoxiqué
+Sentinelle Shulack intoxiquée
+Sentinelle Shulack mutée
+Sentinelle Shulack sans âme
+Sentinelle supérieure Draconute
+Servant Karas
+Servante de Lakshmi
+Servante Karas
+Servante Karas corrompue
+Serviteur de Fafnir
+Serviteur du joyau
+Serviteur Kobold
+Setram le chercheur
+Seyron du lac
+Sharina l'hérétique
+Shujakan le Vétéran
+Shulack intoxiqué
+Shulag chef Mau
+Shuniam le creux
+Shylak l'Acéré
+Sigebert
+Sigebert de l'Abysse
+Sigebert le Prétorien
+Sigebert's Minion
+Silhouette du gladiateur défunt
+Silhouette du guerrier défunt
+Silhouette du Soldat archer défunt
+Siliator du mensonge
+Sinah administrateur
+Skama de Drana de l'Abysse
+Skama de soufre d'Abysse
+Skama des Collines
+Skama du lac
+Skama humide
+Skama malodorant
+Skama muté de Drana
+Skama variant de la zone de la faille
+Skama à queue jaune
+Slime contaminé
+Slime contaminé (spécimen)
+Slime contaminé de la Source mystique
+Slime contaminé de la zone de la faille
+Slime contaminé par la plante toxique
+Slime de Drana
+Slime de Drana d'Abysse
+Slime de lave
+Slime de soufre d'Abysse
+Slime des profondeurs
+Slime divisé
+Slime du marais
+Slime décomposé
+Slime géant contaminé
+Slime immonde
+Slime malodorant
+Slime toxique contaminé
+Slime violent
+Slink
+Slink côtier
+Slink d'Abysse
+Slink de l'éternité
+Slink de la forêt
+Slink de la Terre humide
+Slink de la zone de la faille
+Slink de Tolbas
+Slink de Tunapre
+Slink des Collines
+Slink des terres désolées
+Soigneur des forces spéciales de Kurpak
+Soigneur Mau exilé
+Soigneur Mau à cornes féroces
+Sol
+Soldat ancien asservi
+Soldat ancien d'Abîme
+Soldat arbalétrier Draconute
+Soldat arbalétrier du poste
+Soldat archer Archon exécuté
+Soldat archer Balaur amélioré
+Soldat archer Balaur d'anéantissement
+Soldat archer Balaur de la haine
+Soldat archer Balaur du sanctuaire
+Soldat archer Balaur désespéré
+Soldat archer Balaur furieux
+Soldat archer Daeva blessé
+Soldat archer de la Forteresse du ciel
+Soldat archer des forces spéciales de Kurpak
+Soldat archer des ruines Draconute
+Soldat archer des troupes de la garnison de Patamor
+Soldat archer des vigies du sanctuaire
+Soldat archer des voleurs d'Eiron
+Soldat archer Draconute
+Soldat archer Draconute d'élite
+Soldat archer Draconute supérieur
+Soldat archer Drakan de givre
+Soldat archer hors-la-loi des plaines enneigées
+Soldat archer Krall
+Soldat archer Krall Chandala
+Soldat archer Krall d'Abysse
+Soldat archer Krall de plantation
+Soldat archer Krall Makarah
+Soldat archer patrouilleur Aullaeu
+Soldat archer prétorien Dharvata
+Soldat archer responsable Aullaeu
+Soldat archer responsable de Résidence du Ritualiste
+Soldat archer supérieur du poste
+Soldat archer supérieur Lamnah
+Soldat armé d'assaut aérien Drakan
+Soldat armé d'Avant-garde Drakan
+Soldat armé d'invasion de Beritra
+Soldat armé de l'unité d'exécution de Beritra
+Soldat armé de Latrima
+Soldat armé de Nahid brutal
+Soldat armé de patrouille Drakan
+Soldat armé Drakan
+Soldat armé Drakan amélioré
+Soldat armé Drakan d'Abîme
+Soldat armé Drakan d'anéantissement
+Soldat armé Drakan de la haine
+Soldat armé Drakan du sanctuaire
+Soldat armé Drakan désespéré
+Soldat armé Drakan furieux
+Soldat armé Krall
+Soldat au bouclier d'élite d'anéantissement
+Soldat au bouclier d'élite d'autel
+Soldat au bouclier d'élite du cauchemar
+Soldat au bouclier d'élite déformé
+Soldat au bouclier d'élite désespéré
+Soldat au bouclier d'élite furieux
+Soldat au bouclier d'élite gardien du fragment
+Soldat au bouclier englouti
+Soldat au bouclier gardien du fragment
+Soldat Aullaeu
+Soldat Balaur déployé
+Soldat broyeur Drakan de Takshaka
+Soldat commun Drakan
+Soldat commun Drakan de l'Abysse (commun)
+Soldat commun Drakan de la Tour d'énergie
+Soldat commun Drakan furieux
+Soldat d'assaut aérien Drakan
+Soldat d'assaut d'élite d'anéantissement
+Soldat d'assaut d'élite d'autel
+Soldat d'assaut d'élite du cauchemar
+Soldat d'assaut d'élite déformé
+Soldat d'assaut d'élite désespéré
+Soldat d'assaut d'élite furieux
+Soldat d'assaut des forces spéciales de Kurpak
+Soldat d'assaut Draconute
+Soldat d'assaut Drakan Chandala
+Soldat d'assaut Drakan de Nahid
+Soldat d'assaut Drakan Makarah
+Soldat d'assaut Krall
+Soldat d'assaut Krall amélioré
+Soldat d'assaut Krall de Kurpak
+Soldat d'assaut prétorien Dharvata
+Soldat d'assaut Putika de la 32e division
+Soldat d'assaut Vikri de la 32e division
+Soldat d'extermination rattaché à Muqaka
+Soldat d'élite Balaur de Nartis
+Soldat d'élite Daeva sans âme
+Soldat d'élite des Chevaliers de l'affection
+Soldat d'élite Drakan de Takshaka
+Soldat d'élite du Temple Souterrain
+Soldat d'élite rattaché à Muqaka
+Soldat de garde de troupe des Griffes Noires
+Soldat de garde supérieure du Temple Souterrain
+Soldat de guet Archon du destin
+Soldat de guet armé Drakan
+Soldat de guet Aullaeu
+Soldat de guet Aullaeu des racines
+Soldat de guet d'entrepôt des trésors
+Soldat de guet de Fafnium
+Soldat de guet de Gribade Mumu
+Soldat de guet de Hillslothir
+Soldat de guet de Kumbahum
+Soldat de guet de la base du Clan des Lames
+Soldat de guet de la garde des Griffes Noires
+Soldat de guet de la réserve secrète
+Soldat de guet des Ruines suspectes
+Soldat de guet Draconute
+Soldat de guet Draconute de prison
+Soldat de guet du Bataillon de Lagta
+Soldat de guet du Clan des Lames
+Soldat de guet du printemps
+Soldat de guet du trésor Duduka
+Soldat de guet du Village Aullaeu
+Soldat de guet Krall
+Soldat de guet Krall amélioré
+Soldat de guet Kérubar des archives
+Soldat de guet Léphariste
+Soldat de guet maraudeur d'Odylium
+Soldat de guet Mau
+Soldat de guet Mau de la Corne abyssale
+Soldat de guet Mau exilé
+Soldat de guet Mau à cornes féroces
+Soldat de guet Mumu du labyrinthe
+Soldat de mission Draconute
+Soldat de patrouille Aullaeu
+Soldat de patrouille de l'avant-poste
+Soldat de patrouille de la colline forestière
+Soldat de patrouille de la Forêt Aullaeu
+Soldat de patrouille de Résidence du Ritualiste
+Soldat de patrouille des Griffes Noires
+Soldat de patrouille des travaux de la forêt
+Soldat de patrouille Draconute
+Soldat de patrouille Draconute d'entrepôt
+Soldat de patrouille du Bataillon de Lagta
+Soldat de patrouille du Village Aullaeu
+Soldat de patrouille hérétique Aullaeu
+Soldat de patrouille Krall
+Soldat de patrouille Urugugu
+Soldat de recherche Biruta
+Soldat de recherche de Hillslothir
+Soldat de recherche de l'entrepôt suspect
+Soldat de recherche de la bibliothèque suspect
+Soldat de recherche de la garde des Griffes Noires
+Soldat de recherche de troupe des Griffes Noires
+Soldat de recherche des collines suspect
+Soldat de recherche des Ruines suspectes
+Soldat de recherche Draconute
+Soldat de recherche Drakan d'Abysse
+Soldat de recherche du Clan des Lames
+Soldat de recherche Krall d'Abysse
+Soldat de recherche Kérubar des archives
+Soldat de recherche Léphariste
+Soldat de recherche Pretor
+Soldat de reconnaissance Krall
+Soldat de reconnaissance Krall amélioré
+Soldat de reconnaissance Krall de Kurpak
+Soldat de soutien de Fafnium
+Soldat de soutien de l'avant-poste
+Soldat de soutien de l'Entrepôt de l'Anéantissement
+Soldat de soutien de l'Entrepôt du Désespoir
+Soldat de soutien de l'Entrepôt du Vide
+Soldat de soutien de l'Entrepôt furieux
+Soldat de soutien de l'Entrepôt Oublié
+Soldat de soutien de patrouille Drakan
+Soldat de soutien Drakan
+Soldat de soutien Dratona
+Soldat de soutien du Clan des Lames
+Soldat de soutien du Clan des Lames furtif
+Soldat de soutien Krall
+Soldat de soutien Krall amélioré
+Soldat de soutien Krall de Kurpak
+Soldat de soutien magique d'Avant-garde Drakan
+Soldat de soutien magique de Latrima
+Soldat de soutien magique Drakan
+Soldat de soutien magique Drakan consumé
+Soldat de soutien magique Drakan de l'Abysse
+Soldat de soutien magique Drakan des plaines enneigées
+Soldat de soutien magique Drakan enseveli
+Soldat de soutien magique Drakan furieux
+Soldat de soutien magique Drakan éveillé
+Soldat Drakan
+Soldat Drakan commun consumé
+Soldat Drakan commun enseveli
+Soldat Drakan Commun éveillé
+Soldat Drakan de salle des archives
+Soldat dresseur Krall
+Soldat gardien d'entrepôt Draconute
+Soldat gardien de modules Draconute
+Soldat gardien des Œufs de Dratona
+Soldat gardien Drakan
+Soldat gardien du camp de détention
+Soldat investigateur du détachement Balaur
+Soldat Krall
+Soldat lanceur Draconute
+Soldat messager du détachement Balaur
+Soldat mort-vivant d'anéantissement
+Soldat mort-vivant du repaire
+Soldat mort-vivant du tyran
+Soldat mort-vivant désespéré
+Soldat mort-vivant furieux
+Soldat mort-vivant éveillé
+Soldat responsable des travaux de la forêt
+Soldat ressuscité
+Soldat soigneur des Griffes Noires
+Soldat soigneur Krall
+Soldat soigneur Krall de plantation
+Soldat soigneur Krall du sous-sol
+Soldat soigneur Krall modifié
+Soldat soigneur Mau
+Soldat sondeur des ruines du Clan des Lames
+Soldat supérieur Draconute de prison
+Soldat supérieur Draconute de Takshaka
+Soldat supérieur Drakan de Takshaka
+Soldat Sura brisé
+Soldat Sura contaminé
+Soldat surveillant de la Forêt Aullaeu
+Soldat surveillant des travailleurs de la forêt
+Soldat traqueur Drakan
+Soldat Urugugu
+Soldat volant de plantation
+Soldat éleveur Draconute
+Soldats d'assaut de la base du Clan des Lames
+Soldats de soutien de l'Entrepôt
+Soldats de soutien de l'Entrepôt élevé
+Sonde d'assaut aérien
+Sonde d'invasion de Beritra
+Sonde de reconnaissance
+Sondeur d'Avant-garde Drakan
+Sondeur de patrouille Drakan
+Sondeur Drakan
+Sondeur Drakan des plaines enneigées
+Sondeur du poste de surveillance
+Sorcier Daeva corrompu
+Sorcier Daeva d'élite corrompu
+Sorcier Daeva du temple
+Sorcier de bataille Archon du destin
+Source hydrothermale
+Souriceau sauvage brûlé
+Sous-officier d'Akvar
+Spadassin du Clan de Kius
+Sparkie
+Sparkie de Fafnite
+Sparkie de Fafnite lumineux
+Sparkie de la colline
+Sparkie de la colline brillant
+Sparkie de la forêt
+Sparkie de la Forêt Aullaeu
+Sparkie de la vallée
+Sparkie de la vallée féroce
+Sparkie de prairie
+Sparkie des Hautes Terres
+Sparkie des plaines
+Sparkie docile
+Sparkie géant de la Forêt Aullaeu
+Sparkie géant des Hautes Terres
+Sparkie géant du filon
+Sparkie sauvage
+Sparkie à Od aux branches sèches
+Sparkie à Od du filon
+Sparkie à Od du plateau
+Sparkie à Od géant
+Sparkie à Od géant du plateau
+Special Monster
+Spectre condensé
+Spectre d'Abysse
+Spectre d'entité inconnue
+Spectre de guerrier Drakan
+Spectre de la forêt muté
+Spectre de prêtre Drakan
+Spectre de soldat d'élite Drakan
+Spectre de vigne corrompu
+Spectre du guerrier des ruines
+Spectre déchaîné
+Spectre déformé
+Spectre en forme de Fossa
+Spectre hostile ancien d'Abîme
+Spectre hostile ancien putréfié
+Spectre hostile Archon du destin
+Spectre hostile Archon exécuté
+Spectre hostile assombri
+Spectre hostile bourreau forestier corrompu
+Spectre hostile chauve-souris
+Spectre hostile d'archère forestière corrompue
+Spectre hostile d'élite Daeva
+Spectre hostile Daeva
+Spectre hostile de Bayertz
+Spectre hostile de Fediv
+Spectre hostile de la chambre forte de la forteresse
+Spectre hostile de la grotte du lac
+Spectre hostile de Nornir
+Spectre hostile de rancune profonde
+Spectre hostile de sous-espace enragé
+Spectre hostile du chevalier forestier corrompu
+Spectre hostile du passé obscur
+Spectre hostile errant
+Spectre hostile funeste de l'autel
+Spectre hostile hérétique Aullaeu
+Spectre hostile Karas
+Spectre hostile Karas abandonné
+Spectre hostile Karas caché
+Spectre hostile non identifié
+Spectre hostile Nornir
+Spectre hostile perdu
+Spectre hostile rancunier
+Spectre hostile sacrifié
+Spectre hostile supérieur Daeva
+Spectre hostile Sura
+Spectre Nornir
+Spectre perdu
+Spectre perdu de la zone de la faille
+Spectre perdu des plaines enneigées
+Spectre terne de la forêt
+Sphère magique
+Spinning Turret
+Spirale corruptrice
+Spirale d'eau
+Spirale du Néant
+Spore contaminée
+Spore de Drana
+Sporophore muté de rubis
+Sram, insecte venimeux
+Statue de protection de Muspel
+Statue des ruines anciennes
+Statue gardienne ancienne
+Statue gardienne de Pierre de flamme
+Statue gardienne du Temple
+Steinun totalement altéré
+Stof traqueur
+Storage Room Drakan Commander
+STR_Askran_01_Affix_01
+STR_Askran_01_Affix_02
+STR_M_PD_BeritraA_02_V02_001
+STR_M_PD_PollutedGrass_01_CV01_001
+Subordonné d'Astin
+Subordonné d'Aulamus
+Subordonné de Milora
+Subordonné de Vol'drik
+Sudka chercheur
+Sumakhi cruel
+Superbia la bête sacrée de la vie
+Superviseur de la Forteresse du ciel
+Superviseur de la tour de guet Léphariste
+Superviseur des Ruines suspectes
+Superviseur Drakan
+Superviseur du Clan des Lames
+Superviseur du détachement Balaur
+Superviseur du raffinage de Surana
+Superviseur du rituel de la pleine lune
+Superviseur en chef Mumu
+Superviseur Kuru
+Superviseur Kuru de l'éternité
+Superviseur Kuru de Tolbas
+Superviseur Mumu
+Superviseur Mumu de travaux forcés
+Superviseur Shulack intoxiqué
+Superviseur Shulack muté
+Superviseur Shulack sans âme
+Support de connexion d'amélioration de trésor
+Suppresseurs de Krall de Kurpak
+Sura brisé
+Sura de la Fosse aux Immondices
+Sura du repaire
+Sura dément
+Sura muté
+Sura muté brisé
+Sura muté du cimetière
+Sura scellé
+Surveillant contrebandier
+Surveillant d'entrepôt du Bataillon de Lagta
+Surveillant de Fafnium
+Surveillant de Gribade Mumu
+Surveillant Kobold
+Surveillante de la garde des Griffes Noires
+Surveillante des Mercenaires d'Astin
+Sylphène
+Sylphène de l'ombre des ruines
+Sylphène de la forêt
+Sylphène de la Rivière Ellun
+Sylphène des Collines
+Sylphène des Hautes Terres
+Sylphène des plaines
+Sylphène des ruines
+Sylphène des terres désolées
+Sylphène des terres sauvages
+Sylphène du col
+Sylphène du plateau
+Sylphène flétri
+Sylphène variant
+Sylphène à tête pointue
+Talisra du Néant
+Tamasa l'exécuteur
+Tamond déformé
+Taneetch à la recherche de vérité
+Targon contaminé
+Targon de la Forêt de Tolbas
+Targon du lac
+Targon du marais
+Targon du marais d'Abysse
+Targon variant contaminé
+Targos dévore-cadavres
+Tarka destructeur
+Tarren sans âme
+Tarva déformé
+Tasin (spécimen)
+Tasin le tyran
+Tasin le tyran déchaîné
+Taulo le traqueur
+Taupe bleue
+Taupe de Drana de grotte
+Taupe à coquille rouge
+Tayga apprivoisé
+Tayga apprivoisé d'élevage
+Tayga de givre
+Tayga de l'Antre Hurlant
+Tayga de la garde
+Tayga de troupe
+Tayga féroce
+Tayga Varg
+Taytra Armed Soldier
+Taytra Scout
+Taytra Skirmisher
+Technicien en explosifs
+Technicienne Drakan d'Egia
+Teegant le garde du corps
+Templier Archon d'armurerie
+Templier Archon de la Halte
+Templier Archon sans âme
+Templier Daeva corrompu
+Templier des Chevaliers de l'affection
+Templier revenant d'Archon
+Templier sans âme des plaines enneigées
+Tempête d'Éclats d'Od
+Tempête de la Base de recherche Deus
+Tempête de sable
+Tentacule de Blat
+Tentacule de sang noir
+Tentacule rouge de Blat
+Test d'équilibrage 1
+Test d'équilibrage 10
+Test d'équilibrage 100
+Test d'équilibrage 11
+Test d'équilibrage 12
+Test d'équilibrage 13
+Test d'équilibrage 14
+Test d'équilibrage 15
+Test d'équilibrage 16
+Test d'équilibrage 17
+Test d'équilibrage 18
+Test d'équilibrage 19
+Test d'équilibrage 2
+Test d'équilibrage 20
+Test d'équilibrage 21
+Test d'équilibrage 22
+Test d'équilibrage 23
+Test d'équilibrage 24
+Test d'équilibrage 25
+Test d'équilibrage 26
+Test d'équilibrage 27
+Test d'équilibrage 28
+Test d'équilibrage 29
+Test d'équilibrage 3
+Test d'équilibrage 30
+Test d'équilibrage 31
+Test d'équilibrage 32
+Test d'équilibrage 33
+Test d'équilibrage 34
+Test d'équilibrage 35
+Test d'équilibrage 36
+Test d'équilibrage 37
+Test d'équilibrage 38
+Test d'équilibrage 39
+Test d'équilibrage 4
+Test d'équilibrage 40
+Test d'équilibrage 41
+Test d'équilibrage 42
+Test d'équilibrage 43
+Test d'équilibrage 44
+Test d'équilibrage 45
+Test d'équilibrage 46
+Test d'équilibrage 47
+Test d'équilibrage 48
+Test d'équilibrage 49
+Test d'équilibrage 5
+Test d'équilibrage 50
+Test d'équilibrage 51
+Test d'équilibrage 52
+Test d'équilibrage 53
+Test d'équilibrage 54
+Test d'équilibrage 55
+Test d'équilibrage 56
+Test d'équilibrage 57
+Test d'équilibrage 58
+Test d'équilibrage 59
+Test d'équilibrage 6
+Test d'équilibrage 60
+Test d'équilibrage 61
+Test d'équilibrage 62
+Test d'équilibrage 63
+Test d'équilibrage 64
+Test d'équilibrage 65
+Test d'équilibrage 66
+Test d'équilibrage 67
+Test d'équilibrage 68
+Test d'équilibrage 69
+Test d'équilibrage 7
+Test d'équilibrage 70
+Test d'équilibrage 71
+Test d'équilibrage 72
+Test d'équilibrage 73
+Test d'équilibrage 74
+Test d'équilibrage 75
+Test d'équilibrage 76
+Test d'équilibrage 77
+Test d'équilibrage 78
+Test d'équilibrage 79
+Test d'équilibrage 8
+Test d'équilibrage 80
+Test d'équilibrage 81
+Test d'équilibrage 82
+Test d'équilibrage 83
+Test d'équilibrage 84
+Test d'équilibrage 85
+Test d'équilibrage 86
+Test d'équilibrage 87
+Test d'équilibrage 88
+Test d'équilibrage 89
+Test d'équilibrage 9
+Test d'équilibrage 90
+Test d'équilibrage 91
+Test d'équilibrage 92
+Test d'équilibrage 93
+Test d'équilibrage 94
+Test d'équilibrage 95
+Test d'équilibrage 96
+Test d'équilibrage 97
+Test d'équilibrage 98
+Test d'équilibrage 99
+Test de déséquilibre_Persistant
+Test de déséquilibre_Temporary_GroggyAttack
+Test de déséquilibre_Temporary_GroggyGuard
+Test Subject Mutant
+Test Subject Predator
+Test Subject Recombinant
+Thamon
+Tiere
+Tiere de la gloutonnerie
+Tifus revenant
+Tipule cadavérique sans âme
+Tipule du tombeau des livres
+Tirailleur Archon du destin
+Tirailleur d'Avant-garde Drakan
+Tirailleur d'invasion de Beritra
+Tirailleur de la base secrète
+Tirailleur de patrouille Drakan
+Tirailleur des voleurs
+Tirailleur Drakan
+Tirailleur Drakan de la réserve
+Tirailleur du Bataillon de Bakarma
+Tirailleur Rovha de la 32e division
+Tirailleur Urugugu
+Tirailleur Zurta de la 32e division
+Tireur d'élite de l'éternité d'Abysse
+Tireur d'élite des voleurs
+Tireur d'élite Draconute
+Tireur d'élite Draconute d'Unavarun
+Tireur d'élite Drakan d'Abysse
+Tireur d'élite Krall
+Tireur d'élite supérieur Draconute d'Abysse
+Tisseur d'âmes
+Tisseur de magie Drakan
+Titrata le Capitaine de troupe aérienne
+Toblini
+Tog
+Tog affamé
+Tog de la colline
+Tog de la colline de la Rivière Ellun
+Tog des cairns
+Tog du champ
+Tog mangeur d'herbes
+Tog rayé sauvage
+Tog variant
+Tog vorace
+Tombe de spectre hostile Daeva
+Torba des Collines
+Torba des glaces
+Torba des plaines
+Torba des plaines enneigées
+Torba des terres désolées
+Torba déchaîné
+Tortue étoilée
+Tortue étoilée côtière
+Tortue étoilée d'étang
+Tortue étoilée de l'éternité
+Tortue étoilée de la mer du Nord d'Iralcig
+Tortue étoilée de lave
+Tortue étoilée de plage
+Tortue étoilée des plaines
+Tortue étoilée à carapace rouge
+Totem ancien brisé
+Totem ancien de l'Entrepôt
+Totem ancien de l'Entrepôt de l'Anéantissement
+Totem ancien de l'Entrepôt du Désespoir
+Totem ancien de l'Entrepôt du Vide
+Totem ancien de l'Entrepôt furieux
+Totem ancien de l'Entrepôt Oublié
+Totem ancien de l'Entrepôt élevé
+Totem ancien modifié
+Totem ardent
+Totem ardent de surveillance
+Totem aérien Aullaeu
+Totem aérien d'arbre de la forêt
+Totem aérien patrouilleur
+Totem Balaur géant
+Totem Balaur géant activé
+Totem central Aullaeu
+Totem chamanique Aullaeu
+Totem d'adoration Balaur de Kumbahum
+Totem d'amélioration de Fafnite
+Totem d'attaque
+Totem de foudre Aullaeu
+Totem de la garde des Griffes Noires
+Totem de Muqaka
+Totem de patrouille Drakan
+Totem de protection de l'avant-poste
+Totem de régénération
+Totem de soins
+Totem de soins de surveillance
+Totem de surveillance
+Totem de vénération Balaur
+Totem Drakan des plaines enneigées
+Totem en bois Aullaeu
+Totem en bois encensoir Aullaeu
+Totem explosif
+Totem explosif Aullaeu des racines
+Totem flottant Aullaeu
+Totem géant de plantation
+Totem géant du Dredgion
+Totem Mau
+Totem Mau brillant
+Totem protecteur Aullaeu
+Totem sentinelle
+Totem souterrain de l'avant-poste
+Totémiste Aullaeu
+Totémiste Mau de la Corne abyssale
+Totémiste Mau à cornes féroces
+Toumou apprivoisé
+Toumou des Collines
+Toumou des plaines
+Toumou des plaines enneigées
+Toumou déchaîné
+Toumou le malpropre
+Tour de combat Balaur
+Tour de guet de sécurité
+Tour de guet des Ruines de la Garnison
+Tour de surveillance Balaur
+Tour de surveillance du sanctuaire
+Tour de transmission Balaur
+Tour gardienne engloutie
+Tourelle de défense
+Tourelle de garde de la Garnison
+Tourelle de sécurité améliorée
+Tourelle de sécurité de la Fonderie
+Tourelle extérieure Asmodienne
+Tourelle extérieure Élyséenne
+Tourelle guidée
+Tourelle intérieure Asmodienne
+Tourelle intérieure Élyséenne
+Tourelle magique du repaire
+Tourelle niveau 1
+Tourelle niveau 2
+Tourelle niveau 3
+Tourelle niveau 4
+Tourelle rotative
+Tourelle rotative (spécimen)
+Tourelle-piège de la Garnison
+Tourmaline flottante
+Tous (Esprit)
+Trahison
+Transporteur Kobold de plantation
+Trap
+Traqueur Archon du destin
+Traqueur Aullaeu de la réserve
+Traqueur d'esclaves Draconute
+Traqueur d'intrus
+Traqueur de Hillslothir
+Traqueur Draconute
+Traqueur du Bataillon de Lagta
+Traqueur du Clan des Lames
+Traqueur Konutin de la réserve
+Traqueur Krall de Kurpak
+Traqueur Oculazen
+Traqueuse de la source suspecte
+Traska
+Travailleur de Gribade Mumu
+Travailleur de Hillslothir
+Travailleur de l'équipe de recherche léphariste
+Travailleur Draconute d'entrepôt
+Travailleur Dratona
+Travailleur du trésor Duduka
+Travailleur Duduka
+Travailleur Duduka de la Corne abyssale
+Travailleur Duduka féroce
+Travailleur Duduka invoqué
+Travailleur Klaw du nid
+Travailleur Kobold
+Travailleur Konutin
+Travailleur Konutin de la réserve
+Travailleur Konutin de Tolbas
+Travailleur Konutin responsable de la récolte
+Travailleur Kuru
+Travailleur Kuru de l'éternité
+Travailleur Kuru de Tolbas
+Travailleur Kuru paresseux
+Travailleur Kuru rassasié
+Travailleur Mumu
+Travailleur Mumu de travaux forcés
+Travailleur Mumu évadé
+Travailleur Pino
+Travailleur Pino assidu
+Travailleur Pino d'anéantissement
+Travailleur Pino de la réserve
+Travailleur Pino du dépôt
+Travailleur Pino désespéré
+Travailleur Pino farouche
+Travailleur Pino furieux
+Travailleur Pretor
+Travailleur Shulack contaminé
+Travailleur Shulack de la base expérimentale
+Travailleur Shulack intoxiqué
+Travailleuse Dratona mutée
+Travailleuse Kobold
+Traître Archon du destin
+Traître des marchands Tsenka
+Tregon tortionnaire
+Trid la Trompeuse
+Trieuse Kobold de plantation
+Triton the Returned
+Trogas côtier
+Trogas de givre
+Trogas de la colline
+Trogas des plaines enneigées
+Trogas flétri
+Troupe de poursuite Drakan
+Troupe rebelle Mau calme
+Troupe rebelle Mau féroce
+Troupe rebelle Mau impassible
+Troupier Drakan de givre
+Tueur d'élite renégat Daeva
+Tueur Daeva des ruines
+Tueur Daeva renégat
+Tueur du Clan des Lames
+Tueur forestier corrompu
+Tueur maraudeur Daeva
+Tueur pilleur de tombes
+Tueur renégat
+Tueur Ugaros
+Tueur Urugugu
+Tueuse des maraudeurs du col
+Tuhan de Noire-tempête
+Tuka des Collines
+Tuka des glaces
+Tuka des plaines enneigées
+Tuka des terres désolées
+Tuka féroce des glaces
+Tuka pointu des Collines
+Tuka rétréci
+Turgen l'Indomptable
+Tâcheron Balaur vigilant
+Tâcheron des ruines Draconute
+Tâcheron Draconute
+Tâcheron Draconute d'entrepôt
+Tâcheron Draconute de prison
+Tâcheron Draconute du camp de détention
+Tâcheron Dratona
+Tâcheron Dratona du ralliement
+Tâcheron du Poste Dratona
+Tâcheron Kobold (spécimen)
+Tâcheron Kuru
+Tâcheron Kuru de l'éternité
+Tâcheron Kuru de Tolbas
+Tâcheron Kuru farouche
+Tâcheron Kuru féroce
+Tâcheron Kuru rassasié
+Tâcheron Kuru violent
+Tâcheron Shulack
+Tâcheronne Kobold
+Tâcheronne Kobold (spécimen)
+Tâcheronne Kobold de plantation
+Téléporteur Drakan
+Téléporteur spécial Drakan
+Ugravahu
+Ulgorn muté
+Ulos l'enchanteur
+Umbaba
+Upadhi le fourbe
+Ursus
+Ursus cendré
+Ursus d'anéantissement
+Ursus d'élite (spécimen)
+Ursus de la colline
+Ursus de la Rivière Ellun
+Ursus de la trajectoire
+Ursus du col
+Ursus du dépôt
+Ursus du souffle azuré
+Ursus désespéré
+Ursus furieux
+Ursus impétueux
+Ursus inattendu
+Ursus rare
+Ursus rare apprivoisé
+Ursus tyran
+Ursus violent du col
+Ursus à cornes dures
+Vagabond Biruta
+Vagabond Biruta des Collines
+Vagabond Biruta sauvage
+Vague de corrosion
+Vague du Néant
+Vakra de la 32e division
+Vakron
+Valet de Latrima
+Valka mutant
+Vamana, Capitaine de l'avant-garde
+Vampire Vivel
+Varg chien de garde de prison
+Vargor le Berserker
+Variant d'essaim d'Abysse
+Variant Klaw d'Abysse
+Varti le séducteur
+Vasma cendré
+Veilleur Archon du destin
+Veilleur Archon du destin gelé
+Veilleur d'Azrakar
+Veilleur d'élite amélioré
+Veilleur d'élite d'anéantissement
+Veilleur d'élite de l'entrepôt
+Veilleur d'élite désespéré
+Veilleur d'élite méprisé
+Veilleur Daeva corrompu
+Veilleur Daeva du destin corrompu
+Veilleur de Hillslothir
+Veilleur de l'équipe de recherche Léphariste
+Veilleur de la base
+Veilleur de la chambre forte de la forteresse
+Veilleur de la Forteresse du ciel
+Veilleur de patrouille Drakan
+Veilleur des archives Varnaksha
+Veilleur des voleurs
+Veilleur des voleurs des terres sauvages
+Veilleur Drakan
+Veilleur Drakan de givre
+Veilleur Drakan des plaines enneigées
+Veilleur du camp de détention
+Veilleur du corridor
+Veilleur Kérubian des archives
+Veilleuse Daeva mystérieuse d'entrepôt secret
+Veilleuse Daeva renégate
+Veilleuse de Cantas
+Veilleuse des Mercenaires d'Astin
+Veilleuse du Baraquement du Clan des Lames
+Veilleuse du Clan des Lames
+Veilleuse Kobold
+Veilleuse maraudeuse
+Veltiras multidimensionnelle
+Venin de Durvati
+Ver cannibale de Drana d'Abysse
+Ver cannibale de la zone de la faille
+Ver cannibale de soufre d'Abysse
+Verant l'inquisiteur d'élite
+Vestige d'illusion distordu
+Vestige de sous-espace
+Vestige de sous-espace enragé
+Veuilleur d'élite du sanctuaire
+Vice-capitaine sadique Antados
+Vice-capitaine sadique Anushan
+Vice-capitaine sadique Samank
+Vice-capitaine sadique Urgan
+Vice-commandant déformé Laturini
+Vice-commandant Romlon
+Vice-commandant sadique Kaliya
+Vice-commandant sadique Khuntala
+Vice-commandant Sarvakha
+Vice-commandant Vivajra
+Vidala le bourreau
+Vidara l'hérétique
+Vieil Agrint
+Vieux commandant Mardel
+Villageois de Patamor consumé
+Vishwada le Ténébreux
+Vitalité de la chaîne volcanique de Muspel
+Vivel de l'Oracle
+Vivel des ruines
+Vivel du cimetière
+Vivel du plateau
+Vivel déchaîné
+Vivel jeune
+Vivel robuste
+Voile d'illusion
+Vol'drik
+Voleur costaud de la Forteresse du ciel
+Voleur de Hillslothir
+Voleur de la Forteresse du ciel
+Voleur déserteur
+Voleur hors-la-loi des plaines enneigées
+Voleur Shulack
+Voleur Shulack (spécimen)
+Voleur Shulack infiltré
+Voleuse bandit des ruines
+Voleuse contrebandière
+Voleuse maraudeuse de la forêt
+Vortex
+Vortex de sable
+Vortex temporel
+Vortex temporel (spécimen)
+Voyou des voleurs d'Eiron
+Vusgard
+Vérénom aggloméré
+Wandering Revenant Knight
+Wandering Revenant Priest
+Wandering Wraith Mage
+Wandering Wraith Warrior
+Warming Brazier
+Wetland Rafflesia
+Withered Poisonous Plant Agrint
+Xanag ll'agile
+Yatudana déformé
+Young Poisonous Plant Agrint
+Zaif
+Zaif apprivoisé
+Zaif apprivoisé de Hillslothir
+Zaif apprivoisé poursuivant
+Zaif de la Base du plateau
+Zaif de la colline
+Zaif de la Colline rocheuse
+Zaif de la forêt
+Zaif de la Forêt du plateau
+Zaif de la prairie docile
+Zaif des maraudeurs
+Zaif des plaines enneigées
+Zaif des Voleurs de Moslan
+Zaif doré
+Zaif du crépuscule
+Zaif du plateau
+Zaif déchaîné
+Zaif frénétique
+Zaif sauvage féroce
+Zaif terni
+Zaif à crinière jaune
+Zaif éclaireur apprivoisé
+Zaif éclaireur du site d'exécution
+Zaigolem
+Zaigolem du temple
+Zaigolem oublié
+Zairpe expansif
+Zalam le Féroce
+Zarama déformé
+Zelophi
+Zelophi contaminé
+Zelophi contaminé de la Source mystique
+Zelophi côtier
+Zelophi d'Abysse
+Zelophi de l'éternité
+Zelophi de la Colline maléfique
+Zelophi de la zone de la faille
+Zelophi humide
+Zikel's Might
+Zirka de lave
+Zirka de tombe
+Zirka des buissons
+Zirka des Collines
+Zirka des ruines
+Zirka des terres désolées
+Zirka du sous-sol
+Zirka voleur
+Zone de contamination
+Zone de flammes
+Zone nocive dénaturée
+Zrak prédateur
+Zrash brutal
+Zvein aux ailes sectionnées
+Âme consumée
+Âme d'archer errant
+Âme d'archère Daeva
+Âme d'archère des lamentations
+Âme d'archère distordue
+Âme d'archère désespérée
+Âme d'archère errante
+Âme d'ombre scellée
+Âme de chevalier errant
+Âme de Daeva sous contrôle mental
+Âme de la Rôdeuse plaintive
+Âme de Neparan déchaîné
+Âme de Nornir corrompu
+Âme des chevaliers de la faille
+Âme des chevaliers maudits
+Âme du chevalier Daeva
+Âme du chevalier Daeva perdu
+Âme du chevalier des lamentations
+Âme du chevalier dément
+Âme du chevalier désespéré
+Âme du chevalier larmoyant
+Âme du chevalier oublié
+Âme du Gladiateur plaintive
+Âme du guerrier Daeva
+Âme du guerrier distordu
+Âme du guerrier errante
+Âme du membre de Légion
+Âme du Rôdeur d'illusion
+Âme du Soldat archer Daeva perdu
+Âme du soldat de guet Mau
+Âme du Templier d'illusion
+Âme déformée
+Âme liée à Flauke
+Âme noire maléfique
+Âmes des Chevaliers des chasseurs de trésors
+Éclaireur
+Éclaireur adepte de Ludra
+Éclaireur Archon du destin
+Éclaireur Balaur
+Éclaireur bandit des ruines
+Éclaireur d'Avant-garde Drakan
+Éclaireur d'invasion de Beritra
+Éclaireur de Hillslothir
+Éclaireur de l'Antre des Klaws
+Éclaireur de l'entrepôt suspect
+Éclaireur de l'unité d'exécution de Beritra
+Éclaireur de la base
+Éclaireur de la base secrète
+Éclaireur de la bibliothèque suspect
+Éclaireur de la source suspecte
+Éclaireur de la Tour barrière Arca
+Éclaireur de Latrima
+Éclaireur de patrouille Drakan
+Éclaireur de surveillance de Drana
+Éclaireur des Mercenaires d'Astin
+Éclaireur des Ruines suspectes
+Éclaireur des vigies du sanctuaire
+Éclaireur des voleurs
+Éclaireur des Voleurs de Rubek
+Éclaireur Draconute
+Éclaireur Draconute d'escouade
+Éclaireur Drakan
+Éclaireur Drakan Chandala
+Éclaireur Drakan d'Abysse
+Éclaireur Drakan de la réserve
+Éclaireur Drakan de la Zone de transformation
+Éclaireur Drakan de Takshaka
+Éclaireur Drakan Makarah
+Éclaireur Dratona
+Éclaireur du Clan des Lames
+Éclaireur du Clan des Lames de Sang
+Éclaireur du dépôt
+Éclaireur du détachement Balaur
+Éclaireur Klaw (spécimen)
+Éclaireur Klaw de la zone de la faille
+Éclaireur Klaw du nid
+Éclaireur Krall
+Éclaireur Krall d'Abysse
+Éclaireur Krall de Takshaka
+Éclaireur Krall du sous-sol
+Éclaireur Krall modifié
+Éclaireur Kérubar des archives
+Éclaireur Kérubian des archives
+Éclaireur Manduri des Griffes Noires
+Éclaireur maraudeur de la forêt
+Éclaireur mutant
+Éclaireur supérieur du poste
+Éclaireur suspect
+Éclaireur volant de Beritra
+Éclaireur volant de l'avant-poste
+Éclaireur volant de Latrima
+Éclaireur volant Drakan
+Éclaireuse de Cantas
+Éclaireuse de reconnaissance Léphariste
+Éclaireuse des Mercenaires d'Astin
+Éclaireuse des ruines du Clan des Lames
+Éclaireuse Drakan
+Éleveur Dratona
+Élim muté
+Énergie condensée
+Épieur de Cantas
+Épouvantail d'entraînement
+Épouvantail d'entraînement au corps à corps
+Épreuve d'Evgenir
+Épreuve de l'amour
+Épée du gardien flamboyante
+Épée du Jugement
+Épée du revenant
+Épée flamboyante de Turgen
+Épéiste d'élite gardien du fragment
+Épéiste Garzykan
+Épéiste Garzykan enragé
+Épéiste prétorien Dharvata
+Épéiste trafiquant
+Épéiste vagabond Aullaeu
+Équilibre
+Érudit Léphariste
+Éruption de lave
+Étincelle éclose
+Évasion par la fenêtre
+Œil de surveillance
+Œil de vigilance de Bakarma
+Œuf d'essaim contaminé
+Œuf d'insecte d'Abîme
+Œuf d'insecte de minerai
+Œuf de Dratona
+Œuf de Dratona de grotte
+Œuf de Dratona du ralliement
+Œuf gigantesque
+Œufs ardents

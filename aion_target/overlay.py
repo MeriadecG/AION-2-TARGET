@@ -118,6 +118,8 @@ class Worker(QObject):
         self.generation = 0
         self._hint: str | None = None
         self._shown_gen: set[tuple[int, str]] = set()
+        self.npcs = None                   # NpcIndex, chargé dans le thread de lecture
+        self._last_npc: str | None = None
 
     def run(self):
         try:
@@ -221,6 +223,17 @@ class Worker(QObject):
             return
         self._show(current, info or self.lookup.cached(name, hint), fresh=info is not None)
 
+    def _is_npc(self, ocr_name: str, raw: str, fuzzy: bool = False) -> bool:
+        npcs = self.npcs
+        if not npcs:
+            return False
+        names = self.lookup.names
+        npc = npcs.match(ocr_name, raw, fuzzy=fuzzy, is_player=lambda c: c in names)
+        if npc and npc != self._last_npc:
+            log(f"Cible PNJ ignorée : {npc} ← lu « {raw or ocr_name} »")
+        self._last_npc = npc
+        return bool(npc)
+
     def _resolve_name(self, reader, img, ocr_name: str) -> tuple[str, str]:
         """Lecture OCR → (nom à utiliser, comment il a été trouvé).
 
@@ -232,9 +245,14 @@ class Worker(QObject):
         raw = reader.last_raw
         if not (ocr_name or raw.strip()):
             return "", ""
+        # Cible PNJ (« Vakron », « 54Vakron », « 54 Vakron lis ») : rien à chercher ni afficher.
+        if self._is_npc(ocr_name, raw):
+            return "", ""
         hit = self.lookup.resolve(ocr_name, raw)
         if hit:
             return hit, ("" if hit == ocr_name else "corrigé")
+        if self._is_npc(ocr_name, raw, fuzzy=True):          # « Vakrom »
+            return "", ""
         memo = self._full_memo
         if memo and memo[0] == raw:
             return memo[1], memo[2]
@@ -274,6 +292,8 @@ class Worker(QObject):
         grabber = self.grabber or MssGrabber()   # mss doit être créé dans ce thread
         reader = NameReader(self.cfg.ocr_min_confidence)
         self.lookup = self._build_lookup()
+        from .npc import NpcIndex
+        self.npcs = NpcIndex.load()
         log(f"Prêt. Capture {grabber.name}, zone {self.cfg.capture}, "
             f"lecture toutes les {self.cfg.poll_interval_ms} ms, "
             f"dictionnaire de {len(self.lookup.names)} noms")

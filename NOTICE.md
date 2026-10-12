@@ -7,7 +7,7 @@ Code source complet : https://github.com/MeriadecG/AION-2-TARGET
 
 | Composant | Utilisation | Licence | Provenance |
 |---|---|---|---|
-| **A2Tools DPS Meter** (taengu et contributeurs) | cœur d'analyse du moteur DPS (`engine/`, dépendance épinglée au commit `71868460c0ee`) ; capture et aiguillage adaptés de `pcap_capturer.rs`, `capture_dispatcher.rs`, `combat_port_detector.rs` ; données `engine/data/` (compétences et PNJ en français, serveurs, DoT) | GPL-3.0 | https://github.com/taengu/A2Tools-DPS-Meter |
+| **A2Tools DPS Meter** (taengu et contributeurs) | cœur d'analyse du moteur DPS (`engine/`, dépendance épinglée au commit `71868460c0ee`) ; capture et aiguillage adaptés de `pcap_capturer.rs`, `capture_dispatcher.rs`, `combat_port_detector.rs` ; données `engine/data/` (compétences et PNJ en français, serveurs, DoT) et la liste `aion_target/assets/npc_names.txt` qui en est tirée | GPL-3.0 | https://github.com/taengu/A2Tools-DPS-Meter |
 | Cinzel (police) | interface | SIL OFL 1.1 (`aion_target/assets/Cinzel-OFL.txt`) | https://github.com/NDISCOVER/Cinzel |
 | PyQt6 / Qt 6 | interface | GPL-3.0 / LGPL-3.0 | Riverbank Computing, The Qt Company |
 | RapidOCR, ONNX Runtime | lecture du nom de la cible | Apache-2.0 / MIT | RapidAI, Microsoft |
