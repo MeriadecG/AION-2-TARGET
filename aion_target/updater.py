@@ -182,8 +182,12 @@ def _pip_install(reqs: list[str]) -> tuple[bool, str]:
 
 def check_and_update(project_dir: Path = PROJECT_DIR, current: str | None = None,
                      fetch=_get, pip_install=_pip_install) -> UpdateResult:
-    if current is None:
-        from . import __version__ as current
+    if current is None:                          # version du dossier à mettre à jour
+        try:
+            v = parse_version((project_dir / PACKAGE / "__init__.py").read_text(encoding="utf-8"))
+            current = fmt_version(v) if v else "0"
+        except OSError:
+            current = "0"
     local = parse_version(current) or (0,)
     reason = skip_reason(project_dir)
     if reason:
