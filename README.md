@@ -90,6 +90,14 @@ pour le nom.
 
 ## Vitesse
 
+Détails, mesures et procédure de test en Abysse : `docs/PERF_TARGET.md`.
+
+- **Joueur déjà en mémoire : aucune attente réseau.** Les scores sont servis par un **index en
+  RAM** (nom + serveur), jamais par une requête ni par SQLite ; un score ancien s'affiche tout
+  de suite avec sa fraîcheur discrète (« il y a 3 j ») puis il est rafraîchi en silence, sans
+  effacer la valeur affichée. Cadres repeints immédiatement (pas de mise en file).
+- Image du cadre inchangée : revérifiée toutes les 40 ms (sans OCR, quelques µs) ; dès qu'elle
+  change, lecture aussitôt (cadence OCR normale : 100 ms).
 - **Du plus rapide au plus lent** : (1) mémoire locale — score de moins de 10 min affiché sans
   aucune requête ; (2) **base shugo.gg** (recherche par nom dans l'API classement, ~0,1-0,3 s,
   sans relecture NCSoft) affichée dès réception ; (3) **fiche shugo.gg** (relue chez NCSoft,
@@ -168,10 +176,16 @@ déchiffrement. Éteint : aucun processus, aucune capture.
 - **Historique des rencontres** : nom + serveur, nombre de rencontres, dernier GS/CP et âge de
   la donnée, source (OCR, groupe, réseau), fiabilité (exacte / nom unique / homonymes),
   favoris. Les homonymes ne reçoivent jamais de score.
-- **GS/CP plus rapides** : le jeu envoie le GS/CP des membres du groupe (repris tel quel) ; les
-  personnages **observés** à l'écran avec un serveur connu sont préchargés (20 requêtes/min au
-  plus, pause de 5 min si shugo.gg refuse). Ce n'est **pas** la liste complète de l'instance,
+- **GS/CP plus rapides** : le jeu envoie le GS/CP des membres du groupe (repris tel quel). Chaque
+  personnage **observé** dans le flux est d'abord cherché **en mémoire locale** (immédiat, sans
+  limite) et devient prioritaire pour la lecture OCR de son nom ; seuls les vrais manques avec
+  un serveur connu partent sur shugo.gg (20 requêtes/min au plus, jamais pendant la recherche de
+  la cible, pause selon `Retry-After` ou 5 min croissantes si le site refuse). Sans serveur :
+  identité partielle gardée, aucune requête. Ce n'est **pas** la liste complète de l'instance,
   et la cible reste identifiée par l'OCR (le jeu n'envoie pas « qui est ciblé »).
+- **Observation réseau légère** (case de l'onglet DPS) : même capture passive, **sans** DPS
+  meter, seulement pour ce préchargement. Indisponible (pas de Npcap / d'autorisation) : l'OCR
+  fonctionne comme avant.
 - Windows : installer **Npcap** (npcap.com, gratuit, non redistribuable). Linux : autorisation
   de capture `cap_net_raw` (demandée par l'installateur, ou bouton dans l'onglet DPS).
 - Moteur mis à jour automatiquement **uniquement** via un manifeste signé Ed25519 (clé privée

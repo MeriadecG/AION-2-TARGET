@@ -124,8 +124,9 @@ Après (2026.10.12.6) :
 | 4 | Licence GPL-3.0 + crédits | **fait** (`LICENSE`, `NOTICE.md`) |
 | 5 | Moteur Rust `aion-engine` (capture + cœur A2Tools + IPC) et onglet DPS | **fait** ; validé en rejeu sur trames réelles publiées ; **à valider en jeu** |
 | 6 | Préchargement des personnages observés (quotas, backoff 403/429, TTL) | **fait** (`prefetch.py`) |
-| 7 | Manifeste signé, CI Windows/Linux pour le binaire | **fait** ; il reste à créer le secret `ENGINE_SIGNING_KEY` |
+| 7 | Manifeste signé, CI Windows/Linux pour le binaire | **fait** ; secret `ENGINE_SIGNING_KEY` en place (vérifié : mise à jour signée acceptée en .9) |
 | 8 | Historique des combats, overlay DPS configurable | **fait** ; profils d'overlay et raccourcis : à faire |
+| 9 | Target ultra-rapide : index RAM, préchargement local immédiat, observation légère, mesures jusqu'à la peinture | **fait** (2026.10.12.12) — voir `docs/PERF_TARGET.md` ; à mesurer en Abysse |
 
 ## 9. Risques
 

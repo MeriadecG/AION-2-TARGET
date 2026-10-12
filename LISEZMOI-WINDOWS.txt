@@ -55,6 +55,8 @@ DPS METER (FACULTATIF)
 - Onglet DPS > « Activer le DPS meter » (désactivé par défaut, avertissement affiché).
 - Nécessite Npcap, gratuit : https://npcap.com (le bouton de l'onglet DPS ouvre la page).
 - Overlay DPS par-dessus le jeu, ping, historique des combats et des joueurs rencontrés.
+- Option « Observation réseau légère (sans DPS) » : précharge les GS/CP des joueurs vus en jeu
+  pour un affichage immédiat quand tu les cibles (même capture passive, sans DPS meter).
 - Le module lit seulement une copie du trafic réseau du jeu : il ne modifie rien.
 
 SI ÇA NE MARCHE PAS
