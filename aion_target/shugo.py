@@ -164,6 +164,20 @@ class ShugoClient:
             limits=httpx.Limits(max_keepalive_connections=8, keepalive_expiry=120))
         self._pool = ThreadPoolExecutor(max_workers=10, thread_name_prefix="lookup")
         self._lock = threading.Lock()
+        # Refus du site (403 / 429) : les requêtes FACULTATIVES (préchargement) s'arrêtent un temps.
+        self.rate_limited_until = 0.0
+        self.http.event_hooks.setdefault("response", []).append(self._watch_limits)
+
+    BACKOFF = 300.0
+
+    def _watch_limits(self, resp):
+        if resp.status_code in (403, 429):
+            import time
+            self.rate_limited_until = time.time() + self.BACKOFF
+
+    def rate_limited(self) -> bool:
+        import time
+        return time.time() < self.rate_limited_until
 
     # -- requêtes élémentaires --
     def fetch(self, name: str, slug: str) -> CharacterInfo | None:

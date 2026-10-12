@@ -169,6 +169,12 @@ def trim_site(site: Path):
         shutil.rmtree(d, ignore_errors=True)
 
 
+def engine_version() -> str | None:
+    import re
+    m = re.search(r'^version\s*=\s*"([^"]+)"', (ROOT / "engine" / "Cargo.toml").read_text(), re.M)
+    return m.group(1) if m else None
+
+
 def get_launchers(work: Path) -> Path:
     dl = work / "distlib"
     if not (dl / "distlib" / "w64.exe").exists():
@@ -179,7 +185,8 @@ def get_launchers(work: Path) -> Path:
     return dl / "distlib"
 
 
-def build(python_tgz: Path, site: Path, out: Path, launchers: Path | None = None) -> Path:
+def build(python_tgz: Path, site: Path, out: Path, launchers: Path | None = None,
+          engine: Path | None = None) -> Path:
     target = out / "Aion Target"
     if target.exists():
         shutil.rmtree(target)
@@ -192,6 +199,20 @@ def build(python_tgz: Path, site: Path, out: Path, launchers: Path | None = None
 
     shutil.copytree(ROOT / "aion_target", target / "app" / "aion_target",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+
+    if engine and engine.exists():
+        bin_dir = target / "app" / "bin"
+        bin_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(engine, bin_dir / "aion-engine.exe")
+        version = engine_version()
+        if version:
+            (bin_dir / "aion-engine.version").write_text(version, encoding="utf-8")
+        for lic in ("LICENSE", "NOTICE.md"):
+            if (ROOT / lic).exists():
+                shutil.copy2(ROOT / lic, target / lic)
+        print(f"Moteur DPS inclus : {engine.name} ({version or '?'})")
+    else:
+        print("Moteur DPS absent : il sera téléchargé (signé) au premier lancement.")
 
     launchers = launchers or find_distlib_launchers()
     (target / "Aion Target.exe").write_bytes(
@@ -280,6 +301,8 @@ Section "Uninstall"
     ; Uniquement ce que l'installateur a posé (jamais de suppression récursive du dossier choisi).
     RMDir /r "$INSTDIR\app"
     RMDir /r "$INSTDIR\python"
+    Delete "$INSTDIR\LICENSE"
+    Delete "$INSTDIR\NOTICE.md"
     Delete "$INSTDIR\Aion Target.exe"
     Delete "$INSTDIR\Aion Target - diagnostic.exe"
     Delete "$INSTDIR\Lancer (secours).bat"
@@ -323,13 +346,15 @@ if __name__ == "__main__":
     ap.add_argument("--site", type=Path, help="dépendances Windows déjà préparées")
     ap.add_argument("--launchers", type=Path)
     ap.add_argument("--no-setup", action="store_true", help="ne pas créer AionTarget-Setup.exe")
+    ap.add_argument("--engine", type=Path, default=ROOT / "engine" / "target" / "x86_64-pc-windows-msvc"
+                    / "release" / "aion-engine.exe", help="moteur DPS Windows compilé (facultatif)")
     a = ap.parse_args()
     a.work.mkdir(parents=True, exist_ok=True)
     py = a.python or download(PYTHON_URL, a.work / "python-windows.tar.gz", PYTHON_SHA256)
     site = a.site or prepare_site(a.work)
     launchers = a.launchers or get_launchers(a.work)
     print("Assemblage…")
-    zip_path = build(py, site, a.out, launchers)
+    zip_path = build(py, site, a.out, launchers, a.engine)
     setup = None if a.no_setup else build_setup(a.out / "Aion Target", a.out, a.work)
     print(f"\nTerminé :\n  {zip_path}  ({zip_path.stat().st_size / 1e6:.0f} Mo, version portable)")
     if setup:

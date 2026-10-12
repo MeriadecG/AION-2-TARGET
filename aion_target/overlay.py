@@ -658,6 +658,7 @@ def run(cfg: Config) -> int:
 
     events = None
     currency = None
+    dps_tab = None
     msg = os.environ.get("AION_TARGET_UPDATE_MSG")
     if msg:
         log(msg)
@@ -667,6 +668,8 @@ def run(cfg: Config) -> int:
             events.stop()
         if currency is not None:
             currency.worker.stop()
+        if dps_tab is not None:
+            dps_tab.shutdown()
         worker.running = False
         thread.quit()
         thread.wait(2000)
@@ -713,6 +716,60 @@ def run(cfg: Config) -> int:
         raise_timer.start(1000)
     except Exception as e:
         log(f"Monnaie : module indisponible ({e})")
+
+    # Historiques + module DPS (moteur réseau passif, désactivé par défaut).
+    try:
+        from .history import History
+        from .dps_ui import DpsTab
+        from .prefetch import Prefetcher
+        history = History(config_path().with_name("history.db"), cfg.history_max_fights,
+                          cfg.history_max_encounters)
+        prefetcher = Prefetcher(lambda: worker.lookup, cfg.region, cfg.servers, log=log)
+
+        def on_players(players):
+            if cfg.dps_prefetch:
+                prefetcher.observe(players)
+            if cfg.dps_record_observed:
+                from .prefetch import server_slug_from_name
+                for p in players:
+                    slug = server_slug_from_name(cfg.region, p.get("server"), cfg.servers)
+                    history.record_encounter(p.get("name", ""), slug, source="reseau",
+                                             confidence="exact" if slug else "ambigu")
+
+        def on_party(members):
+            from .prefetch import server_slug_from_name
+            from .shugo import CharacterInfo
+            for m in members:
+                slug = server_slug_from_name(cfg.region, m.get("server"), cfg.servers)
+                history.record_encounter(m.get("name", ""), slug, source="groupe",
+                                         confidence="exact" if slug else "ambigu",
+                                         gs=m.get("gs") or None, cp=m.get("cp") or None,
+                                         data_at=time.time(), char_id=m.get("dbid"))
+                # Le jeu envoie le GS/CP du groupe : donnée fraîche, serveur exact → mémoire Target.
+                if slug and worker.lookup and m.get("cp"):
+                    worker.lookup.cache.put(CharacterInfo(m["name"], slug, m.get("gs") or None,
+                                                          m.get("cp"), m.get("level") or None))
+
+        dps_tab = DpsTab(cfg, history, control._card, log, on_players=on_players, on_party=on_party)
+        control.set_dps(dps_tab)
+        pf_timer = QTimer(app)
+        pf_timer.timeout.connect(prefetcher.tick)
+        pf_timer.start(1000)
+
+        def on_target(name, info):
+            from .shugo import CharacterInfo
+            from .style import Ambiguous
+            if isinstance(info, CharacterInfo):
+                _, age = worker.lookup.cache.get(name, info.server) if worker.lookup else (None, None)
+                history.record_encounter(name, info.server, source="ocr",
+                                         confidence="exact" if worker._hint else "unique",
+                                         gs=info.gear_score, cp=info.combat_power,
+                                         data_at=time.time() - age if age is not None else None)
+            elif isinstance(info, Ambiguous):
+                history.record_encounter(name, None, source="ocr", confidence="ambigu")
+        worker.status.connect(on_target)
+    except Exception as e:
+        log(f"DPS / historique : module indisponible ({e})")
 
     _install_hotkeys(cfg, overlay, quit_app)
     return app.exec()

@@ -1,0 +1,24 @@
+[package]
+name = "aion-engine"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-3.0-or-later"
+description = "Aion Target : moteur réseau passif (DPS, ping, personnages observés) — cœur d'analyse d'A2Tools"
+publish = false
+
+# Cœur d'analyse d'A2Tools DPS Meter (GPL-3.0, https://github.com/taengu/A2Tools-DPS-Meter),
+# épinglé sur un commit vérifié, SANS ses fonctions bureau ni en ligne : seulement le parseur.
+[dependencies]
+a2tools = { package = "a2tools-dps-meter", git = "https://github.com/taengu/A2Tools-DPS-Meter", rev = "71868460c0ee3b286427bd51d5d862e45276ee42", default-features = false }
+libloading = "0.8"
+parking_lot = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+strip = true
+panic = "unwind"

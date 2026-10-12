@@ -7,4 +7,5 @@ rapidocr>=3.0
 onnxruntime
 pynput
 tzdata
+cryptography
 pytest

@@ -1,6 +1,9 @@
-# Construit l'installateur Windows et le publie dans « Releases » à chaque nouvelle version
-# (= modification de __version__ dans aion_target/__init__.py poussée sur main).
-name: Version Windows
+# Version publiée = modification de __version__ dans aion_target/__init__.py poussée sur main.
+#   1. tests Python + tests du moteur Rust ;
+#   2. moteur DPS compilé pour Linux (ubuntu) et Windows (windows, MSVC) ;
+#   3. installateur Windows (NSIS) + portable, moteur Linux, manifeste du moteur SIGNÉ (Ed25519,
+#      clé privée dans le secret ENGINE_SIGNING_KEY, jamais dans le dépôt) → GitHub Releases.
+name: Version
 
 on:
   push:
@@ -12,32 +15,85 @@ permissions:
   contents: write
 
 concurrency:
-  group: windows-release
+  group: release
   cancel-in-progress: false
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0 (épinglé)
         with:
           persist-credentials: false
-
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0 (épinglé)
         with:
           python-version: "3.12"
+      - name: Bibliothèques système (Qt hors écran, D-Bus)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libegl1 libgl1 libxkbcommon0 libdbus-1-3 libfontconfig1 dbus
+      - name: Tests du moteur
+        working-directory: engine
+        run: cargo test --release
+      - name: Tests Python
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          python -m pip install -q -r requirements.txt
+          (cd engine && cargo build --release)
+          python -m pytest -q
 
-      - name: Outils (NSIS, distlib)
+  engine-linux:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0 (épinglé)
+        with:
+          persist-credentials: false
+      - working-directory: engine
+        run: cargo build --release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2 (épinglé)
+        with:
+          name: engine-linux
+          path: engine/target/release/aion-engine
+
+  engine-windows:
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0 (épinglé)
+        with:
+          persist-credentials: false
+      - working-directory: engine
+        run: cargo build --release --target x86_64-pc-windows-msvc
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2 (épinglé)
+        with:
+          name: engine-windows
+          path: engine/target/x86_64-pc-windows-msvc/release/aion-engine.exe
+
+  release:
+    needs: [engine-linux, engine-windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09  # v5.1.0 (épinglé)
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0 (épinglé)
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0 (épinglé)
+        with:
+          path: artifacts
+      - name: Outils (NSIS, distlib, cryptography)
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q nsis
-          python -m pip install -q distlib
-
+          python -m pip install -q distlib cryptography
       - name: Version
         id: v
         run: echo "version=$(python -c 'import aion_target; print(aion_target.__version__)')" >> "$GITHUB_OUTPUT"
-
       - name: Déjà publiée ?
         id: exists
         env:
@@ -46,22 +102,30 @@ jobs:
           if gh release view "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Construction (installateur + portable)
+      - name: Construction Windows (installateur + portable, moteur inclus)
         if: steps.exists.outputs.skip != 'true'
-        run: python tools/build_windows.py
-
+        run: python tools/build_windows.py --engine artifacts/engine-windows/aion-engine.exe
+      - name: Manifeste du moteur signé
+        if: steps.exists.outputs.skip != 'true'
+        env:
+          ENGINE_SIGNING_KEY: ${{ secrets.ENGINE_SIGNING_KEY }}
+        run: |
+          mkdir -p dist/engine
+          cp artifacts/engine-linux/aion-engine dist/engine/aion-engine-linux-x86_64
+          cp artifacts/engine-windows/aion-engine.exe dist/engine/aion-engine-windows-x86_64.exe
+          python tools/sign_engine.py dist/engine
       - name: Publication
         if: steps.exists.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           V="${{ steps.v.outputs.version }}"
-          gh release create "v$V" \
-            "dist/AionTarget-Setup.exe" "dist/AionTarget-Windows.zip" \
-            --title "Aion Target $V" --latest \
+          FILES="dist/AionTarget-Setup.exe dist/AionTarget-Windows.zip dist/engine/aion-engine-linux-x86_64 dist/engine/aion-engine-windows-x86_64.exe"
+          [ -f dist/engine/engine-manifest.json ] && FILES="$FILES dist/engine/engine-manifest.json dist/engine/engine-manifest.sig"
+          gh release create "v$V" $FILES --title "Aion Target $V" --latest \
             --notes "Windows : télécharge **AionTarget-Setup.exe**, double-clic, Suivant, Installer.
           Si Windows affiche « Windows a protégé votre ordinateur » : Informations complémentaires → Exécuter quand même (programme non signé).
-          Déjà installé ? Rien à faire : l'appli se met à jour toute seule au lancement.
+          Déjà installé ? Rien à faire : l'appli se met à jour toute seule au lancement (moteur DPS compris, signature vérifiée).
 
-          Version portable : AionTarget-Windows.zip (dézipper, lancer « Aion Target.exe »)."
+          Version portable : AionTarget-Windows.zip. Linux : voir README (install-linux.sh).
+          Licence GPL-3.0 — moteur DPS basé sur A2Tools DPS Meter (GPL-3.0)."

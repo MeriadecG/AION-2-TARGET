@@ -112,6 +112,19 @@ class Config:
     import_state: dict = field(default_factory=dict)   # reprise / date du dernier import
 
     auto_update: bool = True        # mise à jour depuis GitHub à chaque lancement
+
+    # Module DPS (moteur réseau passif, désactivé par défaut) et historiques.
+    dps_enabled: bool = False
+    dps_warning_ack: bool = False   # avertissement (règles NCSoft) lu et accepté
+    dps_mode: str = "bossTargets"
+    dps_overlay: bool = False
+    dps_overlay_rect: list[int] = field(default_factory=lambda: [40, 260, 300, 170])
+    dps_overlay_opacity: float = 0.85
+    dps_overlay_rows: int = 6
+    dps_record_observed: bool = False   # noter aussi les joueurs seulement « vus » par le réseau
+    dps_prefetch: bool = True           # précharger GS/CP des joueurs observés (serveur connu)
+    history_max_fights: int = 500
+    history_max_encounters: int = 20000
     control_tab: int = 0            # dernier onglet ouvert dans la fenêtre de contrôle
 
     # Monnaie calculée (onglet Farm) : valeur A − valeur B de la barre des monnaies du jeu.

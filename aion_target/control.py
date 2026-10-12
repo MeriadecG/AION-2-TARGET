@@ -166,6 +166,8 @@ class ControlWindow(QWidget):
                                            "(suivi, minuteurs, collection…)."), "Familiers")
         self._farm_tab = self._placeholder("Farm : chargement…")
         self.tabs.addTab(self._farm_tab, "Farm")
+        self._dps_tab = self._placeholder("DPS : chargement…")
+        self.tabs.addTab(self._dps_tab, "DPS")
         outer.addWidget(self.tabs, 1)
 
         # --- zone ---
@@ -336,7 +338,7 @@ class ControlWindow(QWidget):
         self.resize(360, max(420, height))
 
     # --- onglets ---
-    TAB_WIDTH = {1: 680}                         # largeur confortable par onglet (Notifications)
+    TAB_WIDTH = {1: 680, 4: 640}                 # largeur confortable par onglet
 
     def _placeholder(self, text: str) -> QWidget:
         w = QWidget()
@@ -389,6 +391,14 @@ class ControlWindow(QWidget):
         self.tabs.setTabText(1, f"Notifications ({k})" if k else "Notifications")
 
     # --- monnaie (onglet Farm) ---
+    def set_dps(self, tab):
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(tab)
+        self._replace_tab(4, self._dps_tab, scroll, "DPS")
+        self._dps_tab = scroll
+
     def set_currency(self, currency_overlay):
         from .currency_ui import FarmTab
         tab = FarmTab(self.cfg, currency_overlay, self._card)

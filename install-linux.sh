@@ -49,7 +49,7 @@ ok "python3 $PYVER"
 if [ "$SYSTEM" -eq 1 ]; then
     bold "Paquets système"
     if command -v dnf >/dev/null; then
-        PKGS=(python3-gobject gstreamer1-plugin-pipewire gstreamer1-plugins-base pipewire-utils)
+        PKGS=(python3-gobject gstreamer1-plugin-pipewire gstreamer1-plugins-base pipewire-utils libpcap libcap)
         MISSING=()
         for p in "${PKGS[@]}"; do rpm -q "$p" >/dev/null 2>&1 || MISSING+=("$p"); done
         if [ "${#MISSING[@]}" -gt 0 ]; then
@@ -58,7 +58,7 @@ if [ "$SYSTEM" -eq 1 ]; then
         fi
         ok "dépendances dnf présentes"
     elif command -v apt-get >/dev/null; then
-        PKGS=(python3-venv python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-pipewire pipewire-bin)
+        PKGS=(python3-venv python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gstreamer1.0-pipewire pipewire-bin libpcap0.8 libcap2-bin)
         MISSING=()
         for p in "${PKGS[@]}"; do dpkg -s "$p" >/dev/null 2>&1 || MISSING+=("$p"); done
         if [ "${#MISSING[@]}" -gt 0 ]; then
@@ -130,7 +130,24 @@ else
     warn "ni pw-play ni paplay : les sons de notification seront muets."
 fi
 
-# --- 6. Commande et raccourcis ---------------------------------------------------------------
+# --- 6. Moteur DPS (facultatif : utilisé seulement si le module DPS est activé) -------------
+bold "Moteur DPS"
+if (cd "$APP" && "$VENV/bin/python" -m aion_target.engine_update) 2>&1 | sed 's/^/    /'; then
+    ENGINE="$APP/bin/aion-engine"
+    if [ -x "$ENGINE" ]; then
+        ok "moteur installé (signature vérifiée)"
+        echo "    Autorisation de capture réseau (lecture seule) pour le moteur DPS, mot de passe sudo :"
+        if sudo setcap cap_net_raw=ep "$ENGINE"; then
+            ok "capture autorisée"
+        else
+            warn "autorisation non accordée : l'onglet DPS proposera de le faire plus tard"
+        fi
+    fi
+else
+    warn "moteur DPS non installé maintenant (hors ligne ?) : il sera téléchargé au prochain lancement"
+fi
+
+# --- 7. Commande et raccourcis ---------------------------------------------------------------
 bold "Raccourcis"
 mkdir -p "$BIN"
 cat > "$BIN/aion-target" <<EOF

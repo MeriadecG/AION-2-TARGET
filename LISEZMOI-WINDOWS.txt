@@ -50,6 +50,13 @@ DANS LE JEU
   / l'Assistant de concentration (qui masque les notifications pendant les jeux).
 - « Horaire à confirmer » : horaire pas encore fiable, aucune alerte n'est programmée.
 
+DPS METER (FACULTATIF)
+----------------------
+- Onglet DPS > « Activer le DPS meter » (désactivé par défaut, avertissement affiché).
+- Nécessite Npcap, gratuit : https://npcap.com (le bouton de l'onglet DPS ouvre la page).
+- Overlay DPS par-dessus le jeu, ping, historique des combats et des joueurs rencontrés.
+- Le module lit seulement une copie du trafic réseau du jeu : il ne modifie rien.
+
 SI ÇA NE MARCHE PAS
 -------------------
 - Section DIAGNOSTIC de la fenêtre : « Test affichage » (exemple 5 s dans tes cadres),

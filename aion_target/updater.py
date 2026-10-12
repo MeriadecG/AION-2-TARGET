@@ -279,6 +279,13 @@ def startup_update() -> UpdateResult:
         res = UpdateResult("skipped", "Mise à jour reportée : Aion Target est déjà ouvert.")
     else:
         res = check_and_update()
+        try:                                     # moteur natif : manifeste signé uniquement
+            from .engine_update import update_engine
+            eng = update_engine()
+            if eng.status in ("updated", "error"):
+                res.message += " " + eng.message
+        except Exception as e:
+            res.message += f" Moteur : vérification impossible ({e})."
     os.environ["AION_TARGET_UPDATE_MSG"] = res.message
     os.environ["AION_TARGET_UPDATE_STATUS"] = res.status
     return res

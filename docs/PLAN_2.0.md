@@ -120,12 +120,12 @@ Après (2026.10.12.6) :
 |---|---|---|
 | 1 | Audit + plan (ce document) | fait |
 | 2 | Identité nom@serveur, ambiguïtés, génération de cible, mesures p50/p95/p99 | **fait, testé (269 tests)** |
-| 3 | Historique des rencontres (SQLite, confiance, source, favoris, recherche) | prêt à faire (indépendant du moteur) |
-| 4 | Licence GPL-3.0 + crédits | **attend votre accord** |
-| 5 | Moteur Rust `aion-engine` (capture + cœur A2Tools + IPC) et onglet DPS | **attend votre accord** (risque §3, permissions §4) |
-| 6 | Préchargement des personnages observés (quotas, backoff 403/429, TTL) | après 5 |
-| 7 | Manifeste signé, CI Windows/Linux pour le binaire | avec 5 |
-| 8 | Historique des combats, overlay DPS configurable, profils | après 5 |
+| 3 | Historique des rencontres (SQLite, confiance, source, favoris, recherche) | **fait** (`history.py`) |
+| 4 | Licence GPL-3.0 + crédits | **fait** (`LICENSE`, `NOTICE.md`) |
+| 5 | Moteur Rust `aion-engine` (capture + cœur A2Tools + IPC) et onglet DPS | **fait** ; validé en rejeu sur trames réelles publiées ; **à valider en jeu** |
+| 6 | Préchargement des personnages observés (quotas, backoff 403/429, TTL) | **fait** (`prefetch.py`) |
+| 7 | Manifeste signé, CI Windows/Linux pour le binaire | **fait** ; il reste à créer le secret `ENGINE_SIGNING_KEY` |
+| 8 | Historique des combats, overlay DPS configurable | **fait** ; profils d'overlay et raccourcis : à faire |
 
 ## 9. Risques
 

@@ -150,6 +150,40 @@ Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
 - **Notifications** : calendrier des événements (ci-dessous).
 - **Familiers** : à venir.
 - **Farm** : monnaie calculée (ci-dessous), suivi de farm à venir.
+- **DPS** : DPS meter, ping, historiques des combats et des rencontres (ci-dessous).
+
+## DPS meter, ping et historiques (onglet DPS)
+
+Module **optionnel, désactivé par défaut** (avertissement à l'activation). Un moteur séparé
+(`engine/`, Rust, cœur d'analyse d'**A2Tools DPS Meter**, GPL-3.0) lit une **copie** du trafic
+réseau du jeu : aucune injection, aucune écriture, aucune modification du client, aucun
+déchiffrement. Éteint : aucun processus, aucune capture.
+
+- DPS par joueur (classe, dégâts, part), cible suivie (boss, dernière cible, toutes…),
+  remise à zéro, **overlay DPS** déplaçable (lignes, opacité) au-dessus du jeu.
+- **Ping** : aller-retour mesuré PC ↔ serveur ; le temps de traitement du serveur n'est pas
+  observable et n'est pas inclus.
+- **Historique des combats** de boss (durée, total, ping moyen, détail par joueur et par
+  compétence), recherche, suppression, limite réglable.
+- **Historique des rencontres** : nom + serveur, nombre de rencontres, dernier GS/CP et âge de
+  la donnée, source (OCR, groupe, réseau), fiabilité (exacte / nom unique / homonymes),
+  favoris. Les homonymes ne reçoivent jamais de score.
+- **GS/CP plus rapides** : le jeu envoie le GS/CP des membres du groupe (repris tel quel) ; les
+  personnages **observés** à l'écran avec un serveur connu sont préchargés (20 requêtes/min au
+  plus, pause de 5 min si shugo.gg refuse). Ce n'est **pas** la liste complète de l'instance,
+  et la cible reste identifiée par l'OCR (le jeu n'envoie pas « qui est ciblé »).
+- Windows : installer **Npcap** (npcap.com, gratuit, non redistribuable). Linux : autorisation
+  de capture `cap_net_raw` (demandée par l'installateur, ou bouton dans l'onglet DPS).
+- Moteur mis à jour automatiquement **uniquement** via un manifeste signé Ed25519 (clé privée
+  dans le secret GitHub `ENGINE_SIGNING_KEY`, clé publique dans `engine_update.py`).
+- Rejeu reproductible : `engine/target/release/aion-engine --replay capture.txt --mode lastHitByMe`
+  (`--record fichier.txt` enregistre le flux du jeu pour un test).
+
+Compilation du moteur : `cd engine && cargo build --release` (la CI le fait pour Windows et Linux).
+
+## Licence
+
+GPL-3.0-or-later (`LICENSE`), crédits et composants tiers dans `NOTICE.md`.
 
 ## Monnaie calculée (onglet Farm)
 
