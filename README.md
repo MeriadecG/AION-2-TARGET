@@ -4,6 +4,18 @@ Overlay pour Aion 2 : lit le nom de ta cible dans une petite zone de l'écran (O
 cherche le personnage sur shugo.gg et affiche son **gear score** et son **combat power**
 juste sous la zone. Rien n'est injecté dans le jeu : l'outil ne fait que lire des pixels.
 
+## Télécharger
+
+- **Windows** : [AionTarget-Setup.exe](https://github.com/MeriadecG/AION-2-TARGET/releases/latest/download/AionTarget-Setup.exe)
+  (dernière version ; double-clic → Suivant → Installer). Si Windows affiche « Windows a protégé
+  votre ordinateur » : *Informations complémentaires* → *Exécuter quand même* (programme non signé).
+  Version portable : [AionTarget-Windows.zip](https://github.com/MeriadecG/AION-2-TARGET/releases/latest/download/AionTarget-Windows.zip).
+- **Linux (Fedora / Nobara)** : voir ci-dessous (`./install-linux.sh`).
+
+Une fois installée, l'appli se met à jour toute seule à chaque lancement.
+Les installateurs Windows sont construits automatiquement par GitHub (onglet *Actions*) à
+chaque nouvelle version et publiés dans *Releases*.
+
 ## Installation
 
 ### Linux (Fedora / Nobara) : installateur
