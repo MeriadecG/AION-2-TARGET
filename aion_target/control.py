@@ -281,13 +281,18 @@ class ControlWindow(QWidget):
         self.diag_text.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.btn_report = QPushButton("Copier le rapport de vitesse")
         self.btn_report.clicked.connect(self._copy_report)
+        self.btn_diag = QPushButton("Exporter le rapport de diagnostic…")
+        self.btn_diag.setToolTip("Fichier texte à lire après la session (vitesse, moteur, préchargement, "
+                                 "Farm, familiers). Sans capture réseau ni nom de joueur.")
+        self.btn_diag.clicked.connect(self._export_diag)
         self.btn_latency = QPushButton("Mesurer le retard de capture")
         self.btn_latency.clicked.connect(self._start_latency_test)
         diag.addWidget(btn_show, 0, 0)
         diag.addWidget(self.btn_read, 0, 1)
         diag.addWidget(self.btn_latency, 1, 0, 1, 2)
         diag.addWidget(self.btn_report, 2, 0, 1, 2)
-        diag.addWidget(self.diag_text, 3, 0, 1, 2)
+        diag.addWidget(self.btn_diag, 3, 0, 1, 2)
+        diag.addWidget(self.diag_text, 4, 0, 1, 2)
         self._read_sig = _ReadTestSignal()
         self._read_sig.done.connect(self._read_test_done)
         self._read_sig.color.connect(self._probe_color)
@@ -637,6 +642,21 @@ class ControlWindow(QWidget):
         QApplication.clipboard().setText(speed_report())
         self.diag_text.setText("✓ Rapport copié : colle-le simplement dans la conversation (Ctrl+V). "
                                "Idéal juste après avoir ciblé 4-5 joueurs en jeu.")
+
+    def _export_diag(self):
+        import time
+        from pathlib import Path
+        from PyQt6.QtWidgets import QApplication, QFileDialog
+        from . import diag
+        text = diag.build(include_names=False)
+        default = str(Path.home() / f"aion-target-diagnostic-{time.strftime('%Y%m%d-%H%M')}.txt")
+        path, _ = QFileDialog.getSaveFileName(self, "Rapport de diagnostic", default, "Texte (*.txt)")
+        QApplication.clipboard().setText(text)
+        if path:
+            Path(path).write_text(text, encoding="utf-8")
+            self.diag_text.setText(f"Rapport enregistré : {path} (et copié dans le presse-papiers).")
+        else:
+            self.diag_text.setText("Rapport copié dans le presse-papiers.")
 
     def _test_display(self):
         self.overlay.test_display(5)

@@ -55,8 +55,17 @@ DPS METER (FACULTATIF)
 - Onglet DPS > « Activer le DPS meter » (désactivé par défaut, avertissement affiché).
 - Nécessite Npcap, gratuit : https://npcap.com (le bouton de l'onglet DPS ouvre la page).
 - Overlay DPS par-dessus le jeu, ping, historique des combats et des joueurs rencontrés.
-- Option « Observation réseau légère (sans DPS) » : précharge les GS/CP des joueurs vus en jeu
-  pour un affichage immédiat quand tu les cibles (même capture passive, sans DPS meter).
+- Onglet Target, « Observation réseau légère (sans DPS) » : précharge les GS/CP des joueurs vus
+  en jeu pour un affichage immédiat quand tu les cibles (même capture, un seul moteur).
+
+FARM ET FAMILIERS
+-----------------
+- Farm : « Kinah / minute » (Démarrer / Pause / Réinitialiser) = variation nette du solde lu à
+  l'écran ; après un redémarrage, clique « Reprendre ».
+- Familiers : cherche un familier, saisis tes âmes / morts, coche « Suivre sur l'overlay ».
+  Comptage automatique des monstres tués : facultatif (même capture passive, Npcap).
+- Diagnostic : bouton « Exporter le rapport de diagnostic » (onglet Target), à lire après la
+  session ; aucun nom de joueur ni capture réseau dedans.
 - Le module lit seulement une copie du trafic réseau du jeu : il ne modifie rien.
 
 SI ÇA NE MARCHE PAS

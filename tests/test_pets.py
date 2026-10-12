@@ -111,3 +111,16 @@ def test_pets_tab_manual_and_overlay(app, tmp_path):
     hub.client.kill.emit(kill(77, code))
     assert store.get("papis")["kills"] == 1
     assert PetStore(tmp_path / "pets.json").get("papis")["kills"] == 1    # sauvegardé tout de suite
+
+
+def test_diagnostic_report_has_no_sensitive_data(app, monkeypatch):
+    from aion_target import diag
+    from aion_target.metrics import STATS
+    STATS.add("paint_first_cache", 42)
+    monkeypatch.setattr(diag, "SECTIONS", list(diag.SECTIONS))
+    diag.register("Test", lambda names: [f"/home/x 192.168.1.20 {'Krix' if names else 'anonyme'}",
+                                         os.path.expanduser("~") + "/secret"])
+    text = diag.build()
+    assert "paint_first_cache" in text and "anonyme" in text and "Krix" not in text
+    assert "192.168.1.20" not in text and os.path.expanduser("~") + "/secret" not in text
+    assert "aucun nom de joueur" in text

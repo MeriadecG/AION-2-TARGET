@@ -126,6 +126,7 @@ Après (2026.10.12.6) :
 | 6 | Préchargement des personnages observés (quotas, backoff 403/429, TTL) | **fait** (`prefetch.py`) |
 | 7 | Manifeste signé, CI Windows/Linux pour le binaire | **fait** ; secret `ENGINE_SIGNING_KEY` en place (vérifié : mise à jour signée acceptée en .9) |
 | 8 | Historique des combats, overlay DPS configurable | **fait** ; profils d'overlay et raccourcis : à faire |
+| 10 | Moteur unique partagé, observation dans Target, Farm Kinah/minute, Familiers, rapport de diagnostic | **fait** (2026.10.12.13) — voir `docs/MODULES.md` |
 | 9 | Target ultra-rapide : index RAM, préchargement local immédiat, observation légère, mesures jusqu'à la peinture | **fait** (2026.10.12.12) — voir `docs/PERF_TARGET.md` ; à mesurer en Abysse |
 
 ## 9. Risques

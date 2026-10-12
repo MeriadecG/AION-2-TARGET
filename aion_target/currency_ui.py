@@ -386,6 +386,8 @@ class FarmTab(QWidget):
         from PyQt6.QtWidgets import QApplication
         if QApplication.instance():
             QApplication.instance().aboutToQuit.connect(self._save_session)
+        from . import diag
+        diag.register("Farm", self._diag)
         self._render_session()
 
     # --- actions ---
@@ -420,6 +422,18 @@ class FarmTab(QWidget):
     def _track(self):
         self.cfg.farm_value = self.track.currentData()
         self.cfg.save()
+
+    def _diag(self, _names) -> list[str]:
+        """Pour le rapport : variations et âge des mesures, jamais le solde absolu."""
+        s = self.session
+        age = None if self._last_valid_t is None else int(time.time() - self._last_valid_t)
+        rd = self._last_rd or {}
+        return [f"Lecture : {'affichée' if self.cfg.currency_enabled else 'masquée'} · 2e emplacement "
+                f"{'actif' if self.cfg.currency_alt_enabled else 'inactif'} · dernière zone lue : "
+                f"{rd.get('zone', '—')} · dernière mesure valide il y a {age if age is not None else '—'} s",
+                f"Session Kinah/minute : {s.state} · durée active {fmt_elapsed(s.elapsed())} · gain net "
+                f"{fmt_amount(s.net())} · {fmt_rate(s.per_minute())}/min · lectures rejetées {s.rejected} · "
+                f"mesures gardées {len(s.samples)}"]
 
     # --- session Kinah / minute ---
     def _save_session(self):

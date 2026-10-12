@@ -189,3 +189,13 @@ def test_powershell_quoting():
     from aion_target.launcher import ps_quote
     assert ps_quote("C:\\Users\\O'Neil") == "'C:\\Users\\O''Neil'"
     assert ps_quote("x'; Remove-Item -Recurse C:\; '") == "'x''; Remove-Item -Recurse C:\; '''"
+
+
+def test_every_app_file_can_be_delivered_by_auto_update():
+    """Nouveaux modules / catalogues livrés depuis main sans réinstallation (.exe compris)."""
+    from pathlib import Path
+    from aion_target.updater import ALLOWED_SUFFIXES
+    pkg = Path(__file__).resolve().parent.parent / "aion_target"
+    blocked = [p.relative_to(pkg).as_posix() for p in pkg.rglob("*")
+               if p.is_file() and "__pycache__" not in p.parts and p.suffix.lower() not in ALLOWED_SUFFIXES]
+    assert blocked == []

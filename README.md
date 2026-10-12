@@ -154,10 +154,16 @@ Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
 
 ## Fenêtre de contrôle : onglets
 
-- **Target** : GS / CP de la cible (cadres, mémoire, apparence, diagnostic).
+- **Target** : GS / CP de la cible (cadres, mémoire, **détection et préchargement des joueurs**,
+  apparence, diagnostic + **rapport de diagnostic exportable**).
 - **Notifications** : calendrier des événements (ci-dessous).
-- **Familiers** : à venir.
-- **Farm** : monnaie calculée (ci-dessous), suivi de farm à venir.
+- **Familiers** : catalogue, progression âmes / morts, overlay, comptage auto (ci-dessous).
+- **Farm** : monnaie calculée, **Kinah / minute** (ci-dessous).
+
+Un **seul moteur réseau** sert le DPS meter, l'observation de Target et le comptage des
+familiers : il tourne dès qu'un de ces modules est activé et s'arrête quand plus aucun ne
+l'utilise (jamais deux captures). Avertissement obligatoire à la première activation.
+Détails, preuves et limites : `docs/MODULES.md`.
 - **DPS** : DPS meter, ping, historiques des combats et des rencontres (ci-dessous).
 
 ## DPS meter, ping et historiques (onglet DPS)
@@ -183,9 +189,10 @@ déchiffrement. Éteint : aucun processus, aucune capture.
   la cible, pause selon `Retry-After` ou 5 min croissantes si le site refuse). Sans serveur :
   identité partielle gardée, aucune requête. Ce n'est **pas** la liste complète de l'instance,
   et la cible reste identifiée par l'OCR (le jeu n'envoie pas « qui est ciblé »).
-- **Observation réseau légère** (case de l'onglet DPS) : même capture passive, **sans** DPS
-  meter, seulement pour ce préchargement. Indisponible (pas de Npcap / d'autorisation) : l'OCR
-  fonctionne comme avant.
+- **Observation réseau légère** (onglet **Target**, section « Détection et préchargement des
+  joueurs ») : même capture passive, **sans** DPS meter, seulement pour ce préchargement ; état
+  du moteur et compteurs (observés, avec serveur, trouvés en mémoire, en attente). Indisponible
+  (pas de Npcap / d'autorisation) : l'OCR fonctionne comme avant.
 - Windows : installer **Npcap** (npcap.com, gratuit, non redistribuable). Linux : autorisation
   de capture `cap_net_raw` (demandée par l'installateur, ou bouton dans l'onglet DPS).
 - Moteur mis à jour automatiquement **uniquement** via un manifeste signé Ed25519 (clé privée
@@ -208,6 +215,37 @@ montants, second cadre où afficher le résultat (nom et couleur au choix, posit
 réglables : « valeur 2 − valeur 3 »). Lecture toutes les 2 s dans un thread à part (OCR
 uniquement si l'image change, ~0,2 s), valeur affichée après deux lectures identiques ; si la
 barre est cachée (menu), la dernière valeur reste affichée, même après redémarrage.
+
+- **Noms** des valeurs A, B et A − B au choix (à vérifier dans l'inventaire : si A est le total
+  et B le Kinah lié, A − B est le non lié). A, B et A − B viennent **toujours de la même
+  capture**.
+- **2ᵉ emplacement** (menu en haut à droite, cadre orange) : lu seulement quand la barre est
+  illisible. Zones **mémorisées par résolution / échelle** d'affichage.
+- **Affichage** : A, B, A − B et/ou Kinah/minute dans le cadre à l'écran ; « (ancien) » si la
+  dernière mesure valide date de plus de 20 s.
+- **Kinah / minute** : Démarrer, Pause / Reprendre, Réinitialiser. Gain **net observé** du solde
+  suivi (achats, ventes, échanges compris : peut être négatif — ce n'est pas un calcul de
+  butin), durée active (pauses exclues), Kinah/minute et /heure. Deux lectures identiques avant
+  de retenir un solde. Session sauvegardée ; après un redémarrage elle revient « interrompue »
+  et ne reprend qu'au clic sur « Reprendre ».
+- Le flux réseau décodé ne contient **aucun solde** de monnaie : lecture à l'écran uniquement.
+
+## Familiers (onglet Familiers)
+
+- **Catalogue** de 206 familiers du client global (genre, nom anglais officiel, nom français
+  quand un PNJ du même nom existe, monstres associés), recherche en français ou en anglais,
+  sources et date affichées. Ajout manuel pour les nouveautés du jeu.
+- Par familier : **âmes** (toujours manuelles) et **monstres tués** (manuel ou automatique),
+  ±1, saisie directe d'une progression déjà entamée, remise à zéro avec confirmation ;
+  sauvegarde immédiate (`pets.json`).
+- **Paliers** : client global 5 / 30 / 105 âmes cumulées (Nv 1 / 2 / 3), Corée / Taïwan, ou
+  personnalisés ; le compteur peut dépasser l'objectif.
+- **Overlay** compact des familiers suivis (plusieurs à la fois), déplaçable, opacité réglable.
+- **Comptage automatique** (facultatif, moteur partagé) : +1 seulement pour une mort **en
+  combat** (drapeau de mort du jeu) d'un monstre de l'espèce que **tu** as frappé, une seule fois
+  par monstre ; une disparition, des dégâts seuls ou un monstre tué par d'autres ne comptent
+  pas. **Journal** des décisions (comptée / ignorée / incertaine + raison) consultable après la
+  session. Jamais « 1 mort = 1 âme ».
 
 ## Mise à jour automatique
 

@@ -844,6 +844,16 @@ def run(cfg: Config) -> int:
         from .observe_ui import ObservationSection
         control.set_observation(ObservationSection(cfg, hub, prefetcher, control._card, log))
         app._aion_hub = hub
+        from . import diag
+
+        def engine_section(_names):
+            st = hub.last_status
+            return [f"Modes demandés : {', '.join(sorted(hub.modes)) or 'aucun'} · état : {hub.state()}",
+                    f"Port du jeu repéré : {'oui' if st.get('game_port') else 'non'} · fonctions du moteur : "
+                    f"{', '.join(st.get('features') or []) or 'inconnues (ancien moteur ?)'}",
+                    f"Dernière erreur : {st.get('error') or st.get('stopped') or '—'}"]
+        diag.register("Moteur réseau partagé", engine_section)
+
 
         # Familiers : catalogue, progression, comptage des morts (moteur partagé).
         try:
@@ -855,6 +865,22 @@ def run(cfg: Config) -> int:
             pets_tab = PetsTab(cfg, catalog, store, counter, hub, control._card, log)
             control.set_pets(pets_tab)
             app._aion_pets = pets_tab
+
+            def pets_section(_names):
+                c = counter.counts
+                lines = [f"Comptage automatique : {'activé' if store.data.get('auto') else 'désactivé'} · "
+                         f"morts comptées {c['counted']}, ignorées {c['ignored']}, incertaines "
+                         f"{c['uncertain']}, doublons écartés {c['duplicate']}",
+                         f"Paliers : {'/'.join(map(str, store.levels(catalog)))} ({store.data.get('edition')})"]
+                for pid in store.tracked():
+                    p, pet = store.get(pid), catalog.by_id.get(pid)
+                    lines.append(f"Suivi : {pet.name if pet else pid} — âmes {p['souls']}, morts {p['kills']}")
+                lines.append("Dernières décisions :")
+                for e in list(counter.journal)[-30:]:
+                    lines.append(f"  {time.strftime('%d/%m %H:%M:%S', time.localtime(e.get('t') or 0))} "
+                                 f"{e.get('monstre')} → {e.get('decision')} ({e.get('raison')})")
+                return lines
+            diag.register("Familiers", pets_section)
             pets_timer = QTimer(app)
             pets_timer.timeout.connect(lambda: pets_tab.overlay.isVisible() and pets_tab.overlay.raise_())
             pets_timer.start(1500)

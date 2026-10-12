@@ -14,6 +14,11 @@ Code source complet : https://github.com/MeriadecG/AION-2-TARGET
 | httpx, mss, numpy, Pillow, pynput, tzdata, cryptography | divers | BSD / MIT / Apache-2.0 / LGPL-3.0 (pynput) | PyPI |
 | Python (python-build-standalone) | version Windows | PSF | Astral |
 
+Catalogue des familiers (`aion_target/assets/familiars.json`, généré par `tools/make_familiars.py`) :
+liste des familiers et paliers du client global relevés sur https://www.aion2guidance.com/en/pets/
+(12/10/2026, faits de jeu) ; noms français et identifiants de PNJ tirés des tables `i18n/npcs/en.json`
+et `fr.json` d'A2Tools DPS Meter (GPL-3.0, commit `71868460c0ee`).
+
 Sons intégrés : créés par synthèse (`tools/make_sounds.py`), aucune œuvre tierce.
 Données de joueurs : shugo.gg et recherche officielle NCSoft, consultées en ligne, non redistribuées.
 
