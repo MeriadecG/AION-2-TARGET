@@ -7,6 +7,13 @@ monnaie que le jeu n'affiche que dans ses menus.
   seulement si l'image a changé. Moteur OCR séparé de celui du GS/CP (aucune interférence).
 - Fiabilité : une valeur n'est affichée qu'après DEUX lectures identiques ; si la barre est
   cachée (menu plein écran, chargement), la dernière valeur reste affichée.
+- Deux emplacements possibles : la barre (haut gauche) puis, si elle est illisible, le menu
+  (haut droite, 2e cadre facultatif). A, B et A − B viennent TOUJOURS de la même capture : on
+  ne soustrait jamais deux valeurs lues à des moments différents.
+- Chaque lecture est horodatée (signal `reading`) : l'interface montre l'âge de la dernière
+  mesure valide et le compteur Kinah/minute s'en sert (aucun OCR en plus).
+- Réseau : le cœur d'analyse utilisé (A2Tools, commit 7186846) ne décode AUCUN solde de
+  monnaie (aucun champ kinah / monnaie / inventaire dans src-tauri/src) : lecture OCR seulement.
 """
 from __future__ import annotations
 
@@ -117,9 +124,18 @@ class Stabilizer:
         return False
 
 
+def make_reading(values: list[int], a: int, b: int, zone: str, t: float) -> dict:
+    """Lecture horodatée : A, B et A − B issus de la MÊME capture (None si absents)."""
+    va = values[a - 1] if 1 <= a <= len(values) else None
+    vb = values[b - 1] if 1 <= b <= len(values) else None
+    return {"t": t, "zone": zone, "values": list(values), "a": va, "b": vb,
+            "diff": va - vb if va is not None and vb is not None else None}
+
+
 class CurrencyWorker(QObject):
     """Thread de fond : lit la zone toutes les INTERVAL secondes."""
     values = pyqtSignal(list)          # montants lus (diagnostic dans l'onglet Farm)
+    reading = pyqtSignal(dict)         # lecture horodatée (a, b, diff, zone)
     amount = pyqtSignal(object)        # valeur calculée validée (int)
     error = pyqtSignal(str)
 
@@ -129,6 +145,8 @@ class CurrencyWorker(QObject):
         self.stab = Stabilizer()
         self.stab.value = cfg.currency_last
         self.paused = False
+        self.extra_wanted = lambda: False   # compteur de session actif : lire même sans affichage
+        self.last_reading: dict | None = None
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
 
@@ -146,21 +164,35 @@ class CurrencyWorker(QObject):
     def running(self) -> bool:
         return bool(self._thread and self._thread.is_alive() and not self._stop.is_set())
 
+    def read_once(self, grabber, reader, alt_reader) -> dict:
+        """Barre principale ; si elle ne donne pas A et B, le 2e emplacement (menu)."""
+        cfg = self.cfg
+        vals = reader.read(grabber.grab(*cfg.currency_zone))
+        rd = make_reading(vals, cfg.currency_a, cfg.currency_b, "barre", time.time())
+        if rd["diff"] is None and cfg.currency_alt_enabled:
+            alt = alt_reader.read(grabber.grab(*cfg.currency_zone_alt))
+            rd_alt = make_reading(alt, cfg.currency_alt_a, cfg.currency_alt_b, "menu", time.time())
+            if rd_alt["diff"] is not None or (rd["a"] is None and rd_alt["a"] is not None):
+                return rd_alt
+        return rd
+
     def _run(self):
         grabber = self.grabber
         reader = CurrencyReader()
         last_err = ""
+        alt_reader = CurrencyReader()
         while not self._stop.wait(INTERVAL):
-            if self.paused or not self.cfg.currency_enabled:
+            if self.paused or not (self.cfg.currency_enabled or self.extra_wanted()):
                 continue
             try:
                 if grabber is None:
                     from .capture import MssGrabber
                     grabber = MssGrabber()         # mss : à créer dans CE thread
-                img = grabber.grab(*self.cfg.currency_zone)
-                vals = reader.read(img)
-                self.values.emit(list(vals))
-                if self.stab.push(compute(vals, self.cfg.currency_a, self.cfg.currency_b)):
+                rd = self.read_once(grabber, reader, alt_reader)
+                self.last_reading = rd
+                self.reading.emit(rd)
+                self.values.emit(list(rd["values"]))
+                if self.stab.push(rd["diff"]):
                     self.amount.emit(self.stab.value)
                 last_err = ""
             except Exception as e:                 # jamais d'arrêt du thread

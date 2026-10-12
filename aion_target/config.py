@@ -139,6 +139,20 @@ class Config:
     currency_label: str = ""
     currency_color: str = "#7CE0A3"
     currency_last: int | None = None   # dernière valeur lue (affichée dès le lancement)
+    # 2e emplacement (menu en haut à droite) : lu seulement si la barre principale est illisible
+    currency_alt_enabled: bool = False
+    currency_zone_alt: list[int] = field(default_factory=lambda: [1500, 60, 380, 30])
+    currency_alt_a: int = 1
+    currency_alt_b: int = 2
+    # zones mémorisées par résolution / échelle d'affichage (« 2560x1440@1.0 » → zones)
+    currency_profiles: dict = field(default_factory=dict)
+    # étiquettes (à vérifier dans l'inventaire du jeu ; neutres par défaut)
+    currency_label_a: str = "Valeur A"
+    currency_label_b: str = "Valeur B"
+    # affichage à l'écran : champs parmi a, b, diff, rate
+    farm_overlay_fields: list = field(default_factory=lambda: ["diff"])
+    farm_value: str = "a"              # solde suivi par le compteur : a, b ou diff
+    farm_session: dict = field(default_factory=dict)   # compteur Kinah/minute (sauvegarde)
 
     version: int = CONFIG_VERSION
 
