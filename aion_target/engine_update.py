@@ -22,7 +22,7 @@ from pathlib import Path
 
 from . import updater
 
-PUBLIC_KEY_B64 = "aCnsCbCCWJkTOkjGlZVvoVestabdduUAxNv9958wSa8="
+PUBLIC_KEY_B64 = "+coCCYeXKa2esqSgWjgA94ohDe7mYzktTa7/gZ+6f68="
 RELEASE = f"https://github.com/{updater.REPO}/releases/latest/download"
 MANIFEST_URL = f"{RELEASE}/engine-manifest.json"
 SIGNATURE_URL = f"{RELEASE}/engine-manifest.sig"
