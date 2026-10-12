@@ -1,0 +1,65 @@
+AION TARGET - version Windows
+============================
+
+Affiche le gear score (GS) et le combat power (CP) du joueur que tu cibles dans Aion 2.
+L'outil lit seulement l'écran (comme une capture) : il ne touche jamais au jeu.
+
+INSTALLATION
+------------
+Avec l'installateur (conseillé) :
+1. Double-clique sur « AionTarget-Setup.exe ».
+   Windows peut afficher « Windows a protégé votre ordinateur » (programme non signé) :
+   clique sur « Informations complémentaires » puis « Exécuter quand même ».
+2. Suivant > Installer > Terminer. Aucun droit administrateur demandé ; raccourcis créés
+   dans le menu Démarrer et sur le bureau.
+3. Mise à jour : lance simplement un Setup plus récent (tes réglages sont conservés).
+   Désinstaller : Paramètres > Applications > Aion Target > Désinstaller.
+
+Version portable (zip) : dézippe le dossier « Aion Target » où tu veux, double-clique sur
+« Aion Target.exe », puis « Créer un raccourci (menu + bureau) » dans la fenêtre.
+
+DANS LE JEU
+-----------
+- Mets Aion 2 en « Plein écran fenêtré » (ou fenêtré sans bordure). En plein écran
+  exclusif, Windows ne laisse ni lire l'écran ni afficher par-dessus.
+- Clique « Placer sur une capture (3 s) », reviens en jeu et cible un joueur pendant le
+  décompte. Sur la capture, place les 4 cadres (glisser = déplacer, coin = taille) :
+    BLEU : autour de la ligne « 45 Nom » du cadre de cible (c'est ce qui est lu)
+    GS / CP / Classe-Nv-Serveur / TOP : là où tu veux voir chaque info
+    (TOP = rang européen par CP, affiché seulement dans le top 1 000)
+  Puis Entrée pour enregistrer. « Ajuster en direct » permet de les retoucher à l'écran.
+- « Mon personnage » : ton nom → pastille rouge (cible plus forte) ou verte (plus faible).
+- Couleurs GS / CP / détails et police : section Apparence.
+- Mémoire des joueurs : taille maximale au choix (100 Mo par défaut, aucune limite de durée).
+  Les scores sont toujours remis à jour quand tu recroises quelqu'un.
+- Au premier lancement, le classement shugo.gg de toute l'Europe (≈ 21 000 joueurs) est
+  importé en arrière-plan (≈ 4 min) puis rafraîchi toutes les 24 h : la plupart des joueurs
+  s'affichent alors instantanément dès la première rencontre.
+
+ÉVÉNEMENTS
+----------
+- Bouton « Événements » (cloche) : coche les événements voulus (Festival des Shugos,
+  sièges, Nahma, resets…). Heures affichées en heure de Paris, avec compte à rebours.
+- Une notification Windows arrive 1 minute avant chaque événement coché, tant qu'Aion
+  Target est ouvert (même réduit dans la barre des tâches, même jeu fermé).
+- Son : coche « Son », choisis-en un (6 sons intégrés ou ton propre fichier .wav), règle le
+  volume, « ▶ Écouter » pour l'entendre. Windows peut ajouter son propre petit son de
+  notification : Paramètres > Système > Notifications > Aion Target > décocher le son.
+- « Tester une notification » pour vérifier. Rien ne s'affiche ? Paramètres Windows >
+  Système > Notifications : autoriser les notifications, et désactiver « Ne pas déranger »
+  / l'Assistant de concentration (qui masque les notifications pendant les jeux).
+- « Horaire à confirmer » : horaire pas encore fiable, aucune alerte n'est programmée.
+
+SI ÇA NE MARCHE PAS
+-------------------
+- Section DIAGNOSTIC de la fenêtre : « Test affichage » (exemple 5 s dans tes cadres),
+  « Test lecture » (3 s pour cibler un joueur, puis ce qui a été lu) et « Copier le rapport
+  de vitesse » (à coller tel quel pour signaler un souci de lenteur).
+- Si tu changes le mode d'affichage du jeu (fenêtré / sans bordure), l'interface bouge :
+  refais « Placer sur une capture ».
+- Lance « Aion Target - diagnostic.exe » : une console affiche ce que fait l'outil.
+- Journal : %APPDATA%\aion-target\aion-target.log
+  Erreur au démarrage : %APPDATA%\aion-target\crash.log
+- Si un antivirus bloque le .exe : « Lancer (secours).bat » fait la même chose.
+- Région : Europe par défaut. Autre région : dans %APPDATA%\aion-target\config.json,
+  remplace "region": "eu" par "naw" (NA Ouest), "nae" (NA Est) ou "as" (Asie).
