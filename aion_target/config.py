@@ -153,6 +153,9 @@ class Config:
     farm_overlay_fields: list = field(default_factory=lambda: ["diff"])
     farm_value: str = "a"              # solde suivi par le compteur : a, b ou diff
     farm_session: dict = field(default_factory=dict)   # compteur Kinah/minute (sauvegarde)
+    pets_overlay: bool = False
+    pets_overlay_rect: list[int] = field(default_factory=lambda: [40, 440, 300, 90])
+    pets_overlay_opacity: float = 0.85
 
     version: int = CONFIG_VERSION
 

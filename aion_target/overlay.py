@@ -844,6 +844,22 @@ def run(cfg: Config) -> int:
         from .observe_ui import ObservationSection
         control.set_observation(ObservationSection(cfg, hub, prefetcher, control._card, log))
         app._aion_hub = hub
+
+        # Familiers : catalogue, progression, comptage des morts (moteur partagé).
+        try:
+            from .pets import Catalog, KillCounter, PetStore
+            from .pets_ui import PetsTab
+            store = PetStore(config_path().with_name("pets.json"))
+            catalog = Catalog.load(store.data.get("custom"))
+            counter = KillCounter(catalog, store, config_path().with_name("pets_kills.jsonl"))
+            pets_tab = PetsTab(cfg, catalog, store, counter, hub, control._card, log)
+            control.set_pets(pets_tab)
+            app._aion_pets = pets_tab
+            pets_timer = QTimer(app)
+            pets_timer.timeout.connect(lambda: pets_tab.overlay.isVisible() and pets_tab.overlay.raise_())
+            pets_timer.start(1500)
+        except Exception as e:
+            log(f"Familiers : module indisponible ({e})")
         pf_timer = QTimer(app)
         pf_timer.timeout.connect(prefetcher.tick)
         pf_timer.start(500)
