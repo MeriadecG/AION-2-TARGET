@@ -1,0 +1,628 @@
+{
+ "version": 1,
+ "verified_on": "2026-10-12",
+ "about": "Calendrier AION 2 Global. Modifiable sans toucher à l'interface : pour corriger ou ajouter, copier ce fichier dans le dossier de configuration (events_catalog.json) — les entrées y sont fusionnées par identifiant. Aucune source officielle NCSoft ne publie ces horaires : ce sont des sources communautaires (données du client + vérifications en jeu), recoupées. Statuts : confirmed = au moins 2 sources concordantes ; to_verify = 1 seule source ; unconfirmed = pas d'horaire fiable (aucune notification).",
+ "regions": {
+  "eu": {
+   "server_tz": "Europe/Berlin",
+   "status": "confirmed",
+   "note": "Heure serveur EU = Europe/Berlin (même fuseau que Paris)."
+  },
+  "nae": {
+   "server_tz": "America/New_York",
+   "status": "to_verify",
+   "note": "Supposé par les sources communautaires."
+  },
+  "naw": {
+   "server_tz": "America/Los_Angeles",
+   "status": "to_verify",
+   "note": "Supposé par les sources communautaires."
+  }
+ },
+ "sources": {
+  "shugo": {
+   "title": "Shugo.GG — Timers",
+   "url": "https://shugo.gg/timers",
+   "checked": "2026-10-12"
+  },
+  "metabot_events": {
+   "title": "MetaBot — Event Schedule (tables du client)",
+   "url": "https://metabot.gg/en/aion-2/events",
+   "checked": "2026-10-12"
+  },
+  "metabot_checklist": {
+   "title": "MetaBot — Daily & Weekly Checklist (maj 10/10/2026)",
+   "url": "https://metabot.gg/en/aion-2/guides/daily-weekly-checklist",
+   "checked": "2026-10-12"
+  },
+  "aion2meta": {
+   "title": "Aion2-Meta — Timers (horloge EU vérifiée en jeu)",
+   "url": "https://aion2-meta.com/timers/",
+   "checked": "2026-10-12"
+  },
+  "daeva_timers": {
+   "title": "DaevaGuides — Timers (maj 06/10/2026)",
+   "url": "https://daevaguides.com/en/guides/timers/index.html",
+   "checked": "2026-10-12"
+  },
+  "daeva_resets": {
+   "title": "DaevaGuides — Reset times (maj 06/10/2026)",
+   "url": "https://daevaguides.com/en/guides/reset-times/",
+   "checked": "2026-10-12"
+  },
+  "rifttimer": {
+   "title": "Aion2RiftTimer — Event schedule explained (05/10/2026)",
+   "url": "https://aion2rifttimer.app/blog/aion-2-event-schedule-explained",
+   "checked": "2026-10-12"
+  },
+  "aion2hub": {
+   "title": "Aion2Hub — Event timer",
+   "url": "https://aion2hub.com/tools/event-timer",
+   "checked": "2026-10-12"
+  },
+  "exitlag_maint": {
+   "title": "ExitLag — Aion 2 maintenance (08/09/2026)",
+   "url": "https://www.exitlag.com/blog/aion-2-maintenance/",
+   "checked": "2026-10-12"
+  }
+ },
+ "blackouts": [],
+ "events": [
+  {
+   "id": "shugo_festival",
+   "name": "Festival des Shugos",
+   "category": "hourly",
+   "kind": "event",
+   "description": "Mini-jeu aléatoire de 4 à 9 joueurs, environ 10 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "hourly",
+    "minute": 0
+   },
+   "duration_min": 10,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers",
+    "rifttimer"
+   ],
+   "note": "Une source le dit saisonnier (pendant les fenêtres de festival).",
+   "phrase": "Le Festival des Shugos",
+   "plural": false
+  },
+  {
+   "id": "dimensional_invasion",
+   "name": "Invasion dimensionnelle",
+   "category": "hourly",
+   "kind": "event",
+   "description": "Défense de terrain (Raid aérien de Beritra, Épée maudite, Incursion des esprits), environ 15 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "hourly",
+    "minute": 30
+   },
+   "duration_min": 15,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers",
+    "rifttimer"
+   ],
+   "phrase": "L'Invasion dimensionnelle",
+   "plural": false
+  },
+  {
+   "id": "spacetime_rift",
+   "name": "Faille spatio-temporelle",
+   "category": "hourly",
+   "kind": "event",
+   "description": "Portails de faille (Altgard, Verteron, Morheim, Eltnen) : entrée pendant 10 minutes, événement d'une heure.",
+   "tz": "server",
+   "rule": {
+    "type": "every_hours",
+    "interval": 3,
+    "start": "02:00"
+   },
+   "duration_min": 60,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers",
+    "rifttimer",
+    "aion2hub"
+   ],
+   "note": "Après le passage à l'heure d'hiver (25/10), le maintien à 02:00 heure locale est supposé, pas encore vérifié en jeu.",
+   "phrase": "La Faille spatio-temporelle",
+   "plural": false
+  },
+  {
+   "id": "watcher_kaira",
+   "name": "Observateur Kaira",
+   "category": "hourly",
+   "kind": "event",
+   "description": "Boss de terrain dans le Bas-Reshanta chaotique, toutes les 3 heures, environ 30 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "every_hours",
+    "interval": 3,
+    "start": "01:00"
+   },
+   "duration_min": 30,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers",
+    "rifttimer"
+   ],
+   "note": "Comportement après le 25/10 supposé identique en heure locale, à vérifier.",
+   "phrase": "L'Observateur Kaira",
+   "plural": false
+  },
+  {
+   "id": "arena_tactics",
+   "name": "Arène des tactiques (10 contre 10)",
+   "category": "daily",
+   "kind": "event",
+   "description": "Arène 10 contre 10.",
+   "tz": "server",
+   "rule": {
+    "type": "unknown"
+   },
+   "status": "unconfirmed",
+   "sources": [
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers"
+   ],
+   "note": "Sources contradictoires : 11:00–14:00 et 19:00–21:00 (MetaBot), 11:00 et 19:00 (Aion2-Meta) ; DaevaGuides l'exclut faute d'accord.",
+   "phrase": "L'Arène des tactiques",
+   "plural": false
+  },
+  {
+   "id": "daily_reset",
+   "name": "Réinitialisation quotidienne",
+   "category": "daily",
+   "kind": "reset",
+   "group": "daily",
+   "description": "Remise à zéro quotidienne des compteurs (16:00 heure coréenne = 07:00 UTC, soit 09:00 à Paris en été, 08:00 en hiver).",
+   "tz": "UTC",
+   "rule": {
+    "type": "daily",
+    "times": [
+     "07:00"
+    ]
+   },
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "daeva_resets",
+    "aion2meta",
+    "aion2hub",
+    "metabot_checklist"
+   ],
+   "note": "Ancrée sur l'UTC selon Shugo.GG ; DaevaGuides demande de vérifier le compte à rebours en jeu après le 25/10.",
+   "phrase": "La réinitialisation quotidienne"
+  },
+  {
+   "id": "duty_missions",
+   "name": "Missions quotidiennes (missions de devoir)",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "daily",
+   "description": "5 missions récompensées par jour.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "nightmare_tickets",
+   "name": "Tickets de Cauchemar",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "daily",
+   "description": "+2 tentatives par jour, cumulables jusqu'à 14.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "shugo_keys",
+   "name": "Clés du Festival des Shugos",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "daily",
+   "description": "+3 clés par jour, maximum 12 (21 avec abonnement).",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets",
+    "metabot_events"
+   ]
+  },
+  {
+   "id": "invasion_keys",
+   "name": "Clés d'Invasion dimensionnelle",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "daily",
+   "description": "+1 clé par jour, maximum 7.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets",
+    "metabot_events"
+   ]
+  },
+  {
+   "id": "login_rewards",
+   "name": "Récompenses de connexion",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "daily",
+   "description": "Récompense de présence suivante.",
+   "status": "to_verify",
+   "sources": [
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "conquest_rewards",
+   "name": "Récompenses de Conquête",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "+1 récompense toutes les 8 heures, maximum 21 (recharge continue, pas un reset à heure fixe).",
+   "status": "unconfirmed",
+   "sources": [
+    "metabot_checklist"
+   ],
+   "note": "Heure de départ de la recharge inconnue : pas de notification."
+  },
+  {
+   "id": "transcendence_rewards",
+   "name": "Récompenses de Transcendance",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "+1 récompense toutes les 12 heures, maximum 14 (recharge continue).",
+   "status": "unconfirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ],
+   "note": "Heure de départ de la recharge inconnue : pas de notification."
+  },
+  {
+   "id": "odyle_energy",
+   "name": "Énergie d'Odyle",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "+15 toutes les 3 heures (120 par jour), maximum 560 (840 avec abonnement). Ne se réinitialise pas.",
+   "status": "unconfirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ],
+   "note": "Heure de départ du cycle de 3 h inconnue : pas de notification."
+  },
+  {
+   "id": "daily_trade_limits",
+   "name": "Limites d'échange et d'achat quotidiennes",
+   "category": "daily",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "Non documenté par les sources consultées.",
+   "status": "unconfirmed",
+   "sources": []
+  },
+  {
+   "id": "artifact_siege",
+   "name": "Siège d'artefacts",
+   "category": "weekly",
+   "kind": "event",
+   "description": "Bataille d'artefacts de l'Abysse (Bas-Reshanta chaotique), niveau 45, environ 30 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "weekly",
+    "days": [
+     "mon",
+     "thu",
+     "sat"
+    ],
+    "time": "21:00"
+   },
+   "duration_min": 30,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers"
+   ],
+   "note": "Sources minoritaires divergentes (21:00 UTC selon Questlog/Aion2RiftTimer, 12:00 UTC selon Aion2Hub).",
+   "phrase": "Le Siège d'artefacts",
+   "plural": false
+  },
+  {
+   "id": "siege_bosses",
+   "name": "Boss de siège (Exécuteurs)",
+   "category": "weekly",
+   "kind": "event",
+   "description": "Exécuteurs Argo, Kaira, Tamasa, Dramos, Marakha, Ducal : juste après le siège, environ 30 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "weekly",
+    "days": [
+     "mon",
+     "thu",
+     "sat"
+    ],
+    "time": "21:30"
+   },
+   "duration_min": 30,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers"
+   ],
+   "phrase": "Les Boss de siège",
+   "plural": true
+  },
+  {
+   "id": "guardian_nahma",
+   "name": "Général gardien Nahma",
+   "category": "weekly",
+   "kind": "event",
+   "description": "Nahma et Nahma enragé apparaissent dans l'Abysse, environ 30 minutes.",
+   "tz": "server",
+   "rule": {
+    "type": "weekly",
+    "days": [
+     "fri",
+     "sun"
+    ],
+    "time": "21:00"
+   },
+   "duration_min": 30,
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "metabot_events",
+    "aion2meta",
+    "daeva_timers"
+   ],
+   "phrase": "Le Général gardien Nahma",
+   "plural": false
+  },
+  {
+   "id": "weekly_reset",
+   "name": "Réinitialisation hebdomadaire",
+   "category": "weekly",
+   "kind": "reset",
+   "group": "weekly",
+   "description": "Mercredi, en même temps que la réinitialisation quotidienne (07:00 UTC).",
+   "tz": "UTC",
+   "rule": {
+    "type": "weekly",
+    "days": [
+     "wed"
+    ],
+    "time": "07:00"
+   },
+   "status": "confirmed",
+   "sources": [
+    "shugo",
+    "daeva_resets",
+    "aion2meta",
+    "aion2hub",
+    "metabot_checklist"
+   ],
+   "phrase": "La réinitialisation hebdomadaire"
+  },
+  {
+   "id": "unknown_fissure",
+   "name": "Fissure inconnue (donjon quotidien)",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "14 entrées par semaine.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ],
+   "note": "Une source secondaire indique 7 entrées."
+  },
+  {
+   "id": "exploration",
+   "name": "Exploration (expédition)",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "7 récompenses par donjon.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "ascension_trial",
+   "name": "Épreuve d'Ascension",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "3 entrées par personnage.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "subjugation",
+   "name": "Subjugation",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "3 tickets par semaine.",
+   "status": "to_verify",
+   "sources": [
+    "metabot_checklist"
+   ]
+  },
+  {
+   "id": "sanctuary_raids",
+   "name": "Sanctuaires et raids",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "4 tentatives par raid (Ludra : 1 boss final, autres : 2).",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "abyss_time",
+   "name": "Temps d'Abysse",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "Remis à 7 heures par couche.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "abyss_points_cap",
+   "name": "Plafonds de Points d'Abysse",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "Limite de gain hebdomadaire, séparée PvE / PvP.",
+   "status": "to_verify",
+   "sources": [
+    "metabot_checklist"
+   ]
+  },
+  {
+   "id": "conquest_transcendence_weekly",
+   "name": "Conquête et Transcendance : limites hebdomadaires",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "Boss finaux : 35 (Conquête), 28 (Transcendance) ; cubes de récompense.",
+   "status": "confirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "season_missions",
+   "name": "Missions de saison",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "Récompenses hebdomadaires selon les points accumulés, puis remise à zéro.",
+   "status": "to_verify",
+   "sources": [
+    "metabot_checklist"
+   ]
+  },
+  {
+   "id": "daeva_pass",
+   "name": "Passe Daeva : plafond d'EXP",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "weekly",
+   "description": "50 000 EXP de passe par semaine (saison 1).",
+   "status": "to_verify",
+   "sources": [
+    "metabot_checklist"
+   ]
+  },
+  {
+   "id": "arenas_weekly",
+   "name": "Arènes",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "Non documenté (aucun compteur ni reset publié).",
+   "status": "unconfirmed",
+   "sources": []
+  },
+  {
+   "id": "weekly_purchase_limits",
+   "name": "Limites d'achats hebdomadaires",
+   "category": "weekly",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "Non documenté par les sources consultées.",
+   "status": "unconfirmed",
+   "sources": []
+  },
+  {
+   "id": "monthly_shops",
+   "name": "Boutiques et achats mensuels",
+   "category": "monthly",
+   "kind": "reset_item",
+   "group": "none",
+   "description": "Aucune réinitialisation mensuelle documentée pour la version Global.",
+   "status": "unconfirmed",
+   "sources": [
+    "metabot_checklist",
+    "daeva_resets"
+   ]
+  },
+  {
+   "id": "world_bosses",
+   "name": "Boss de monde",
+   "category": "daily",
+   "kind": "event",
+   "description": "Réapparition affichée sur la carte en jeu ; pas d'horaire fixe publié.",
+   "tz": "server",
+   "rule": {
+    "type": "unknown"
+   },
+   "status": "unconfirmed",
+   "sources": [
+    "daeva_timers"
+   ]
+  },
+  {
+   "id": "maintenance",
+   "name": "Maintenance",
+   "category": "weekly",
+   "kind": "event",
+   "description": "Annoncée au cas par cas par NCSoft ; aucun créneau fixe. Ajouter une période dans « blackouts » pour suspendre les alertes.",
+   "tz": "UTC",
+   "rule": {
+    "type": "unknown"
+   },
+   "status": "unconfirmed",
+   "sources": [
+    "exitlag_maint"
+   ]
+  }
+ ]
+}

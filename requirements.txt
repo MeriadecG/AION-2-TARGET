@@ -1,0 +1,10 @@
+PyQt6>=6.6
+mss>=9.0
+numpy
+pillow
+httpx[http2]>=0.27
+rapidocr>=3.0
+onnxruntime
+pynput
+tzdata
+pytest

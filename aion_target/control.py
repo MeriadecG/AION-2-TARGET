@@ -1,0 +1,751 @@
+"""Fenêtre de contrôle : onglets Target (GS/CP), Notifications, Familiers, Farm ; pause, quitter."""
+from __future__ import annotations
+
+from PyQt6.QtCore import QObject, Qt, QTimer, QUrl, pyqtSignal
+from PyQt6.QtGui import QColor, QDesktopServices, QFont
+from PyQt6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QFontComboBox, QFrame, QGridLayout,
+                             QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QScrollArea,
+                             QSystemTrayIcon, QTabWidget, QVBoxLayout, QWidget)
+
+from .style import fmt
+
+GOLD = "#C9A227"
+CACHE_SIZES_MB = [25, 100, 500, 1024, 5120]
+IMPORT_CHOICES = [("Import shugo.gg : toute la région", -1), ("Import shugo.gg : top 5 000", 5000),
+                  ("Import shugo.gg : top 1 000", 1000), ("Import shugo.gg : désactivé", 0)]
+BYTES_PER_PLAYER = 150     # mesuré
+
+
+def players_label(mb: float) -> str:
+    n = mb * 1024 * 1024 / BYTES_PER_PLAYER
+    return f"{n / 1e6:.0f} M" if n >= 1e6 else f"{n / 1e3:.0f} k"
+
+
+def size_label(mb: float) -> str:
+    if mb >= 1024:
+        return f"{mb / 1024:.0f} Go" if mb % 1024 == 0 else f"{mb / 1024:.1f} Go".replace(".", ",")
+    return f"{mb:.0f} Mo" if mb >= 10 or mb == int(mb) else f"{mb:.1f} Mo".replace(".", ",")
+
+STYLESHEET = f"""
+QWidget#root, QWidget#body {{ background: #15171c; }}
+QScrollArea {{ border: none; background: #15171c; }}
+QScrollBar:vertical {{ background: #15171c; width: 10px; }}
+QScrollBar::handle:vertical {{ background: #353a45; border-radius: 4px; min-height: 30px; }}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
+QLabel {{ color: #d6d6d6; }}
+QLabel#title {{ color: {GOLD}; }}
+QLabel#section {{ color: #8a8f99; font-size: 9pt; letter-spacing: 1px; }}
+QLabel#status {{ color: #9aa0aa; }}
+QFrame#card {{ background: #1d2027; border: 1px solid #2b2f38; border-radius: 8px; }}
+QPushButton {{
+    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
+    border-radius: 6px; padding: 6px 10px;
+}}
+QPushButton:hover {{ border-color: {GOLD}; }}
+QPushButton:checked {{ background: #3a3220; border-color: {GOLD}; color: #f2d98a; }}
+QPushButton#danger:hover {{ border-color: #d06060; }}
+QPushButton#swatch {{ min-width: 54px; padding: 4px; border-radius: 5px; }}
+QLineEdit, QFontComboBox, QComboBox {{
+    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
+    border-radius: 5px; padding: 3px 6px;
+}}
+QCheckBox {{ color: #d6d6d6; }}
+QProgressBar {{
+    background: #262a33; border: 1px solid #353a45; border-radius: 4px;
+    color: #e6e6e6; text-align: center; height: 14px; font-size: 8pt;
+}}
+QProgressBar::chunk {{ background: {GOLD}; border-radius: 3px; }}
+QTabWidget::pane {{ border: none; }}
+QTabBar::tab {{
+    background: transparent; color: #8a8f99; padding: 6px 10px; margin-right: 2px;
+    border: none; border-bottom: 2px solid transparent;
+}}
+QTabBar::tab:hover {{ color: #d6d6d6; }}
+QTabBar::tab:selected {{ color: #f2d98a; border-bottom: 2px solid {GOLD}; }}
+QSpinBox {{
+    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
+    border-radius: 5px; padding: 2px 4px;
+}}
+"""
+
+
+class _ReadTestSignal(QObject):
+    done = pyqtSignal(str)
+    color = pyqtSignal(object)        # carré du test de latence : True / False / None (masqué)
+    latency_done = pyqtSignal(str)
+
+
+class _Probe(QWidget):
+    """Petit carré noir / blanc affiché par-dessus tout, pour mesurer le retard de capture."""
+
+    def __init__(self):
+        super().__init__()
+        W = Qt.WindowType
+        self.setWindowFlags(W.ToolTip | W.FramelessWindowHint | W.WindowStaysOnTopHint
+                            | W.X11BypassWindowManagerHint | W.WindowTransparentForInput)
+        self.white = False
+
+    def paintEvent(self, _):
+        from PyQt6.QtGui import QPainter
+        QPainter(self).fillRect(self.rect(), QColor(255, 255, 255) if self.white else QColor(0, 0, 0))
+
+
+def describe_read_test(name: str, tag: str | None, brightness: float, image_path: str,
+                       raw: str = "", mode: str = "") -> str:
+    """Message clair pour « Tester la lecture » (logique pure, testée)."""
+    detail = f"\nTexte brut : « {raw} » ({mode})" if raw or mode else ""
+    if brightness < 2:
+        return ("✗ Capture NOIRE : l'écran n'est pas lisible. Sous Linux, accepte le partage "
+                "d'écran (écran du jeu) ; sous Windows, mets le jeu en plein écran fenêtré.")
+    if not name:
+        return (f"✗ Aucun nom lu. Vérifie que le cadre BLEU entoure la ligne du nom "
+                f"(« Placer sur une capture ») et qu'une cible joueur est sélectionnée. "
+                f"Image : {image_path}{detail}")
+    srv = f" · serveur [{tag}]" if tag else ""
+    return f"✓ Lu : « {name} »{srv} — la lecture fonctionne. Image : {image_path}{detail}"
+
+
+class ControlWindow(QWidget):
+    def __init__(self, cfg, overlay, worker, grabber, quit_app):
+        super().__init__()
+        self.cfg, self.overlay, self.worker = cfg, overlay, worker
+        self.grabber = grabber
+        self.quit_app = quit_app
+        self._picker = None
+        self._countdown = 0
+
+        self.setObjectName("root")
+        self.setWindowTitle("Aion Target")
+        self.setStyleSheet(STYLESHEET)
+        self.setMinimumWidth(320)
+
+        # En-tête, onglets et boutons du bas TOUJOURS visibles ; le contenu des onglets défile.
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(14, 12, 14, 12)
+        outer.setSpacing(8)
+        body = QWidget()
+        body.setObjectName("body")
+        root = QVBoxLayout(body)
+        root.setContentsMargins(0, 0, 6, 0)
+        root.setSpacing(10)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(body)
+
+        # --- en-tête ---
+        title = QLabel("AION TARGET")
+        title.setObjectName("title")
+        tf = QFont(cfg.font_family if cfg.font_family else "Cinzel", 15)
+        tf.setWeight(QFont.Weight.Bold)
+        title.setFont(tf)
+        self.status = QLabel("Démarrage…")
+        self.status.setObjectName("status")
+        self.status.setWordWrap(True)
+        self.btn_sheet = QPushButton("Ouvrir la fiche de la cible")
+        self.btn_sheet.setEnabled(False)
+        self.btn_sheet.clicked.connect(self._open_sheet)
+        outer.addWidget(title)
+        outer.addWidget(self.status)
+
+        # --- onglets : Target (GS/CP) · Notifications · Familiers · Farm ---
+        self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)
+        target = QWidget()
+        target.setObjectName("body")
+        tl = QVBoxLayout(target)
+        tl.setContentsMargins(0, 8, 0, 0)
+        tl.setSpacing(8)
+        tl.addWidget(self.btn_sheet)
+        tl.addWidget(scroll, 1)
+        self.tabs.addTab(target, "Target")
+        self._notifier = None
+        self._events_tab = self._placeholder("Module Événements en cours de démarrage…")
+        self.tabs.addTab(self._events_tab, "Notifications")
+        self.tabs.addTab(self._placeholder("Familiers : bientôt ici.\n\nDis-moi ce que tu veux y voir "
+                                           "(suivi, minuteurs, collection…)."), "Familiers")
+        self._farm_tab = self._placeholder("Farm : chargement…")
+        self.tabs.addTab(self._farm_tab, "Farm")
+        outer.addWidget(self.tabs, 1)
+
+        # --- zone ---
+        zone = self._card(root, "CADRES (LECTURE · GS · CP · DÉTAILS · TOP)")
+        self.btn_pick = QPushButton("Placer sur une capture (3 s)")
+        self.btn_move = QPushButton("Ajuster en direct")
+        self.btn_move.setCheckable(True)
+        self.btn_move.toggled.connect(self._toggle_move)
+        self.btn_pick.clicked.connect(self._start_pick)
+        zone.addWidget(self.btn_pick, 0, 0, 1, 2)
+        zone.addWidget(self.btn_move, 1, 0, 1, 2)
+        hint = QLabel("La taille du texte suit la hauteur de chaque cadre.")
+        hint.setObjectName("status")
+        hint.setWordWrap(True)
+        zone.addWidget(hint, 2, 0, 1, 2)
+
+        # --- mon personnage (pastille plus fort / plus faible) ---
+        me = self._card(root, "MON PERSONNAGE")
+        self.me_edit = QLineEdit(cfg.my_character)
+        self.me_edit.setPlaceholderText("Nom de ton perso")
+        self.me_edit.editingFinished.connect(self._me_changed)
+        self.me_cp = QLabel("CP : —")
+        me.addWidget(self.me_edit, 0, 0)
+        me.addWidget(self.me_cp, 0, 1)
+        dots = QLabel("<span style='color:#E5484D'>●</span> plus fort que toi · "
+                      "<span style='color:#3DD68C'>●</span> plus faible")
+        dots.setObjectName("status")
+        me.addWidget(dots, 1, 0, 1, 2)
+
+        # --- mémoire des joueurs (taille seulement, pas de durée) ---
+        mem = self._card(root, "MÉMOIRE DES JOUEURS")
+        self.size_box = QComboBox()
+        for mb in CACHE_SIZES_MB:
+            self.size_box.addItem(f"Max {size_label(mb)}  ·  ~{players_label(mb)} joueurs", mb)
+        idx = self.size_box.findData(cfg.cache_max_mb)
+        if idx < 0:
+            self.size_box.addItem(size_label(cfg.cache_max_mb), cfg.cache_max_mb)
+            idx = self.size_box.count() - 1
+        self.size_box.setCurrentIndex(idx)
+        self.size_box.currentIndexChanged.connect(self._cache_size_changed)
+        self.mem_stats = QLabel("…")
+        self.mem_stats.setObjectName("status")
+        self.import_box = QComboBox()
+        for label, value in IMPORT_CHOICES:
+            self.import_box.addItem(label, value)
+        i = self.import_box.findData(cfg.import_max_players)
+        self.import_box.setCurrentIndex(i if i >= 0 else 0)
+        self.import_box.currentIndexChanged.connect(self._import_changed)
+        self.import_stats = QLabel("")
+        self.import_stats.setObjectName("status")
+        self.import_stats.setWordWrap(True)
+        btn_clear = QPushButton("Vider")
+        btn_clear.clicked.connect(self._clear_cache)
+        self.size_box.setToolTip("Taille maximale de la mémoire (pas de limite de durée)")
+        mem.addWidget(self.size_box, 0, 0, 1, 2)
+        mem.addWidget(self.mem_stats, 1, 0)
+        mem.addWidget(btn_clear, 1, 1, Qt.AlignmentFlag.AlignRight)
+        self.import_bar = QProgressBar()
+        self.import_bar.setVisible(False)
+        self.btn_import = QPushButton("Télécharger maintenant")
+        self.btn_import.clicked.connect(self._import_now)
+        mem.addWidget(self.btn_import, 5, 0, 1, 2)
+        mem.addWidget(self.import_box, 2, 0, 1, 2)
+        mem.addWidget(self.import_bar, 3, 0, 1, 2)
+        mem.addWidget(self.import_stats, 4, 0, 1, 2)
+        worker.import_progress.connect(self._on_import)
+        self._show_import_state()
+        self._mem_timer = QTimer(self)
+        self._mem_timer.timeout.connect(self._refresh_mem)
+        self._mem_timer.start(5000)
+        QTimer.singleShot(1500, self._refresh_mem)
+
+        # --- apparence ---
+        look = self._card(root, "APPARENCE")
+        self.sw_gs = self._swatch(look, 0, "Couleur GS", "gs_color")
+        self.sw_cp = self._swatch(look, 1, "Couleur CP", "cp_color")
+        self.sw_det = self._swatch(look, 2, "Couleur détails", "detail_color")
+        self.sw_rank = self._swatch(look, 6, "Couleur TOP", "rank_color")
+        self.chk_top = QCheckBox("Afficher le top (TOP - 23, jusqu'au top 1 000)")
+        self.chk_top.setChecked(cfg.show_top)
+        self.chk_top.toggled.connect(self._top_changed)
+        look.addWidget(self.chk_top, 7, 0, 1, 2)
+
+        look.addWidget(QLabel("Police"), 3, 0)
+        self.font_box = QFontComboBox()
+        self.font_box.setCurrentFont(QFont(cfg.font_family))
+        self.font_box.currentFontChanged.connect(self._font_changed)
+        look.addWidget(self.font_box, 3, 1)
+
+        self.chk_details = QCheckBox("Afficher classe · niveau · serveur")
+        self.chk_details.setChecked(cfg.show_details)
+        self.chk_details.toggled.connect(self._details_changed)
+        look.addWidget(self.chk_details, 5, 0, 1, 2)
+
+        # --- bas ---
+        # --- diagnostic ---
+        diag = self._card(root, "DIAGNOSTIC (SANS BORDURE…)")
+        btn_show = QPushButton("Test affichage")
+        btn_show.clicked.connect(self._test_display)
+        self.btn_read = QPushButton("Test lecture")
+        self.btn_read.clicked.connect(self._start_read_test)
+        self.diag_text = QLabel("Test affichage : exemple 5 s dans tes cadres. Test lecture : 3 s pour cibler un joueur, puis résultat.")
+        self.diag_text.setObjectName("status")
+        self.diag_text.setWordWrap(True)
+        self.diag_text.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.btn_report = QPushButton("Copier le rapport de vitesse")
+        self.btn_report.clicked.connect(self._copy_report)
+        self.btn_latency = QPushButton("Mesurer le retard de capture")
+        self.btn_latency.clicked.connect(self._start_latency_test)
+        diag.addWidget(btn_show, 0, 0)
+        diag.addWidget(self.btn_read, 0, 1)
+        diag.addWidget(self.btn_latency, 1, 0, 1, 2)
+        diag.addWidget(self.btn_report, 2, 0, 1, 2)
+        diag.addWidget(self.diag_text, 3, 0, 1, 2)
+        self._read_sig = _ReadTestSignal()
+        self._read_sig.done.connect(self._read_test_done)
+        self._read_sig.color.connect(self._probe_color)
+        self._read_sig.latency_done.connect(self._latency_done)
+        self._probe = None
+        self._latency_running = False
+        self._read_countdown = 0
+
+        self.btn_shortcut = QPushButton("Créer un raccourci (menu + bureau)")
+        self.btn_shortcut.clicked.connect(self._make_shortcut)
+        root.addWidget(self.btn_shortcut)
+        self.chk_update = QCheckBox("Mise à jour automatique au lancement (GitHub)")
+        self.chk_update.setChecked(cfg.auto_update)
+        self.chk_update.toggled.connect(self._auto_update_changed)
+        root.addWidget(self.chk_update)
+
+        bottom = QHBoxLayout()
+        self.btn_pause = QPushButton("Pause")
+        self.btn_pause.setCheckable(True)
+        self.btn_pause.toggled.connect(self._update_pause)
+        btn_quit = QPushButton("Quitter")
+        btn_quit.setObjectName("danger")
+        btn_quit.clicked.connect(self.quit_app)
+        bottom.addWidget(self.btn_pause)
+        bottom.addWidget(btn_quit)
+        root.addStretch(1)
+        outer.addLayout(bottom)
+        from . import __version__
+        import os
+        self.version = QLabel(f"Version {__version__}")
+        self.version.setObjectName("status")
+        self.version.setToolTip(os.environ.get("AION_TARGET_UPDATE_MSG", ""))
+        outer.addWidget(self.version)
+        self._fit_to_screen(body)
+
+        self.tabs.setCurrentIndex(min(max(0, cfg.control_tab), self.tabs.count() - 1))
+        self.tabs.currentChanged.connect(self._tab_changed)
+        self._tab_changed(self.tabs.currentIndex(), save=False)
+
+        worker.status.connect(self._on_status)
+        worker.timing.connect(self._on_timing)
+        worker.my_cp.connect(self._on_my_cp)
+        overlay.edit_changed.connect(self._on_edit_changed)
+        self._update_pause()
+
+    # --- construction ---
+    def _fit_to_screen(self, body: QWidget):
+        """Taille de départ : tout le contenu si possible, jamais plus haut que l'écran."""
+        from PyQt6.QtWidgets import QApplication
+        screen = self.screen() or QApplication.primaryScreen()
+        avail = screen.availableGeometry() if screen else None
+        want = body.sizeHint().height() + 170          # + en-tête et boutons du bas
+        height = min(want, avail.height() - 60) if avail else want
+        self.resize(360, max(420, height))
+
+    # --- onglets ---
+    TAB_WIDTH = {1: 680}                         # largeur confortable par onglet (Notifications)
+
+    def _placeholder(self, text: str) -> QWidget:
+        w = QWidget()
+        w.setObjectName("body")
+        lay = QVBoxLayout(w)
+        lab = QLabel(text)
+        lab.setObjectName("status")
+        lab.setWordWrap(True)
+        lab.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lay.addStretch(1)
+        lay.addWidget(lab)
+        lay.addStretch(2)
+        return w
+
+    def _replace_tab(self, index: int, old: QWidget, new: QWidget, label: str):
+        current = self.tabs.currentIndex()
+        self.tabs.blockSignals(True)
+        self.tabs.removeTab(index)
+        self.tabs.insertTab(index, new, label)
+        self.tabs.setCurrentIndex(current)
+        self.tabs.blockSignals(False)
+        old.deleteLater()
+
+    def _tab_changed(self, index: int, save: bool = True):
+        want = self.TAB_WIDTH.get(index)
+        if want and self.width() < want:
+            self.resize(want, max(self.height(), 640))
+        if save:
+            self.cfg.control_tab = index
+            self.cfg.save()
+
+    def _auto_update_changed(self, on: bool):
+        self.cfg.auto_update = on
+        self.cfg.save()
+
+    # --- module Événements (onglet Notifications) ---
+    def set_events(self, notifier):
+        from .events_ui import EventsWindow, bell_icon
+        self._notifier = notifier
+        win = EventsWindow(notifier, STYLESHEET, embedded=True)
+        self._replace_tab(1, self._events_tab, win, "Notifications")
+        self._events_tab = win
+        self.tabs.setTabIcon(1, bell_icon())
+        notifier.changed.connect(self._events_count)
+        self._events_count()
+
+    def _events_count(self):
+        n = self._notifier
+        k = sum(1 for e in n.catalog.events if e.schedulable and n.prefs.is_enabled(e.id))
+        self.tabs.setTabText(1, f"Notifications ({k})" if k else "Notifications")
+
+    # --- monnaie (onglet Farm) ---
+    def set_currency(self, currency_overlay):
+        from .currency_ui import FarmTab
+        tab = FarmTab(self.cfg, currency_overlay, self._card)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(tab)
+        self._replace_tab(3, self._farm_tab, scroll, "Farm")
+        self._farm_tab = scroll
+
+    def _card(self, root, label: str) -> QGridLayout:
+        lab = QLabel(label)
+        lab.setObjectName("section")
+        root.addWidget(lab)
+        card = QFrame()
+        card.setObjectName("card")
+        grid = QGridLayout(card)
+        grid.setContentsMargins(10, 10, 10, 10)
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(8)
+        root.addWidget(card)
+        return grid
+
+    def _swatch(self, grid: QGridLayout, row: int, label: str, attr: str) -> QPushButton:
+        grid.addWidget(QLabel(label), row, 0)
+        btn = QPushButton()
+        btn.setObjectName("swatch")
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._paint_swatch(btn, getattr(self.cfg, attr))
+        btn.clicked.connect(lambda: self._pick_color(btn, attr, label))
+        grid.addWidget(btn, row, 1, Qt.AlignmentFlag.AlignLeft)
+        return btn
+
+    @staticmethod
+    def _paint_swatch(btn: QPushButton, color: str):
+        btn.setStyleSheet(f"background:{color}; border:1px solid #555;")
+        btn.setText(color.upper())
+        dark = QColor(color).lightness() > 140
+        btn.setStyleSheet(btn.styleSheet() + f"color:{'#111' if dark else '#eee'};")
+
+    # --- actions ---
+    def _pick_color(self, btn, attr, label):
+        color = QColorDialog.getColor(QColor(getattr(self.cfg, attr)), self, label)
+        if color.isValid():
+            setattr(self.cfg, attr, color.name())
+            self._paint_swatch(btn, color.name())
+            self._save_and_preview()
+
+    def _font_changed(self, font: QFont):
+        self.cfg.font_family = font.family()
+        self._save_and_preview()
+
+    def _me_changed(self):
+        name = self.me_edit.text().strip()
+        if name != self.cfg.my_character:
+            self.cfg.my_character = name
+            self.cfg.save()
+            self.me_cp.setText("CP : …" if name else "CP : —")
+            self.overlay.set_my_cp(None)
+            self.worker.refresh_me()
+
+    def _on_my_cp(self, cp):
+        self.me_cp.setText(f"CP : {fmt(cp)}" if cp else "CP : introuvable")
+
+    def _make_shortcut(self):
+        from .launcher import install
+        try:
+            msg = install()
+            self.status.setText("● " + msg.splitlines()[0])
+            self.btn_shortcut.setText("Raccourci créé ✓")
+        except Exception as e:
+            self.status.setText(f"● Raccourci impossible : {e}")
+
+    def _cache(self):
+        lookup = getattr(self.worker, "lookup", None)
+        return lookup.cache if lookup else None
+
+    def _refresh_mem(self):
+        cache = self._cache()
+        if cache is not None:
+            self.mem_stats.setText(f"{fmt(len(cache))} joueurs · {size_label(cache.size_bytes() / 1048576)}")
+
+    def _import_changed(self, _):
+        self.cfg.import_max_players = int(self.import_box.currentData())
+        self.cfg.save()
+        if self.cfg.import_max_players != 0:
+            self.worker.maybe_import(force=True)
+        self._show_import_state()
+
+    def _import_now(self):
+        if self.cfg.import_max_players == 0:
+            self.import_box.setCurrentIndex(0)            # « toute la région »
+            return                                        # (le changement lance l'import)
+        if getattr(self.worker, "lookup", None) is None:
+            self.import_stats.setText("L'outil démarre encore… réessaie dans quelques secondes.")
+            return
+        self.btn_import.setEnabled(False)
+        self.btn_import.setText("Téléchargement…")
+        self.worker.maybe_import(force=True)
+
+    def _on_import(self, done: int, total: int, finished: bool):
+        if not finished:
+            self.btn_import.setEnabled(False)
+            self.btn_import.setText("Téléchargement…")
+            self.import_bar.setVisible(True)
+            self.import_bar.setRange(0, max(total, 1))
+            self.import_bar.setValue(done)
+            self.import_bar.setFormat(f"Import shugo.gg : {fmt(done)} / {fmt(total)}  (%p %)")
+            self.import_stats.setText("Import en cours en arrière-plan, l'outil reste utilisable.")
+            return
+        self.import_bar.setVisible(False)
+        self.btn_import.setEnabled(True)
+        self.btn_import.setText("Télécharger maintenant")
+        self._refresh_mem()
+        self._show_import_state()
+        complete = (self.cfg.import_state.get("next_page", 1) <= 1
+                    and not self.cfg.import_state.get("last_error"))
+        tray = getattr(self, "_tray", None)
+        if tray is not None and QSystemTrayIcon.isSystemTrayAvailable():
+            if complete:
+                tray.showMessage("Aion Target", f"Import terminé : {fmt(done)} joueurs en mémoire.",
+                                 QSystemTrayIcon.MessageIcon.Information, 5000)
+            else:
+                from .importer import explain_error
+                tray.showMessage("Aion Target", "Import impossible : "
+                                 + explain_error(self.cfg.import_state.get("last_error")),
+                                 QSystemTrayIcon.MessageIcon.Warning, 8000)
+
+    def _show_import_state(self):
+        import time as _t
+        st = self.cfg.import_state
+        from .importer import explain_error
+        if self.cfg.import_max_players == 0:
+            self.import_stats.setText("Import désactivé : seuls les joueurs croisés sont mémorisés.")
+        elif st.get("last_error"):
+            self.import_stats.setText("✗ " + explain_error(st["last_error"]))
+        elif st.get("next_page", 1) > 1:
+            self.import_stats.setText("⏸ Import interrompu : reprise automatique au prochain essai.")
+        elif st.get("last_full"):
+            hhmm = _t.strftime("%H:%M", _t.localtime(st["last_full"]))
+            hours = (_t.time() - st["last_full"]) / 3600
+            day = "aujourd'hui" if hours < 20 else f"il y a {hours / 24:.0f} j" if hours >= 36 else "hier"
+            self.import_stats.setText(f"✓ Import terminé {day} à {hhmm} · "
+                                      f"{fmt(st.get('total', 0))} joueurs · prochain dans ≤ 24 h")
+        else:
+            self.import_stats.setText("Import au lancement (≈ 4 min en arrière-plan).")
+
+    def _cache_size_changed(self, _):
+        self.cfg.cache_max_mb = int(self.size_box.currentData())
+        self.cfg.save()
+        cache = self._cache()
+        if cache is not None:
+            cache.max_bytes = self.cfg.cache_max_mb * 1024 * 1024
+            cache.purge()
+        self._refresh_mem()
+
+    def _clear_cache(self):
+        cache = self._cache()
+        if cache is not None:
+            cache.clear()
+        self._refresh_mem()
+
+    def _start_latency_test(self):
+        """Carré clignotant posé dans le coin de la zone de lecture (donc sur l'écran capturé)."""
+        import threading
+        from .capture import MssGrabber
+        from .latency import PROBE, CaptureLatencyTest
+        if self._latency_running:
+            return
+        self._latency_running = True
+        self.btn_latency.setEnabled(False)
+        self.btn_latency.setText("Mesure en cours… (≈ 10 s)")
+        self.diag_text.setText("Un petit carré clignote dans le coin du cadre BLEU. "
+                               "Ne bouge pas la fenêtre du jeu pendant la mesure.")
+        self.overlay.set_edit(False)
+        self.worker.paused = True                      # la lecture ne doit pas capturer en même temps
+        x, y = self.cfg.capture[0], self.cfg.capture[1]
+        if self._probe is None:
+            self._probe = _Probe()
+        self._probe.setGeometry(x, y, PROBE, PROBE)
+        local = threading.local()
+
+        def grab(*rect):
+            g = self.grabber
+            if g is None:                              # mss : une instance par thread
+                if not hasattr(local, "g"):
+                    local.g = MssGrabber()
+                g = local.g
+            return g.grab(*rect)
+
+        # Référence gardée : PyQt ne garde pas en vie l'objet d'une méthode programmée par QTimer.
+        self._latency_test = CaptureLatencyTest(
+            grab, self._read_sig.color.emit, (x + 4, y + 4, PROBE - 8, PROBE - 8),
+            lambda text, lat: self._read_sig.latency_done.emit(text))
+        QTimer.singleShot(400, lambda: self._latency_test.start())   # fin de la lecture en cours
+
+    def _probe_color(self, white):
+        if white is None:
+            self._probe.hide()
+            return
+        self._probe.white = bool(white)
+        self._probe.show()
+        self._probe.raise_()
+        self._probe.update()
+
+    def _latency_done(self, text: str):
+        from .overlay import log
+        log(text)
+        self.diag_text.setText(text + "\n(Ce résultat est aussi dans « Copier le rapport ».)")
+        self.btn_latency.setText("Mesurer le retard de capture")
+        self.btn_latency.setEnabled(True)
+        self._latency_running = False
+        self._update_pause()
+
+    def _copy_report(self):
+        from PyQt6.QtWidgets import QApplication
+        from .overlay import speed_report
+        QApplication.clipboard().setText(speed_report())
+        self.diag_text.setText("✓ Rapport copié : colle-le simplement dans la conversation (Ctrl+V). "
+                               "Idéal juste après avoir ciblé 4-5 joueurs en jeu.")
+
+    def _test_display(self):
+        self.overlay.test_display(5)
+        self.diag_text.setText("Exemple affiché 5 s dans tes cadres. Si tu ne le vois pas PAR-DESSUS "
+                               "le jeu, dis-le (et précise : plein écran ou sans bordure).")
+
+    def _start_read_test(self):
+        self._read_countdown = 3
+        self.btn_read.setEnabled(False)
+        self._read_tick()
+
+    def _read_tick(self):
+        if self._read_countdown > 0:
+            self.btn_read.setText(f"Cible… {self._read_countdown}")
+            self._read_countdown -= 1
+            QTimer.singleShot(1000, self._read_tick)
+            return
+        self.btn_read.setText("Lecture…")
+        import threading
+        threading.Thread(target=self._read_test_work, daemon=True).start()
+
+    def _read_test_work(self):
+        try:
+            from PIL import Image
+            from .capture import MssGrabber
+            from .config import config_path
+            from .ocr import NameReader
+            grabber = self.grabber or MssGrabber()
+            img = grabber.grab(*self.cfg.capture)
+            path = config_path().with_name("test-lecture.png")
+            path.parent.mkdir(parents=True, exist_ok=True)
+            Image.fromarray(img).save(path)
+            reader = NameReader(self.cfg.ocr_min_confidence)
+            name = reader._ocr(img)
+            msg = describe_read_test(name, reader.last_tag, float(img.mean()), str(path),
+                                     reader.last_raw, reader.last_mode)
+        except Exception as e:
+            msg = f"✗ Erreur pendant le test : {e}"
+        self._read_sig.done.emit(msg)
+
+    def _read_test_done(self, msg: str):
+        self.diag_text.setText(msg)
+        self.btn_read.setText("Test lecture")
+        self.btn_read.setEnabled(True)
+
+    def _open_sheet(self):
+        info = self.overlay.current_info()
+        if info and info.url:
+            QDesktopServices.openUrl(QUrl(info.url))
+
+    def _top_changed(self, on: bool):
+        self.cfg.show_top = on
+        self._save_and_preview()
+
+    def _details_changed(self, on: bool):
+        self.cfg.show_details = on
+        self._save_and_preview()
+
+    def _save_and_preview(self):
+        self.cfg.save()
+        self.overlay.restyle(preview=True)
+
+    def _toggle_move(self, on: bool):
+        self.overlay.set_edit(on)
+
+    def _on_edit_changed(self, on: bool):
+        self.btn_move.blockSignals(True)
+        self.btn_move.setChecked(on)
+        self.btn_move.setText("Valider les cadres" if on else "Ajuster en direct")
+        self.btn_move.blockSignals(False)
+        self._update_pause()
+
+    def _start_pick(self):
+        """Compte à rebours : laisse le temps de revenir en jeu et de cibler quelqu'un."""
+        self._countdown = 3
+        self.btn_pick.setEnabled(False)
+        self._tick()
+
+    def _tick(self):
+        if self._countdown > 0:
+            self.btn_pick.setText(f"Capture dans {self._countdown}…")
+            self._countdown -= 1
+            QTimer.singleShot(1000, self._tick)
+            return
+        self.btn_pick.setText("Placer sur une capture (3 s)")
+        self.btn_pick.setEnabled(True)
+        from .capture import MssGrabber
+        from .zone_picker import open_picker
+        grabber = self.grabber or MssGrabber()   # mss : instance propre au thread principal
+        self.overlay.set_edit(False)
+        self._picker = open_picker(self.cfg, grabber, self._pick_done)
+        self._update_pause()
+
+    def _pick_done(self, saved: bool):
+        self._picker = None
+        if saved:
+            self.overlay.zone_changed()
+            self.status.setText("● Cadres enregistrés")
+        self._update_pause()
+
+    def _update_pause(self, *_):
+        paused = self.btn_pause.isChecked() or self.overlay.edit_mode or self._picker is not None
+        self.worker.paused = paused
+        self.btn_pause.setText("Reprendre" if self.btn_pause.isChecked() else "Pause")
+        if self.btn_pause.isChecked():
+            self.status.setText("● En pause")
+        elif self.overlay.edit_mode:
+            self.status.setText("● Réglage des cadres (lecture suspendue)")
+
+    def _on_status(self, name: str, info):
+        from .shugo import CharacterInfo
+        self.btn_sheet.setEnabled(isinstance(info, CharacterInfo) and bool(info.url))
+        if self.worker.paused:
+            return
+        if isinstance(info, CharacterInfo):
+            self.status.setText(f"● {name} · GS {fmt(info.gear_score)} · CP {fmt(info.combat_power)}")
+        elif info == "loading":
+            self.status.setText(f"● Recherche de {name}…")
+        elif info == "notfound":
+            self.status.setText(f"● {name} · PNJ ou introuvable (rien affiché)")
+        elif info == "error":
+            self.status.setText(f"● {name}")
+        elif not name:
+            self.status.setText("● En lecture · aucune cible")
+
+    def _on_timing(self, name: str, seconds: float):
+        secs = f"{seconds:.1f}".replace(".", ",")
+        text = self.status.text()
+        if name in text and " s" not in text[-3:]:
+            self.status.setText(f"{text} · {secs} s")
+
+    def show_and_raise(self):
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
+
+    def closeEvent(self, e):
+        # La fenêtre EST l'application : la fermer quitte proprement.
+        self.quit_app()
+        e.accept()
