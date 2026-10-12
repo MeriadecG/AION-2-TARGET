@@ -1,0 +1,65 @@
+# Construit l'installateur Windows et le publie dans « Releases » à chaque nouvelle version
+# (= modification de __version__ dans aion_target/__init__.py poussée sur main).
+name: Version Windows
+
+on:
+  push:
+    branches: [main]
+    paths: ["aion_target/__init__.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Outils (NSIS, distlib)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q nsis
+          python -m pip install -q distlib
+
+      - name: Version
+        id: v
+        run: echo "version=$(python -c 'import aion_target; print(aion_target.__version__)')" >> "$GITHUB_OUTPUT"
+
+      - name: Déjà publiée ?
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Construction (installateur + portable)
+        if: steps.exists.outputs.skip != 'true'
+        run: python tools/build_windows.py
+
+      - name: Publication
+        if: steps.exists.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          gh release create "v$V" \
+            "dist/AionTarget-Setup.exe" "dist/AionTarget-Windows.zip" \
+            --title "Aion Target $V" --latest \
+            --notes "Windows : télécharge **AionTarget-Setup.exe**, double-clic, Suivant, Installer.
+          Si Windows affiche « Windows a protégé votre ordinateur » : Informations complémentaires → Exécuter quand même (programme non signé).
+          Déjà installé ? Rien à faire : l'appli se met à jour toute seule au lancement.
+
+          Version portable : AionTarget-Windows.zip (dézipper, lancer « Aion Target.exe »)."
