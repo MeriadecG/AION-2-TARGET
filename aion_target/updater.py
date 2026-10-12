@@ -124,6 +124,19 @@ def _extract_package(data: bytes, dest: Path) -> Path:
     return inits[0].parent.parent
 
 
+# Types de fichiers acceptés dans une mise à jour : code Python et ressources. Jamais
+# d'exécutable natif (.exe, .dll, .so, .pyd), de script système (.bat, .ps1, .sh) ni de lien.
+ALLOWED_SUFFIXES = {".py", ".json", ".png", ".ico", ".ttf", ".txt", ".wav", ".md"}
+
+
+def check_files(package_dir: Path):
+    for f in package_dir.rglob("*"):
+        if f.is_symlink():
+            raise ValueError(f"lien symbolique refusé : {f.name}")
+        if f.is_file() and f.suffix.lower() not in ALLOWED_SUFFIXES:
+            raise ValueError(f"type de fichier refusé dans la mise à jour : {f.name}")
+
+
 def _compile_all(package_dir: Path):
     for f in package_dir.rglob("*.py"):           # erreur de syntaxe → SyntaxError
         compile(f.read_bytes(), str(f), "exec", dont_inherit=True)
@@ -212,9 +225,12 @@ def check_and_update(project_dir: Path = PROJECT_DIR, current: str | None = None
             got = parse_version((root / PACKAGE / "__init__.py").read_text(encoding="utf-8"))
             if got != remote:
                 return UpdateResult("error", f"Mise à jour {rv} : archive incohérente ({got}).", current)
+            check_files(root / PACKAGE)
             _compile_all(root / PACKAGE)
             req = root / "requirements.txt"
             missing = missing_requirements(req.read_text(encoding="utf-8")) if req.exists() else []
+            if any(not re.fullmatch(r"[a-z0-9][a-z0-9\-]*(>=[\d.]+)?", m) for m in missing):
+                return UpdateResult("error", f"Mise à jour {rv} : dépendance au format refusé.", current)
             if missing:
                 ok, detail = pip_install(missing)
                 if not ok or missing_requirements(req.read_text(encoding="utf-8")):

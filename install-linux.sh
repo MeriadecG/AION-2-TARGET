@@ -15,6 +15,10 @@ DEST="${AION_TARGET_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/aion-target}"
 APP="$DEST/app"
 VENV="$DEST/venv"
 BIN="$HOME/.local/bin"
+case "$DEST" in
+    */aion-target) ;;
+    *) echo "Dossier d'installation refusé (doit se terminer par /aion-target) : $DEST" >&2; exit 1 ;;
+esac
 RUN=0
 SYSTEM=1
 for arg in "$@"; do

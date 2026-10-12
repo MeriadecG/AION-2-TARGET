@@ -9,9 +9,9 @@ Le volume d'un WAV est appliqué en écrivant une copie mise à l'échelle (mise
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import sys
-import tempfile
 import wave
 from array import array
 from pathlib import Path
@@ -62,13 +62,22 @@ def label(sound_id: str) -> str:
     return f"Fichier : {p.name}" if p else "Son introuvable"
 
 
+def cache_dir() -> Path:
+    """Cache PERSONNEL (dossier de config de l'utilisateur), jamais /tmp partagé : un autre
+    compte de la machine ne peut pas y piéger un fichier."""
+    from .config import config_path
+    d = config_path().parent / "cache"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
 def scaled_wav(path: Path, volume: int) -> Path:
     """Copie du WAV au volume demandé (0-100), mise en cache. Original si format non géré."""
     volume = max(0, min(100, int(volume)))
     if volume >= 100 or path.suffix.lower() != ".wav":
         return path
-    key = hashlib.sha1(f"{path}|{path.stat().st_mtime_ns}|{volume}".encode()).hexdigest()[:16]
-    out = Path(tempfile.gettempdir()) / f"aion-target-sound-{key}.wav"
+    key = hashlib.sha256(f"{path}|{path.stat().st_mtime_ns}|{volume}".encode()).hexdigest()[:16]
+    out = cache_dir() / f"sound-{key}.wav"
     if out.exists():
         return out
     try:
@@ -83,9 +92,11 @@ def scaled_wav(path: Path, volume: int) -> Path:
         data = array("h", (int(s * f) for s in data))
         if sys.byteorder == "big":
             data.byteswap()
-        with wave.open(str(out), "wb") as w:
+        tmp = out.with_suffix(".tmp")
+        with wave.open(str(tmp), "wb") as w:
             w.setparams(params)
             w.writeframes(data.tobytes())
+        os.replace(tmp, out)
         return out
     except (OSError, wave.Error, EOFError):
         return path

@@ -656,7 +656,8 @@ class ControlWindow(QWidget):
 
     def _open_sheet(self):
         info = self.overlay.current_info()
-        if info and info.url:
+        # Seulement une fiche shugo.gg en HTTPS (jamais file:, un autre site ou un programme).
+        if info and info.url and info.url.startswith("https://shugo.gg/"):
             QDesktopServices.openUrl(QUrl(info.url))
 
     def _top_changed(self, on: bool):

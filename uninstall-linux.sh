@@ -12,6 +12,10 @@ main() {
     DEST="${AION_TARGET_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/aion-target}"
     APPS="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
     CONF="${XDG_CONFIG_HOME:-$HOME/.config}/aion-target"
+    case "$DEST" in
+        */aion-target) ;;
+        *) echo "Dossier refusé (doit se terminer par /aion-target) : $DEST" >&2; exit 1 ;;
+    esac
     PURGE=0
     [ "${1:-}" = "--purge" ] && PURGE=1
 

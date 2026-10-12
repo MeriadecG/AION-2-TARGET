@@ -66,6 +66,19 @@ def _xdg_desktop_dir() -> Path | None:
     return None
 
 
+def _powershell() -> str:
+    """Chemin complet de PowerShell (jamais un « powershell.exe » trouvé ailleurs dans le PATH)."""
+    root = os.environ.get("SystemRoot", r"C:\Windows")
+    full = Path(root) / "System32" / "WindowsPowerShell" / "v1.0" / "powershell.exe"
+    return str(full) if full.exists() else "powershell"
+
+
+def ps_quote(value) -> str:
+    """Chaîne PowerShell littérale : une apostrophe dans un chemin (« C:\\Users\\O'Neil »)
+    ne peut ni casser la commande ni y injecter du code."""
+    return "'" + str(value).replace("'", "''") + "'"
+
+
 def _install_windows() -> str:
     # Version portable : « Aion Target.exe » (variable posée par le lanceur).
     portable_exe = os.environ.get("AION_TARGET_EXE")
@@ -83,11 +96,12 @@ def _install_windows() -> str:
             continue
         lnk = folder / "Aion Target.lnk"
         ps = (
-            "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}');"
-            "$s.TargetPath='{exe}';$s.Arguments='{args}';"
-            "$s.WorkingDirectory='{wd}';$s.IconLocation='{ico}';$s.Save()"
-        ).format(lnk=lnk, exe=exe, args=args, wd=wd, ico=ASSETS / "icon.ico")
-        subprocess.run(["powershell", "-NoProfile", "-Command", ps], check=True,
+            "$s=(New-Object -ComObject WScript.Shell).CreateShortcut({lnk});"
+            "$s.TargetPath={exe};$s.Arguments={args};"
+            "$s.WorkingDirectory={wd};$s.IconLocation={ico};$s.Save()"
+        ).format(lnk=ps_quote(lnk), exe=ps_quote(exe), args=ps_quote(args), wd=ps_quote(wd),
+                 ico=ps_quote(ASSETS / "icon.ico"))
+        subprocess.run([_powershell(), "-NoProfile", "-Command", ps], check=True,
                        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         created.append(str(lnk))
     return "Raccourci créé : " + " · ".join(created)

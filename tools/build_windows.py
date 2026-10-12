@@ -82,13 +82,13 @@ def find_distlib_launchers() -> Path:
             return d
     except ImportError:
         pass
-    for cand in Path("/tmp").rglob("distlib/w64.exe"):
-        return cand.parent
     raise SystemExit("Lanceurs distlib introuvables : pip download distlib, puis dézipper le wheel.")
 
 
 PYTHON_URL = ("https://github.com/astral-sh/python-build-standalone/releases/download/20250612/"
               "cpython-3.12.11+20250612-x86_64-pc-windows-msvc-install_only_stripped.tar.gz")
+# Empreinte publiée par python-build-standalone (fichier SHA256SUMS de la release 20250612).
+PYTHON_SHA256 = "51bc462f3d6caf4aef3d77209d01cd5f6c8fe8213c1ae739e573e1c2c473cb2b"
 PIP_WIN = ["--platform", "win_amd64", "--python-version", "3.12", "--implementation", "cp",
            "--only-binary=:all:"]
 # Seuls QtCore / QtGui / QtWidgets sont utilisés : le reste de Qt est retiré (−200 Mo).
@@ -100,10 +100,22 @@ QT_KEEP_PLUGINS = {"platforms", "styles", "imageformats", "iconengines"}
 QT_DROP_PLUGINS = {"imageformats/qpdf.dll"}
 
 
-def download(url: str, dest: Path) -> Path:
+def download(url: str, dest: Path, sha256: str | None = None) -> Path:
+    """Téléchargement HTTPS uniquement, avec empreinte SHA-256 vérifiée (archive falsifiée → arrêt)."""
+    import hashlib
+    if not url.startswith("https://"):
+        raise SystemExit(f"URL refusée (HTTPS obligatoire) : {url}")
     if not dest.exists():
         print(f"Téléchargement {url.rsplit('/', 1)[-1]}…")
-        urllib.request.urlretrieve(url, dest)
+        tmp = dest.with_suffix(".part")
+        with urllib.request.urlopen(url, timeout=120) as r, open(tmp, "wb") as f:  # nosec B310 (https vérifié)
+            shutil.copyfileobj(r, f)
+        tmp.replace(dest)
+    if sha256:
+        h = hashlib.sha256(dest.read_bytes()).hexdigest()
+        if h != sha256:
+            dest.unlink()
+            raise SystemExit(f"Empreinte inattendue pour {dest.name} : {h} (attendu {sha256})")
     return dest
 
 
@@ -174,7 +186,7 @@ def build(python_tgz: Path, site: Path, out: Path, launchers: Path | None = None
     target.mkdir(parents=True)
 
     with tarfile.open(python_tgz) as t:
-        t.extractall(target, filter="data")          # → target/python/...
+        t.extractall(target, filter="data")  # nosec B202 : filtre « data » = aucun chemin hors du dossier
     site_dest = target / "python" / "Lib" / "site-packages"
     shutil.copytree(site, site_dest, dirs_exist_ok=True)
 
@@ -313,7 +325,7 @@ if __name__ == "__main__":
     ap.add_argument("--no-setup", action="store_true", help="ne pas créer AionTarget-Setup.exe")
     a = ap.parse_args()
     a.work.mkdir(parents=True, exist_ok=True)
-    py = a.python or download(PYTHON_URL, a.work / "python-windows.tar.gz")
+    py = a.python or download(PYTHON_URL, a.work / "python-windows.tar.gz", PYTHON_SHA256)
     site = a.site or prepare_site(a.work)
     launchers = a.launchers or get_launchers(a.work)
     print("Assemblage…")

@@ -167,3 +167,25 @@ def test_main_reloads_modules_after_update(monkeypatch):
         assert seen["config_reloaded"]
     finally:
         sys.modules.update(saved)
+
+
+def test_update_refuses_native_binaries(tmp_path):
+    proj = make_install(tmp_path)
+    evil = github_zip("2026.10.13", extra={"aion_target/payload.exe": "MZ"})
+    res = updater.check_and_update(proj, "2026.10.12.1", fetch=fake_fetch("2026.10.13", evil))
+    assert res.status == "error" and "refusé" in res.message
+    assert not (proj / "aion_target" / "payload.exe").exists()
+
+
+def test_update_refuses_strange_dependency(tmp_path, monkeypatch):
+    proj = make_install(tmp_path)
+    monkeypatch.setattr(updater, "missing_requirements", lambda text: ["--index-url=http://x"])
+    res = updater.check_and_update(proj, "2026.10.12.1", fetch=fake_fetch("2026.10.13"),
+                                   pip_install=lambda r: (True, ""))
+    assert res.status == "error"
+
+
+def test_powershell_quoting():
+    from aion_target.launcher import ps_quote
+    assert ps_quote("C:\\Users\\O'Neil") == "'C:\\Users\\O''Neil'"
+    assert ps_quote("x'; Remove-Item -Recurse C:\; '") == "'x''; Remove-Item -Recurse C:\; '''"
