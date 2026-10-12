@@ -23,9 +23,27 @@ def threat(target_cp: int | None, my_cp: int | None) -> str | None:
     return "stronger" if target_cp > my_cp else "weaker"
 
 
+class Ambiguous:
+    """Nom porté par plusieurs personnages (serveurs différents), serveur de la cible inconnu."""
+
+    def __init__(self, servers: list[str]):
+        self.servers = list(servers)
+
+    def __eq__(self, other):
+        return isinstance(other, Ambiguous) and other.servers == self.servers
+
+    def __repr__(self):
+        return f"Ambiguous({self.servers})"
+
+
 def frame_contents(info, cfg, my_cp: int | None = None) -> dict[str, Segments]:
-    """Texte de chaque cadre pour un profil. Rien du tout si pas de profil (PNJ, recherche…)."""
+    """Texte de chaque cadre pour un profil. Rien du tout si pas de profil (PNJ, recherche…).
+    Homonymes : AUCUN score, seulement « homonymes » dans la ligne de détails."""
     from .shugo import CharacterInfo
+    if isinstance(info, Ambiguous):
+        text = f"Homonymes ({len(info.servers)} serveurs) : score non attribué"
+        return {"gs": [], "cp": [], "details": [(text, cfg.detail_color)] if cfg.show_details else [],
+                "rank": []}
     if not isinstance(info, CharacterInfo):
         return {"gs": [], "cp": [], "details": [], "rank": []}
     details: Segments = []

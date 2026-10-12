@@ -122,6 +122,16 @@ pour le nom.
   a le plus longtemps. Chaque joueur garde l'heure de sa dernière mise à jour : le score
   connu s'affiche immédiatement, puis il est **toujours rafraîchi** (score du jour).
 
+## Homonymes (même nom sur plusieurs serveurs)
+
+Un personnage est identifié par **nom + serveur**. Si le serveur de la cible est inconnu et
+que le nom existe sur plusieurs serveurs, **aucun score n'est affiché** (« Homonymes (N
+serveurs) : score non attribué ») plutôt qu'un score peut-être faux. En Abysse, la balise
+`[Isr]` donne le serveur : le bon personnage est affiché. La mémoire existante est migrée
+automatiquement (copie de sécurité `players.db.bak-v1`).
+
+Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
+
 ## Plein écran fenêtré / sans bordure
 
 - Les cadres sont des fenêtres de type « infobulle » sous Linux : KDE les affiche au-dessus

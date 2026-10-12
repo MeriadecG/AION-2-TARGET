@@ -76,6 +76,20 @@ def server_slug(region: str, server_name: str) -> str:
     return f"{region}-{server_name.strip().lower().replace(' ', '-')}"
 
 
+def parse_official_servers(payload: str | dict, name: str, region: str) -> list[str]:
+    """TOUS les serveurs où un personnage s'appelle exactement `name` (homonymes compris)."""
+    data = json.loads(payload) if isinstance(payload, str) else payload
+    wanted = name.casefold()
+    out: list[str] = []
+    for entry in data.get("list") or []:
+        entry_name = html.unescape(_TAG_RE.sub("", entry.get("name") or "")).strip()
+        if entry_name.casefold() == wanted and entry.get("serverName"):
+            slug = server_slug(region, entry["serverName"])
+            if slug not in out:
+                out.append(slug)
+    return out
+
+
 def parse_official_search(payload: str | dict, name: str, region: str) -> str | None:
     """Renvoie le slug du serveur du personnage EXACTEMENT nommé `name`, ou None.
 
@@ -112,6 +126,14 @@ def parse_leaderboard_entry(e: dict, region: str) -> tuple[CharacterInfo, float]
         level=e.get("level"), char_class=e.get("className"),
         url=BASE_URL.format(slug=slug, name=quote(name, safe="")), rank=e.get("rank"))
     return info, _iso_ts(e.get("lastSeen"))
+
+
+class AmbiguousName(ValueError):
+    """Le même nom existe sur plusieurs serveurs et rien ne dit lequel est la cible."""
+
+    def __init__(self, name: str, servers: list[str]):
+        super().__init__(f"{name} existe sur {len(servers)} serveurs : {', '.join(servers)}")
+        self.name, self.servers = name, servers
 
 
 class NetworkError(RuntimeError):
@@ -153,11 +175,15 @@ class ShugoClient:
         return parse_character_page(resp.text, name, slug, url)
 
     def search_official(self, name: str) -> str | None:
+        servers = self.search_official_all(name)
+        return servers[0] if servers else None
+
+    def search_official_all(self, name: str) -> list[str]:
         resp = self.http.get(SEARCH_URL, params={
             "keyword": name, "serverId": "", "page": 1, "size": 30,
             "region": self.region, "localeInfo": "en-US"})
         resp.raise_for_status()
-        return parse_official_search(resp.json(), name, self.region)
+        return parse_official_servers(resp.json(), name, self.region)
 
     def quick_search(self, name: str) -> tuple[CharacterInfo, float] | None:
         """Recherche par nom dans la BASE de shugo.gg (API classement, paramètre q).
@@ -167,12 +193,24 @@ class ShugoClient:
         resp = self.http.get(LEADERBOARD_URL, headers=API_HEADERS, params={
             "region": "GLOBAL", "subRegion": self.region, "q": name,
             "sort": "combatPower", "page": 1, "limit": 10})
-        resp.raise_for_status()
+        found = self.quick_search_all(name, resp)
+        return found[0] if len(found) == 1 else None
+
+    def quick_search_all(self, name: str, resp=None) -> list[tuple[CharacterInfo, float]]:
+        """Toutes les entrées de la base portant EXACTEMENT ce nom (une par serveur)."""
+        if resp is None:
+            resp = self.http.get(LEADERBOARD_URL, headers=API_HEADERS, params={
+                "region": "GLOBAL", "subRegion": self.region, "q": name,
+                "sort": "combatPower", "page": 1, "limit": 10})
+            resp.raise_for_status()
         wanted = name.casefold()
+        out = []
         for e in resp.json().get("entries") or []:
             if (e.get("name") or "").casefold() == wanted:
-                return parse_leaderboard_entry(e, self.region)
-        return None
+                parsed = parse_leaderboard_entry(e, self.region)
+                if parsed and all(parsed[0].server != o[0].server for o in out):
+                    out.append(parsed)
+        return out
 
     def warmup(self):
         """Ouvre les connexions (TLS + HTTP/2) à l'avance : la 1re recherche est plus rapide."""
@@ -209,38 +247,69 @@ class ShugoClient:
                 pending[self._pool.submit(self.fetch, name, slug)] = ("shugo", slug)
 
         fetch_on(hint)
-        with self._lock:
-            first = list(self.servers[: self.fanout])
-        for slug in first:
-            fetch_on(slug)
-        pending[self._pool.submit(self.search_official, name)] = ("search", None)
+        if not hint:
+            with self._lock:
+                first = list(self.servers[: self.fanout])
+            for slug in first:
+                fetch_on(slug)
+            pending[self._pool.submit(self.search_official_all, name)] = ("search", None)
 
+        # Sans serveur connu, une fiche trouvée n'est acceptée que si la recherche officielle
+        # confirme que ce nom n'existe que sur ce serveur (homonymes → AmbiguousName).
+        found: dict[str, CharacterInfo] = {}
+        official: list[str] | None = None if not hint else [hint]
         result, answered, errors = None, 0, 0
+
+        def decide():
+            if hint:
+                return found.get(hint)
+            if official is None:
+                return None
+            if len(official) == 1:
+                return found.get(official[0])
+            return None
+
         while pending and result is None:
             done, _ = wait(list(pending), return_when=FIRST_COMPLETED)
             for fut in done:
-                kind, _slug = pending.pop(fut)
+                kind, slug = pending.pop(fut)
                 try:
                     value = fut.result()
                 except (httpx.HTTPError, ValueError):
                     errors += 1
                     if kind == "search":
-                        # API officielle indisponible : on interroge tous les serveurs connus.
+                        # API officielle indisponible : on interroge tous les serveurs connus et
+                        # on n'accepte qu'un résultat UNIQUE (voir plus bas).
+                        official = []
                         with self._lock:
                             rest = list(self.servers)
-                        for slug in rest:
-                            fetch_on(slug)
+                        for s_ in rest:
+                            fetch_on(s_)
                     continue
                 answered += 1
                 if kind == "shugo" and value:
-                    result = value
+                    found[slug] = value
+                if kind == "search":
+                    official = list(value or [])
+                    if len(official) > 1:
+                        for s_ in official:
+                            self._learn(s_)
+                        for fut2 in pending:
+                            fut2.cancel()
+                        raise AmbiguousName(name, official)
+                    for s_ in official:
+                        self._learn(s_)
+                        fetch_on(s_)
+                result = decide()
+                if result:
                     break
-                if kind == "search" and value:
-                    self._learn(value)
-                    fetch_on(value)
         for fut in pending:
             fut.cancel()
 
+        if result is None and official == [] and len(found) == 1:
+            result = next(iter(found.values()))         # recherche officielle muette : unique trouvé
+        elif result is None and official == [] and len(found) > 1:
+            raise AmbiguousName(name, sorted(found))
         if result:
             self._promote(result.server)
             return result

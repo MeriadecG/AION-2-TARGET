@@ -730,6 +730,9 @@ class ControlWindow(QWidget):
             self.status.setText(f"● Recherche de {name}…")
         elif info == "notfound":
             self.status.setText(f"● {name} · PNJ ou introuvable (rien affiché)")
+        elif type(info).__name__ == "Ambiguous":
+            servers = ", ".join(s.split("-", 1)[-1].title() for s in info.servers)
+            self.status.setText(f"● {name} · homonymes ({servers}) : score non attribué")
         elif info == "error":
             self.status.setText(f"● {name}")
         elif not name:

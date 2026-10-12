@@ -43,9 +43,12 @@ def speed_report(max_lines: int = 80) -> str:
     """Résumé à copier-coller : lignes utiles au diagnostic de vitesse, les plus récentes."""
     import platform
     lines = [l for l in LOG_RING if any(k in l for k in REPORT_KEYS)][-max_lines:]
+    from .metrics import STATS
     head = f"Aion Target — rapport de vitesse ({platform.system()} {platform.release()}, " \
            f"{os.cpu_count()} cœurs)"
-    return "\n".join([head, *lines]) if lines else head + "\n(aucune lecture encore : cible des joueurs en jeu)"
+    pct = STATS.report()
+    body = [*pct, *lines] if (pct or lines) else ["(aucune lecture encore : cible des joueurs en jeu)"]
+    return "\n".join([head, *body])
 
 
 class PerfStats:
@@ -109,6 +112,12 @@ class Worker(QObject):
         self._import_checked = 0.0
         self._full_memo: tuple[str, str, str] | None = None
         self._change_at = 0.0
+        # Génération de cible : chaque changement de cible l'incrémente. Un résultat réseau
+        # n'est affiché que s'il concerne la cible ET le serveur courants (pas d'homonyme,
+        # pas de réponse tardive d'une cible précédente).
+        self.generation = 0
+        self._hint: str | None = None
+        self._shown_gen: set[tuple[int, str]] = set()
 
     def run(self):
         try:
@@ -198,11 +207,19 @@ class Worker(QObject):
 
     def _on_result(self, name: str, info):
         """Appelé depuis un thread réseau quand un résultat frais arrive."""
-        if name.casefold() == self.cfg.my_character.strip().casefold():
+        if name.casefold() == self.cfg.my_character.strip().casefold() and not self.lookup.ambiguous(name):
             self.my_cp.emit(info.combat_power if info else None)
-        current = self.tracker.current
-        if current and current.casefold() == name.casefold():
-            self._show(current, info or self.lookup.cached(name))
+        current, hint = self.tracker.current, self._hint
+        if not (current and current.casefold() == name.casefold()):
+            return                                   # réponse tardive d'une autre cible : ignorée
+        if info is not None and hint and info.server != hint:
+            return                                   # homonyme d'un autre serveur : ignoré
+        amb = self.lookup.ambiguous(current, hint)
+        if amb:
+            from .style import Ambiguous
+            self.status.emit(current, Ambiguous(amb))
+            return
+        self._show(current, info or self.lookup.cached(name, hint), fresh=info is not None)
 
     def _resolve_name(self, reader, img, ocr_name: str) -> tuple[str, str]:
         """Lecture OCR → (nom à utiliser, comment il a été trouvé).
@@ -229,13 +246,24 @@ class Worker(QObject):
         self._full_memo = (raw, *result)
         return result
 
-    def _show(self, name: str, info):
+    def _show(self, name: str, info, fresh: bool = False, from_cache: bool = False):
+        from .metrics import STATS
         self.status.emit(name, info if info else "notfound")
-        if info and name not in self._timed:
+        if not info:
+            return
+        now = time.monotonic()
+        since_change = now - (self._change_at or self._first_seen.get(name, now))
+        gen = self.generation
+        if (gen, "first") not in self._shown_gen:
+            self._shown_gen.add((gen, "first"))
+            STATS.add("first_cache" if from_cache else "first_net", since_change * 1000)
+        if fresh and (gen, "fresh") not in self._shown_gen:
+            self._shown_gen.add((gen, "fresh"))
+            STATS.add("fresh", since_change * 1000)
+        if name not in self._timed:
             self._timed.add(name)
-            now = time.monotonic()
-            since_change = now - (self._change_at or self._first_seen.get(name, now))
-            log(f"Affiché {name} : {since_change * 1000:.0f} ms après le 1er texte lu")
+            log(f"Affiché {name} : {since_change * 1000:.0f} ms après le 1er texte lu"
+                + (" (mémoire)" if from_cache else ""))
             self.timing.emit(name, since_change)
 
     def _loop(self):
@@ -267,19 +295,29 @@ class Worker(QObject):
                 if not self.paused:
                     age_ms = None
                     try:
+                        from .metrics import STATS
+                        t_cap = time.monotonic()
                         img = grabber.grab(*self.cfg.capture)
+                        STATS.add("capture", (time.monotonic() - t_cap) * 1000)
                         if getattr(grabber, "last_frame_at", 0):
                             age_ms = (time.monotonic() - grabber.last_frame_at) * 1000
                         t_ocr = time.monotonic()
+                        skipped_before = getattr(reader, "skipped", 0)
                         ocr_name = reader.read(img)
-                        perf.add((time.monotonic() - t_ocr) * 1000, reader.last_mode == "lecture seule", age_ms)
+                        ocr_ms = (time.monotonic() - t_ocr) * 1000
+                        perf.add(ocr_ms, reader.last_mode == "lecture seule", age_ms)
+                        if getattr(reader, "skipped", 0) == skipped_before:      # image vraiment relue
+                            STATS.add("ocr", ocr_ms)
+                        t_res = time.monotonic()
                         name, how = self._resolve_name(reader, img, ocr_name)
+                        if name:
+                            STATS.add("resolve", (time.monotonic() - t_res) * 1000)
                         # Abysse : « Nom [Isr] » → serveur connu d'avance, requête directe.
                         hint = server_from_tag(reader.last_tag, self.cfg.servers)
                     except Exception as e:  # zone hors écran, écran changé...
                         log(f"Erreur capture/OCR : {e}")
                         self.status.emit(f"Erreur capture : {e}", "error")
-                        name = ""
+                        name, how = "", ""
                         time.sleep(1)
                     if name != last_name:
                         tag = f" [{reader.last_tag} → {hint or '?'}]" if reader.last_tag else ""
@@ -289,6 +327,8 @@ class Worker(QObject):
                             f"{reader.last_mode or '—'}{age})")
                         if name and not last_name:
                             self._change_at = t0          # début d'une nouvelle cible (mesure)
+                        if name:
+                            self.generation += 1          # nouvelle cible : nouvelle génération
                         last_name = name
                         if name:
                             self._first_seen[name] = t0
@@ -298,17 +338,25 @@ class Worker(QObject):
                                 self.lookup.prefetch(name, hint)
 
                     # Joueur connu (nom du dictionnaire) : validé dès la 1re lecture.
-                    known = bool(how) or (bool(name) and self.lookup.cached(name) is not None)
+                    known = bool(how) or (bool(name) and self.lookup.cached(name, hint) is not None)
                     target = self.tracker.feed(name, trusted=known)
                     if target:
                         log(f"Cible {target} validée en {(time.monotonic() - self._first_seen.get(target, t0)) * 1000:.0f} ms"
                             + (" (connue)" if known else ""))
+                    if target is not None:
+                        self._hint = hint if target else None
                     if target == "":
                         self.status.emit("", None)
                     elif target:
-                        cached = self.lookup.get(target, hint)  # dernier score connu + rafraîchissement
-                        if cached:
-                            self._show(target, cached)
+                        amb = self.lookup.ambiguous(target, hint)
+                        cached = None if amb else self.lookup.get(target, hint)  # + rafraîchissement
+                        if amb:
+                            from .style import Ambiguous
+                            log(f"Cible {target} : homonymes ({', '.join(amb)}), serveur inconnu → "
+                                "aucun score attribué")
+                            self.status.emit(target, Ambiguous(amb))
+                        elif cached:
+                            self._show(target, cached, from_cache=True)
                         elif self.lookup.known_missing(target):
                             self.status.emit(target, "notfound")
                         else:

@@ -6,6 +6,9 @@
 - Chaque joueur garde l'heure de sa dernière mise à jour : le score connu s'affiche tout de
   suite, puis il est rafraîchi en arrière-plan (les scores sont toujours ceux du jour).
 - Mémorise le serveur de chaque joueur : la recherche suivante ne fait qu'une requête.
+- Identité = NOM + SERVEUR (schéma v2) : deux homonymes de serveurs différents ne s'écrasent
+  plus. Sans serveur connu, un nom présent sur plusieurs serveurs est AMBIGU : aucun score
+  n'est attribué (get renvoie None, `candidates` liste les possibilités).
 """
 from __future__ import annotations
 
@@ -19,9 +22,10 @@ from .shugo import CharacterInfo
 DEFAULT_MAX_BYTES = 100 * 1024 * 1024
 PURGE_EVERY = 500          # contrôle de la taille toutes les N écritures (et au démarrage)
 
+SCHEMA_VERSION = 2
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS players (
-    key     TEXT PRIMARY KEY,   -- nom en minuscules
+    key     TEXT PRIMARY KEY,   -- « nom en minuscules@serveur » (v1 : nom seul)
     name    TEXT NOT NULL,
     server  TEXT NOT NULL,
     gs      INTEGER,
@@ -34,6 +38,11 @@ CREATE TABLE IF NOT EXISTS players (
 );
 CREATE INDEX IF NOT EXISTS players_updated ON players(updated);
 """
+
+
+def make_key(name: str, server: str) -> str:
+    return f"{name.casefold()}@{server}"
+
 
 
 class PlayerCache:
@@ -49,18 +58,60 @@ class PlayerCache:
             cols = {r[1] for r in self._db.execute("PRAGMA table_info(players)")}
             if "rank" not in cols:                       # base créée par une version précédente
                 self._db.execute("ALTER TABLE players ADD COLUMN rank INTEGER")
+        self._migrate(Path(path))
+        with self._lock, self._db:
+            self._db.execute("CREATE INDEX IF NOT EXISTS players_lname ON players(lower(name))")
         self.purge()
 
-    def get(self, name: str) -> tuple[CharacterInfo | None, float | None]:
-        """(profil, âge en secondes depuis sa dernière mise à jour) ou (None, None)."""
+    def _migrate(self, path: Path):
+        """v1 (clé = nom seul) → v2 (clé = nom@serveur). Copie de sécurité avant toute écriture."""
         with self._lock:
-            row = self._db.execute(
-                "SELECT name, server, gs, cp, level, class, url, updated, rank FROM players WHERE key = ?",
-                (name.casefold(),)).fetchone()
-        if not row:
-            return None, None
+            version = self._db.execute("PRAGMA user_version").fetchone()[0]
+            old_rows = self._db.execute("SELECT COUNT(*) FROM players WHERE instr(key, '@') = 0"
+                                        ).fetchone()[0]
+        if version >= SCHEMA_VERSION:
+            return
+        if old_rows and path.exists():
+            import shutil
+            backup = path.with_name(path.name + ".bak-v1")
+            if not backup.exists():
+                with self._lock:
+                    self._db.commit()
+                shutil.copy2(path, backup)
+        with self._lock, self._db:
+            self._db.execute("UPDATE players SET key = lower(name) || '@' || server "
+                             "WHERE instr(key, '@') = 0")
+            self._db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
+
+    _COLS = "name, server, gs, cp, level, class, url, updated, rank"
+
+    def _row(self, row) -> tuple[CharacterInfo, float]:
         info = CharacterInfo(row[0], row[1], row[2], row[3], row[4], row[5], row[6] or "", row[8])
         return info, self.clock() - row[7]
+
+    def candidates(self, name: str) -> list[tuple[CharacterInfo, float]]:
+        """Tous les personnages de ce nom (un par serveur), le plus récent d'abord."""
+        with self._lock:
+            rows = self._db.execute(
+                f"SELECT {self._COLS} FROM players WHERE lower(name) = ? ORDER BY updated DESC",
+                (name.casefold(),)).fetchall()
+        return [self._row(r) for r in rows if r[0].casefold() == name.casefold()]
+
+    def get(self, name: str, server: str | None = None) -> tuple[CharacterInfo | None, float | None]:
+        """(profil, âge en secondes depuis sa dernière mise à jour) ou (None, None).
+
+        Avec `server` : ce personnage précis. Sans : seulement si le nom est UNIQUE en mémoire
+        (homonymes sur plusieurs serveurs → (None, None) : ne jamais attribuer un score douteux)."""
+        if server:
+            with self._lock:
+                row = self._db.execute(f"SELECT {self._COLS} FROM players WHERE key = ?",
+                                       (make_key(name, server),)).fetchone()
+            return self._row(row) if row else (None, None)
+        found = self.candidates(name)
+        return found[0] if len(found) == 1 else (None, None)
+
+    def is_ambiguous(self, name: str) -> bool:
+        return len(self.candidates(name)) > 1
 
     def server_of(self, name: str) -> str | None:
         info, _ = self.get(name)
@@ -75,7 +126,7 @@ class PlayerCache:
                 "gs=excluded.gs, cp=excluded.cp, level=excluded.level, class=excluded.class, "
                 "url=excluded.url, updated=excluded.updated, "
                 "rank=COALESCE(excluded.rank, players.rank)",
-                (info.name.casefold(), info.name, info.server, info.gear_score, info.combat_power,
+                (make_key(info.name, info.server), info.name, info.server, info.gear_score, info.combat_power,
                  info.level, info.char_class, info.url, self.clock(), info.rank))
         self._writes += 1
         if self._writes % PURGE_EVERY == 0:
@@ -92,12 +143,12 @@ class PlayerCache:
                 "gs=excluded.gs, cp=excluded.cp, level=excluded.level, class=excluded.class, "
                 "url=excluded.url, updated=excluded.updated, rank=excluded.rank "
                 "WHERE excluded.updated > players.updated",
-                [(i.name.casefold(), i.name, i.server, i.gear_score, i.combat_power, i.level,
+                [(make_key(i.name, i.server), i.name, i.server, i.gear_score, i.combat_power, i.level,
                   i.char_class, i.url, ts, i.rank) for i, ts in items])
             written = self._db.total_changes - before
             # Le rang du classement est toujours le plus récent, même si le score local l'est aussi.
             self._db.executemany("UPDATE players SET rank = ? WHERE key = ?",
-                                 [(i.rank, i.name.casefold()) for i, _ in items if i.rank])
+                                 [(i.rank, make_key(i.name, i.server)) for i, _ in items if i.rank])
         self._writes += len(items)
         if self._writes >= PURGE_EVERY:
             self._writes = 0
@@ -133,7 +184,7 @@ class PlayerCache:
 
     def all_names(self) -> list[str]:
         with self._lock:
-            return [r[0] for r in self._db.execute("SELECT name FROM players")]
+            return [r[0] for r in self._db.execute("SELECT DISTINCT name FROM players")]
 
     def __len__(self):
         with self._lock:
