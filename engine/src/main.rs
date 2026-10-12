@@ -165,7 +165,7 @@ impl Publisher {
             let server = storage.player_server(&name);
             if self.seen_players.insert((name.clone(), server)) {
                 new.push(json!({"id": id, "name": name, "server_id": server,
-                                "server": Self::server_name(gd, server)}));
+                                "server": Self::server_name(gd, server), "t": now_ms()}));
             }
         }
         if !new.is_empty() {
@@ -313,7 +313,9 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
     });
 
     let mut publisher = Publisher::new();
-    let (mut last_dps, mut last_slow) = (Instant::now(), Instant::now());
+    // Mode « observation légère » : l'interface peut couper l'envoi du DPS (préchargement seul).
+    let mut publish_dps = true;
+    let (mut last_dps, mut last_slow, mut last_players) = (Instant::now(), Instant::now(), Instant::now());
     let mut last_lock: Option<u16> = None;
     loop {
         match rx.recv_timeout(Duration::from_millis(100)) {
@@ -334,6 +336,9 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
                     storage.hide_party_placeholders();
                 }
                 Some("relock") => disp.reset_lock(),
+                Some("publish_dps") => {
+                    publish_dps = cmd.get("value").and_then(Value::as_bool).unwrap_or(true);
+                }
                 Some("mode") => {
                     if let Some(m) = cmd.get("value").and_then(Value::as_str) {
                         calc.set_target_selection_mode(m);
@@ -349,13 +354,18 @@ fn live(gd: GameData, record: Option<String>, mode: &str) -> Result<(), String> 
         }
         if last_dps.elapsed() >= Duration::from_millis(500) {
             last_dps = Instant::now();
-            if last_lock.is_some() {
+            if last_lock.is_some() && publish_dps {
                 publisher.dps(&mut calc, &ping);
             }
         }
+        // Personnages observés : publiés vite (préchargement avant qu'on les cible) ; seuls les
+        // NOUVEAUX sont envoyés, le coût est négligeable.
+        if last_players.elapsed() >= Duration::from_millis(250) {
+            last_players = Instant::now();
+            publisher.players(&storage, &gd);
+        }
         if last_slow.elapsed() >= Duration::from_secs(2) {
             last_slow = Instant::now();
-            publisher.players(&storage, &gd);
             publisher.party(&storage, &gd);
             publisher.fights(&mut calc);
         }
