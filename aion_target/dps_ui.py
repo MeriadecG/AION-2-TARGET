@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox, QHBoxLayou
                              QLineEdit, QMessageBox, QPushButton, QSpinBox, QTabWidget, QTreeWidget,
                              QTreeWidgetItem, QVBoxLayout, QWidget)
 
-from .engine_client import EngineClient, grant_capture_command, has_capture_capability, job_fr
+from .engine_client import grant_capture_command, has_capture_capability, job_fr
 from .style import fmt
 
 GOLD = "#C9A227"
@@ -19,14 +19,76 @@ MODES = [("bossTargets", "Boss"), ("lastHitByMe", "Dernière cible frappée"),
          ("trainTargets", "Mannequins d'entraînement")]
 JOB_COLORS = {"Gladiateur": "#E8A33D", "Templier": "#6FA8DC", "Assassin": "#C27BA0", "Rôdeur": "#93C47D",
               "Sorcier": "#8E7CC3", "Spiritualiste": "#76A5AF", "Clerc": "#F1E3A0", "Aède": "#E06666"}
-WARNING = (
-    "Le module DPS lit une COPIE du trafic réseau du jeu sur ton PC (comme Wireshark) :\n"
-    "aucune injection, aucune modification du jeu, aucune écriture réseau, aucun déchiffrement.\n\n"
-    "NCSoft n'a publié ni autorisation ni interdiction explicite des compteurs de dégâts ; ses "
-    "règles sanctionnent largement les « programmes tiers ». Le risque pour ton compte est faible "
-    "mais n'est pas nul.\n\n"
-    "Windows : nécessite Npcap (npcap.com). Linux : autorisation de capture (mot de passe, une fois "
-    "par version du moteur).\n\nActiver le module ?")
+from .engine_hub import WARNING  # noqa: E402,F401  (compatibilité)
+
+
+def ack_capture(parent, cfg, box=None) -> bool:
+    """Avertissement OBLIGATOIRE avant la première capture passive (commun à tous les modules)."""
+    if cfg.dps_warning_ack:
+        return True
+    from .engine_hub import WARNING as HUB_WARNING
+    ok = QMessageBox.question(parent, "Capture réseau passive", HUB_WARNING) == QMessageBox.StandardButton.Yes
+    if not ok:
+        if box is not None:
+            box.blockSignals(True)
+            box.setChecked(False)
+            box.blockSignals(False)
+        return False
+    cfg.dps_warning_ack = True
+    cfg.save()
+    return True
+
+
+def describe_state(st: dict, enabled: bool, mode: str) -> tuple[str, str | None]:
+    """(texte d'état, libellé du bouton de réparation ou None) pour un onglet."""
+    from .engine_hub import STATE_LABELS
+    state = st.get("state", "off")
+    others = [m for m in st.get("modes", []) if m != mode]
+    shared = f" Moteur partagé avec : {', '.join(MODE_NAMES.get(m, m) for m in others)}." if others else ""
+    if not enabled:
+        return ("Désactivé ici." + (" " + shared.strip() if shared else
+                                    " Aucune capture, aucune ressource utilisée.")), None
+    red, amber, green = ("<span style='color:#E5484D'>●</span>", "<span style='color:#E8B04B'>●</span>",
+                         "<span style='color:#3DD68C'>●</span>")
+    if state == "missing_engine":
+        return f"{red} {st.get('detail') or STATE_LABELS[state]}", None
+    if state == "missing_library":
+        if sys.platform == "win32":
+            return f"{red} Npcap n'est pas installé.", "Télécharger Npcap (npcap.com)"
+        return f"{red} libpcap manquant : sudo dnf install libpcap", None
+    if state == "no_permission":
+        if sys.platform.startswith("linux"):
+            return (f"{red} Capture refusée : il manque l'autorisation.",
+                    "Autoriser la capture (mot de passe administrateur)")
+        return (f"{red} Capture refusée : lance Aion Target en administrateur, ou réinstalle Npcap "
+                "sans restriction admin."), None
+    if state == "active":
+        return f"{green} Flux du jeu repéré (port {st.get('game_port')}).{shared}", None
+    if state == "searching":
+        return f"{amber} Capture active, en attente du jeu (lance AION 2 ou change de zone).{shared}", None
+    if state in ("stopped", "error"):
+        return f"{red} Moteur arrêté ({st.get('stopped') or st.get('error')}).", None
+    return "Démarrage du moteur…", None
+
+
+MODE_NAMES = {"dps": "DPS meter", "observe": "observation (Target)", "pets": "familiers"}
+
+
+def fix_capture(parent, hub, log):
+    """Bouton de réparation : lien Npcap (Windows) ou autorisation cap_net_raw (Linux)."""
+    if sys.platform == "win32":
+        QDesktopServices.openUrl(QUrl("https://npcap.com/#download"))
+        return
+    if not hub.path:
+        return
+    import subprocess
+    r = subprocess.run(grant_capture_command(hub.path), capture_output=True, text=True)
+    if r.returncode == 0 and has_capture_capability(hub.path) is not False:
+        log("Moteur : autorisation de capture accordée")
+        hub.restart()
+    else:
+        QMessageBox.warning(parent, "Autorisation", "Autorisation refusée ou impossible :\n"
+                            + (r.stderr or r.stdout or "pkexec indisponible"))
 
 
 def fmt_duration(ms: int) -> str:
@@ -170,11 +232,10 @@ def _tree(headers: list[str]) -> QTreeWidget:
 
 
 class DpsTab(QWidget):
-    def __init__(self, cfg, history, card, log, on_players=None, on_party=None):
+    def __init__(self, cfg, history, card, log, hub):
         super().__init__()
         self.cfg, self.history, self.log = cfg, history, log
-        self.on_players, self.on_party = on_players, on_party
-        self.engine: EngineClient | None = None
+        self.hub = hub
         self.overlay = DpsOverlay(cfg)
         self.setObjectName("body")
         root = QVBoxLayout(self)
@@ -186,16 +247,6 @@ class DpsTab(QWidget):
         self.chk.setChecked(cfg.dps_enabled)
         self.chk.toggled.connect(self._toggle)
         g.addWidget(self.chk, 0, 0, 1, 3)
-        self.chk_obs_only = QCheckBox("Observation réseau légère (sans DPS) : précharger les GS/CP des "
-                                      "joueurs vus en jeu")
-        self.chk_obs_only.setToolTip(
-            "Même capture passive que le DPS meter, mais sans calcul affiché : les joueurs qui passent "
-            "dans le flux du jeu sont cherchés en mémoire (immédiat) puis, si besoin, sur shugo.gg "
-            "(débit limité), pour que leur score s'affiche tout de suite quand tu les cibles.\n"
-            "Ce n'est PAS la liste complète des joueurs de l'instance.")
-        self.chk_obs_only.setChecked(cfg.observe_enabled)
-        self.chk_obs_only.toggled.connect(self._toggle_observe)
-        g.addWidget(self.chk_obs_only, 6, 0, 1, 3)
         self.state = QLabel()
         self.state.setObjectName("status")
         self.state.setWordWrap(True)
@@ -212,7 +263,7 @@ class DpsTab(QWidget):
         self.mode.currentIndexChanged.connect(self._mode)
         g.addWidget(self.mode, 3, 1, 1, 2)
         self.btn_reset = QPushButton("Nouveau combat (remise à zéro)")
-        self.btn_reset.clicked.connect(lambda: self.engine and self.engine.reset())
+        self.btn_reset.clicked.connect(self.hub.reset)
         g.addWidget(self.btn_reset, 4, 0, 1, 3)
         self.ping = QLabel("Ping du jeu : —")
         self.ping.setToolTip("Aller-retour MESURÉ entre ton PC et le serveur du jeu (horodatage des "
@@ -328,131 +379,42 @@ class DpsTab(QWidget):
         self._watch.start(2000)
         self.refresh_fights()
         self.refresh_encounters()
+        hub.status.connect(self._render_state)
+        hub.dps.connect(self._on_dps)
+        hub.fight.connect(self._on_fight)
         self._render_state({})
-        if self._wanted():
-            QTimer.singleShot(500, self._start)
+        if cfg.dps_enabled:
+            QTimer.singleShot(500, lambda: self.hub.set_mode("dps", True))
 
     # --- moteur ---
     def _set(self, attr, value):
         setattr(self.cfg, attr, value)
         self.cfg.save()
 
-    def _wanted(self) -> bool:
-        return bool(self.cfg.dps_enabled or self.cfg.observe_enabled)
-
-    def _ack(self, box: QCheckBox) -> bool:
-        if self.cfg.dps_warning_ack:
-            return True
-        ok = QMessageBox.question(self, "Capture réseau passive", WARNING) == QMessageBox.StandardButton.Yes
-        if not ok:
-            box.blockSignals(True)
-            box.setChecked(False)
-            box.blockSignals(False)
-            return False
-        self.cfg.dps_warning_ack = True
-        return True
-
-    def _apply_engine(self):
-        if self._wanted():
-            self._start()
-        else:
-            self._stop()
-        self.overlay.apply()
-
     def _toggle(self, on: bool):
-        if on and not self._ack(self.chk):
+        if on and not ack_capture(self, self.cfg, self.chk):
             return
         self._set("dps_enabled", on)
-        self._apply_engine()
-
-    def _toggle_observe(self, on: bool):
-        if on and not self._ack(self.chk_obs_only):
-            return
-        self._set("observe_enabled", on)
-        self._apply_engine()
-
-    def _start(self):
-        if self.engine is None:
-            self.engine = EngineClient(self.log, self.cfg.dps_mode, parent=self)
-            self.engine.status.connect(self._render_state)
-            self.engine.dps.connect(self._on_dps)
-            self.engine.fight.connect(self._on_fight)
-            self.engine.stopped.connect(lambda r: self._render_state({**self.engine.last_status, "stopped": r}))
-            if self.on_players:
-                self.engine.players.connect(self.on_players)
-            if self.on_party:
-                self.engine.party.connect(self.on_party)
-        err = self.engine.start()
-        self.engine.set_publish_dps(bool(self.cfg.dps_enabled))
-        if err:
-            self._render_state({"capture": "missing_engine", "detail": err})
-
-    def _stop(self):
-        if self.engine:
-            self.engine.stop()
-        self._render_state({})
+        self.hub.set_mode("dps", on)
+        self.overlay.apply()
 
     def shutdown(self):
-        self._stop()
         self.overlay.hide()
 
     def _render_state(self, st: dict):
-        cap = st.get("capture")
-        self.btn_fix.setVisible(False)
-        if not self._wanted():
-            text = "Désactivé : aucune capture, aucune ressource utilisée."
-        elif cap == "missing_engine":
-            text = f"<span style='color:#E5484D'>●</span> {st.get('detail')}"
-        elif cap == "missing_library":
-            if sys.platform == "win32":
-                text = "<span style='color:#E5484D'>●</span> Npcap n'est pas installé."
-                self.btn_fix.setText("Télécharger Npcap (npcap.com)")
-            else:
-                text = "<span style='color:#E5484D'>●</span> libpcap manquant : sudo dnf install libpcap"
-            self.btn_fix.setVisible(sys.platform == "win32")
-        elif cap == "no_permission":
-            text = "<span style='color:#E5484D'>●</span> Capture refusée : il manque l'autorisation."
-            if sys.platform.startswith("linux"):
-                self.btn_fix.setText("Autoriser la capture (mot de passe administrateur)")
-                self.btn_fix.setVisible(True)
-            else:
-                text += " Lance Aion Target en administrateur, ou réinstalle Npcap sans restriction admin."
-        elif cap == "running" and st.get("game_port"):
-            text = f"<span style='color:#3DD68C'>●</span> Flux du jeu repéré (port {st['game_port']})."
-            if not self.cfg.dps_enabled:
-                text += " Observation seule (pas de DPS)."
-        elif cap == "running":
-            text = ("<span style='color:#E8B04B'>●</span> Capture active, en attente du jeu "
-                    "(lance AION 2 ou change de zone).")
-        elif st.get("stopped"):
-            text = f"<span style='color:#E5484D'>●</span> Moteur arrêté ({st['stopped']})."
-        else:
-            text = "Démarrage du moteur…"
+        text, fix = describe_state(st, self.cfg.dps_enabled, "dps")
         self.state.setText(text)
+        self.btn_fix.setVisible(bool(fix))
+        if fix:
+            self.btn_fix.setText(fix)
 
     def _fix(self):
-        if sys.platform == "win32":
-            QDesktopServices.openUrl(QUrl("https://npcap.com/#download"))
-            return
-        if not self.engine or not self.engine.path:
-            return
-        import subprocess
-        cmd = grant_capture_command(self.engine.path)
-        r = subprocess.run(cmd, capture_output=True, text=True)
-        if r.returncode == 0 and has_capture_capability(self.engine.path) is not False:
-            self.log("Moteur : autorisation de capture accordée")
-            self.engine.stop()
-            self.engine.last_status = {}
-            self._start()
-        else:
-            QMessageBox.warning(self, "Autorisation", "Autorisation refusée ou impossible :\n"
-                                + (r.stderr or r.stdout or "pkexec indisponible"))
+        fix_capture(self, self.hub, self.log)
 
     def _mode(self):
         mode = self.mode.currentData()
         self._set("dps_mode", mode)
-        if self.engine:
-            self.engine.set_mode(mode)
+        self.hub.set_dps_mode(mode)
 
     # --- données ---
     def _on_dps(self, d: dict):
@@ -473,11 +435,11 @@ class DpsTab(QWidget):
             self.table.addTopLevelItem(it)
 
     def _stale_check(self):
-        if self.engine and self.engine.running and time.monotonic() - self._last_dps > 10:
+        if self.hub.client and self.hub.client.running and time.monotonic() - self._last_dps > 10:
             self.ping.setText("Ping du jeu : — (pas de données récentes)")
 
     def _on_fight(self, record: dict):
-        if self.history.add_fight(record, self.engine.ping_ms if self.engine else None):
+        if self.history.add_fight(record, self.hub.ping_ms):
             self.log(f"Combat enregistré : {record.get('bossName') or '?'}")
             self.refresh_fights()
 

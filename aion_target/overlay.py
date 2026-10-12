@@ -735,6 +735,7 @@ def run(cfg: Config) -> int:
     events = None
     currency = None
     dps_tab = None
+    hub = None
     msg = os.environ.get("AION_TARGET_UPDATE_MSG")
     if msg:
         log(msg)
@@ -746,6 +747,8 @@ def run(cfg: Config) -> int:
             currency.worker.stop()
         if dps_tab is not None:
             dps_tab.shutdown()
+        if hub is not None:
+            hub.shutdown()
         worker.running = False
         thread.quit()
         thread.wait(2000)
@@ -831,8 +834,16 @@ def run(cfg: Config) -> int:
             if cfg.dps_prefetch:          # après l'écriture : le groupe est « récent » localement
                 prefetcher.observe(members, source="groupe")
 
-        dps_tab = DpsTab(cfg, history, control._card, log, on_players=on_players, on_party=on_party)
+        # UN seul moteur réseau, partagé (DPS, observation Target, familiers).
+        from .engine_hub import EngineHub
+        hub = EngineHub(cfg, log, parent=app)
+        hub.players.connect(on_players)
+        hub.party.connect(on_party)
+        dps_tab = DpsTab(cfg, history, control._card, log, hub)
         control.set_dps(dps_tab)
+        from .observe_ui import ObservationSection
+        control.set_observation(ObservationSection(cfg, hub, prefetcher, control._card, log))
+        app._aion_hub = hub
         pf_timer = QTimer(app)
         pf_timer.timeout.connect(prefetcher.tick)
         pf_timer.start(500)

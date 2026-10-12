@@ -67,6 +67,7 @@ class EngineClient(QObject):
     players = pyqtSignal(list)      # personnages OBSERVÉS (pas la liste complète de l'instance)
     party = pyqtSignal(list)        # liste du groupe (GS / CP envoyés par le jeu)
     fight = pyqtSignal(dict)        # combat de boss terminé (enregistrement complet)
+    kill = pyqtSignal(dict)         # monstre mort en combat (verdict d'attribution inclus)
     stopped = pyqtSignal(str)       # moteur arrêté (raison)
 
     MAX_RESTARTS = 3
@@ -166,6 +167,8 @@ class EngineClient(QObject):
             self.party.emit(msg.get("members") or [])
         elif kind == "fight":
             self.fight.emit(msg.get("record") or {})
+        elif kind == "kill":
+            self.kill.emit(msg)
         elif kind in ("log", "error"):
             self.log("Moteur : " + str(msg.get("msg") or msg.get("detail")))
             if kind == "error":

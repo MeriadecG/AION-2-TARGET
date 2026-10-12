@@ -162,8 +162,8 @@ class ControlWindow(QWidget):
         self._notifier = None
         self._events_tab = self._placeholder("Module Événements en cours de démarrage…")
         self.tabs.addTab(self._events_tab, "Notifications")
-        self.tabs.addTab(self._placeholder("Familiers : bientôt ici.\n\nDis-moi ce que tu veux y voir "
-                                           "(suivi, minuteurs, collection…)."), "Familiers")
+        self._pets_tab = self._placeholder("Familiers : chargement…")
+        self.tabs.addTab(self._pets_tab, "Familiers")
         self._farm_tab = self._placeholder("Farm : chargement…")
         self.tabs.addTab(self._farm_tab, "Farm")
         self._dps_tab = self._placeholder("DPS : chargement…")
@@ -241,6 +241,12 @@ class ControlWindow(QWidget):
         QTimer.singleShot(1500, self._refresh_mem)
 
         # --- apparence ---
+        # Détection et préchargement des joueurs (observation réseau légère) : section ajoutée
+        # par set_observation() quand le moteur partagé est prêt.
+        self._observe_box = QVBoxLayout()
+        self._observe_box.setSpacing(10)
+        root.addLayout(self._observe_box)
+
         look = self._card(root, "APPARENCE")
         self.sw_gs = self._swatch(look, 0, "Couleur GS", "gs_color")
         self.sw_cp = self._swatch(look, 1, "Couleur CP", "cp_color")
@@ -338,7 +344,7 @@ class ControlWindow(QWidget):
         self.resize(360, max(420, height))
 
     # --- onglets ---
-    TAB_WIDTH = {1: 680, 4: 640}                 # largeur confortable par onglet
+    TAB_WIDTH = {1: 680, 2: 640, 3: 560, 4: 640}                 # largeur confortable par onglet
 
     def _placeholder(self, text: str) -> QWidget:
         w = QWidget()
@@ -389,6 +395,18 @@ class ControlWindow(QWidget):
         n = self._notifier
         k = sum(1 for e in n.catalog.events if e.schedulable and n.prefs.is_enabled(e.id))
         self.tabs.setTabText(1, f"Notifications ({k})" if k else "Notifications")
+
+    def set_observation(self, section):
+        """Section « Détection et préchargement des joueurs » de l'onglet Target."""
+        self._observe_box.addWidget(section)
+
+    def set_pets(self, tab):
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(tab)
+        self._replace_tab(2, self._pets_tab, scroll, "Familiers")
+        self._pets_tab = scroll
 
     # --- monnaie (onglet Farm) ---
     def set_dps(self, tab):

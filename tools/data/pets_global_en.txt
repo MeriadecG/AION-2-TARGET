@@ -1,0 +1,215 @@
+# Familiers (pets) AION 2 client global, par genre.
+# Source : https://www.aion2guidance.com/en/pets/ (« Last checked: Oct 12, 2026 » ; données du jeu
+# + questlog.gg, metabot.gg, Mein-MMO, tableur TitanTheF). Relevé le 12/10/2026.
+# Comptes annoncés par la source : Cogni 41, Fera 65, Natura 48, Varian 46, Special 7 (= 207).
+[Cogni]
+Krall Laborer
+Klaw
+Manduri Fighter
+Krall Warshaman
+Varg Berserker
+Krall Warrior
+Klaw Scout
+Nagarant Guardian Warrior
+Elite Manduri Fighter
+Aullaeu Shaman
+Aultross's Doppelganger
+Mumu Warrior
+Biruta
+Kuru Worker
+Kuru Tinkerer
+Urugugu Brawler
+Sentinel K'nash
+Phantasmal Lakshmi
+Pretor Veil Administrator
+Manduri Trebuchet Worker
+Biruta Herbalist
+Enhanced Krall Combatant
+Enhanced Krall Sentry
+Kuru Overseer
+Mumu Worker
+Mumu Overseer
+Dratona
+Elite Klaw
+Kerubar
+Kerubian
+Kerubiel
+Drakan Watcher
+Dratona Tinkerer
+Furious Feruk
+Addicted Shulak Cart Worker
+Dracuni Herbalist
+Elite Dratona
+Naga Elite Priest
+Modified Lupyllini
+Decomposed Lupyllini
+Predator Saraswati
+[Fera]
+Fossa
+Sparkie
+Potcrab
+Baby Odyle Spider
+Kernon
+Skyray
+Drakan Guard Dog
+Kailin
+Slink
+Aberrant Odyle Spider
+Crasaur
+Mutated Aberrant Odyle Spider
+Elite Keneire
+Giant Sparkie
+Skama
+Lupyllini
+Male Crestlich
+Airon
+Crestlich
+Cave Bat
+Ursus
+Elite Ursus
+Sylphen
+Armadon
+Aberrant Armadon
+Aberrant Potcrab
+Grave Rat
+Coradon
+Giant Bee
+Starturtle
+Papis
+Scorpion
+Cadaver Insectoid
+Tog
+Spider
+Aberrant Skama
+Karnif
+Modified Karnif
+Elite Karnif
+Tayga
+Ashen Spider
+Withered Branch Spider
+Unstable Spider
+Aberrant Bee
+Aberrant Coradon
+Young Kailin
+Young Slink
+Young Tog
+Young Ursus
+Zaif
+Aberrant Zaif
+Aberrant Tog
+Mutated Cadaver Insectoid
+Ashen Lupyllini
+Eternal Coradon
+Mutated Ursus
+Mutated Insectoid Valka
+Venomous Insect Sram
+Basilisk
+Brax
+Vivel
+Tamed Zaif
+Ashen Basilisk
+Flame Barghest
+Tamed Karnif
+[Natura]
+Forest Specter
+Fungie
+Withered Agrint
+Konutin Worker
+Forest Spirit
+Mutated Forest Spirit
+Gravi
+Magic Gravi
+Large Leaf Gravi
+Black Smoke Murute
+Stone Spirit
+Nepenthes
+Ultimate Wind Spirit
+Dionae
+Ultimate Fire Spirit
+Fungen
+Ultimate Water Spirit
+Red Spark Ignus
+Lesser Wind Spirit
+Intermediate Wind Spirit
+Superior Wind Spirit
+Superior Fire Spirit
+Ultimate Earth Spirit
+Forest Guardian
+Dried Up Forest Guardian
+Odyle Stone Spirit
+Drana Spore
+Forest Dionae
+Ashen Dionae
+Rafflesia
+Mutated Forest Guardian
+Superior Water Spirit
+Lesser Earth Spirit
+Intermediate Earth Spirit
+Superior Earth Spirit
+Lesser Water Spirit
+Intermediate Water Spirit
+Ancient Spirit
+Spirit King's Bodyguard Warrior
+Intermediate Fire Spirit
+Elite Poisonous Spore Fungen
+Agrint
+Ashen Agrint
+Thin Agrint
+Dry Leaf Agrint
+Lesser Fire Spirit
+Black Spirit
+Zelophi
+[Varian]
+Swarm
+Krao Mutant
+Drakan Probe
+Slime
+Contaminated Slime
+Vigilant Oculazen
+Oculazen
+Krao Test Subject
+Harcon
+Kalgolem
+Pino
+Pino Worker
+Krao Seal Guardian
+Blue Kalgolem
+Drana Slime
+Drana Swarm
+Swamp Monster
+Forest Monster
+Marsh Targon
+Distorted Mutant
+Gatekeeper Pinopi
+Drakana Kalgolem
+Drana Mutant Brute
+Faded Mutant Brute
+Cadaver Cleaner
+Parasite Swarm
+Drana Contaminant
+Faded Floater
+Flame Stone Guardian Statue
+Duduka Worker
+Duduka Trebuchet Worker
+Drana Predator
+Faded Predator
+Mudthorn
+Drana Mutant
+Faded Mutant
+Elite Soulless Corpse Gnat
+Soulless Corpse Gnat
+Poison Blood
+Silver Blade Rotan
+Guardite
+Watcher Guardite
+Elite Guardite
+Dark Spirit
+Congealed Drana
+Faded Drana
+[Special]
+Black Dragon
+Swift Lugi
+Wandering Merchant Lugi
+Pagati
+White Bunny
+Chonky Hamster
