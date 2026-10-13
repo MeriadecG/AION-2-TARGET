@@ -245,3 +245,24 @@ def test_unknown_observed_player_is_trusted_on_first_read(app):
     STATS.clear()
     run_scenario([("Neo", Scene("Neo", "45 Neo"), "Neo", 0.8)], [], world, observed=["Neo"])
     assert STATS.summary("confirm")["max"] < 60                  # validé dès la 1re lecture
+
+
+def test_partial_data_never_erases_gear_score(tmp_path):
+    """Bug « GS ? alors que le CP s'affiche » : une donnée partielle (groupe, fiche sans GS)
+    écrasait le GS connu par « inconnu »."""
+    c = PlayerCache(tmp_path / "p.db")
+    c.put(CharacterInfo("Ana", "eu-siel", 3369, 229000, 45, "Cleric"))
+    c.put(CharacterInfo("Ana", "eu-siel", None, 231000))                 # CP seul (groupe)
+    info = c.get("Ana", "eu-siel")[0]
+    assert (info.gear_score, info.combat_power, info.level) == (3369, 231000, 45)
+    db = PlayerCache(tmp_path / "p.db").get("Ana", "eu-siel")[0]
+    assert (db.gear_score, db.combat_power) == (3369, 231000)
+
+
+def test_profile_without_gear_score_is_completed(tmp_path):
+    lk = lookup_with(tmp_path, delay=0.01)
+    lk.cache.put(CharacterInfo("Bob", "eu-siel", None, 150000))          # récent mais incomplet
+    assert lk.needs_network("Bob", "eu-siel")
+    assert lk.prefetch("Bob", "eu-siel") is not None                    # la fiche complétera le GS
+    lk.cache.put(CharacterInfo("Cid", "eu-siel", 3000, 150000))
+    assert not lk.needs_network("Cid", "eu-siel") and lk.prefetch("Cid", "eu-siel") is None

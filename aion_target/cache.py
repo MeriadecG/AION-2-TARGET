@@ -97,11 +97,14 @@ class PlayerCache:
                 return
             o = old[0] if old else None
             rank = info.rank if info.rank is not None or not keep_rank or not o else o.rank
-            if keep_rank and o:        # écriture partielle (groupe) : on garde ce qu'on savait
+            gs, cp = info.gear_score, info.combat_power
+            if keep_rank and o:        # écriture partielle (groupe, fiche sans GS) : on garde ce qu'on savait
                 level, cls, url = info.level or o.level, info.char_class or o.char_class, info.url or o.url
+                gs = gs if gs is not None else o.gear_score
+                cp = cp if cp is not None else o.combat_power
             else:
                 level, cls, url = info.level, info.char_class, info.url or ""
-            per[info.server] = (CharacterInfo(info.name, info.server, info.gear_score, info.combat_power,
+            per[info.server] = (CharacterInfo(info.name, info.server, gs, cp,
                                               level, cls, url, rank, updated=ts), ts)
 
     def _migrate(self, path: Path):
@@ -166,7 +169,8 @@ class PlayerCache:
             self._db.execute(
                 "INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
                 "ON CONFLICT(key) DO UPDATE SET name=excluded.name, server=excluded.server, "
-                "gs=excluded.gs, cp=excluded.cp, level=COALESCE(excluded.level, players.level), "
+                "gs=COALESCE(excluded.gs, players.gs), cp=COALESCE(excluded.cp, players.cp), "
+                "level=COALESCE(excluded.level, players.level), "
                 "class=COALESCE(excluded.class, players.class), "
                 "url=COALESCE(NULLIF(excluded.url, ''), players.url), updated=excluded.updated, "
                 "rank=COALESCE(excluded.rank, players.rank)",

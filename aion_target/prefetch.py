@@ -121,7 +121,8 @@ class Prefetcher:
             return
         self.stats["eligible"] += 1
         info, age = lookup.cache.get(name, slug)          # index RAM : immédiat, sans quota
-        if info is not None and age is not None and age < RECENT_SCORE:
+        from .lookup import incomplete
+        if info is not None and age is not None and age < RECENT_SCORE and not incomplete(info):
             obs.local = "récent"
             self.stats["local_recent"] += 1
             self.queue.pop((name, slug), None)

@@ -32,6 +32,11 @@ QUICK_WAIT = 0.35
 MISSING_FOR = 3600
 
 
+def incomplete(info) -> bool:
+    """Profil connu mais sans GS ou sans CP (ex. reçu du groupe) : la fiche le complétera."""
+    return info is not None and (info.gear_score is None or info.combat_power is None)
+
+
 class PlayerLookup:
     def __init__(self, client: ShugoClient, cache: PlayerCache, on_result=None, clock=time.monotonic,
                  log=None):
@@ -127,8 +132,8 @@ class PlayerLookup:
         """Vrai si une requête externe apporterait quelque chose (rien de récent localement)."""
         if self.known_missing(name) or self.is_fresh(name, hint) or self.ambiguous(name, hint):
             return False
-        _, age = self.cache.get(name, hint)
-        return age is None or age >= RECENT_SCORE
+        info, age = self.cache.get(name, hint)
+        return age is None or age >= RECENT_SCORE or incomplete(info)
 
     def prefetch(self, name: str, hint: str | None = None, background: bool = False) -> Future | None:
         """Lance une recherche si rien de frais n'est connu et qu'aucune n'est en cours.
@@ -142,9 +147,9 @@ class PlayerLookup:
             return None
         if self.ambiguous(name, hint):
             return None                                  # homonymes sans serveur : rien à chercher
-        _, age = self.cache.get(name, hint)
-        if age is not None and age < RECENT_SCORE:
-            return None                                  # score récent en mémoire : rien à faire
+        info, age = self.cache.get(name, hint)
+        if age is not None and age < RECENT_SCORE and not incomplete(info):
+            return None                                  # score récent et complet : rien à faire
         with self._lock:
             if not background and not hint and key not in self._inflight:
                 # Déjà en cours pour ce nom sur un serveur précis (préchargement d'un personnage
@@ -237,7 +242,7 @@ class PlayerLookup:
             return None
 
         try:
-            if res and time.time() - res[1] < RECENT_SCORE:
+            if res and time.time() - res[1] < RECENT_SCORE and not incomplete(res[0]):
                 self._fresh[key] = self.clock()          # score de la base assez récent
                 self._missing.pop(name.casefold(), None)
                 return self.cache.get(name, res[0].server)[0] or res[0]
