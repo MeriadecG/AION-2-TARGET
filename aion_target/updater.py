@@ -142,20 +142,71 @@ def _compile_all(package_dir: Path):
         compile(f.read_bytes(), str(f), "exec", dont_inherit=True)
 
 
+def _sync_files(src: Path, cur: Path):
+    """Remplacement fichier par fichier (Windows : un dossier ne peut pas être renommé si un
+    antivirus ou l'Explorateur y tient un fichier ouvert ; un fichier .py, si). Chaque fichier est
+    écrit à côté puis échangé atomiquement ; les fichiers disparus de la nouvelle version sont
+    supprimés (sauf ceux encore verrouillés, sans conséquence)."""
+    wanted = set()
+    for f in src.rglob("*"):
+        if "__pycache__" in f.parts or f.suffix == ".pyc":
+            continue
+        rel = f.relative_to(src)
+        dst = cur / rel
+        if f.is_dir():
+            dst.mkdir(parents=True, exist_ok=True)
+            continue
+        wanted.add(rel)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dst.with_name(dst.name + ".upd")
+        shutil.copy2(f, tmp)
+        for attempt in range(5):                 # antivirus qui inspecte le fichier : on réessaie
+            try:
+                os.replace(tmp, dst)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                time.sleep(0.4)
+    for f in sorted(cur.rglob("*"), reverse=True):
+        rel = f.relative_to(cur)
+        if "__pycache__" in rel.parts:
+            continue
+        if f.is_file() and rel not in wanted and f.suffix in ALLOWED_SUFFIXES:
+            try:
+                f.unlink()
+            except OSError:
+                pass
+
+
 def install_tree(src_root: Path, project_dir: Path):
-    """Remplace project_dir/aion_target par src_root/aion_target (presque atomique)."""
+    """Remplace project_dir/aion_target par src_root/aion_target.
+
+    1. Échange de dossiers (presque atomique, ancien dossier gardé jusqu'au bout) ;
+    2. si Windows refuse de renommer le dossier (fichier tenu ouvert par l'antivirus, l'Explorateur…),
+       remplacement fichier par fichier."""
     new = project_dir / f"{PACKAGE}.new"
     old = project_dir / f"{PACKAGE}.old"
     cur = project_dir / PACKAGE
     shutil.rmtree(new, ignore_errors=True)
     shutil.rmtree(old, ignore_errors=True)
     shutil.copytree(src_root / PACKAGE, new, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    os.replace(cur, old)
-    try:
-        os.replace(new, cur)
-    except OSError:
-        os.replace(old, cur)                     # retour arrière
-        raise
+    swapped = False
+    if not old.exists():
+        try:
+            os.replace(cur, old)
+            swapped = True
+        except OSError:
+            swapped = False
+    if swapped:
+        try:
+            os.replace(new, cur)
+        except OSError:
+            os.replace(old, cur)                 # retour arrière, puis fichier par fichier
+            swapped = False
+    if not swapped:
+        _sync_files(new, cur)
+    shutil.rmtree(new, ignore_errors=True)
     shutil.rmtree(old, ignore_errors=True)
     for name in TOP_FILES:                       # fichiers annexes déjà présents (install Linux)
         if (project_dir / name).exists() and (src_root / name).exists():
@@ -256,8 +307,42 @@ def _auto_update_enabled() -> bool:
         return True
 
 
+def pid_alive(pid: int) -> bool:
+    """Le processus `pid` existe-t-il encore ? (Windows : OpenProcess ; ailleurs : signal 0)."""
+    if pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, pid)          # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259            # STILL_ACTIVE
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def wait_previous_instance(timeout: float = 15.0):
+    """Relance après « Mettre à jour » : on attend que l'ancienne instance soit fermée."""
+    pid = int(os.environ.pop("AION_TARGET_WAIT_PID", "0") or 0)
+    end = time.monotonic() + timeout
+    while pid and pid_alive(pid) and time.monotonic() < end:
+        time.sleep(0.2)
+
+
 def _other_instance_running() -> bool:
-    """Le verrou du module Événements est tenu par une instance ouverte."""
+    """Une autre instance OUVERTE tient le verrou du module Événements.
+
+    Un verrou laissé par une instance fermée brutalement (plantage, arrêt du PC) ne bloque plus
+    la mise à jour : le processus indiqué dans le verrou doit vraiment exister."""
     try:
         from PyQt6.QtCore import QLockFile
         from .config import config_path
@@ -266,6 +351,10 @@ def _other_instance_running() -> bool:
         if lock.tryLock(0):
             lock.unlock()
             return False
+        ok, pid, _host, _app = lock.getLockInfo()
+        if ok and pid and not pid_alive(int(pid)):
+            lock.removeStaleLockFile()
+            return False
         return True
     except Exception:
         return False
@@ -273,6 +362,7 @@ def _other_instance_running() -> bool:
 
 def startup_update() -> UpdateResult:
     """Appelé par __main__ ; le message est transmis au journal via l'environnement."""
+    wait_previous_instance()
     if not _auto_update_enabled():
         res = UpdateResult("skipped", "Mise à jour automatique désactivée (réglages).")
     elif _other_instance_running():

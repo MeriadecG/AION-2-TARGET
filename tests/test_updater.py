@@ -199,3 +199,45 @@ def test_every_app_file_can_be_delivered_by_auto_update():
     blocked = [p.relative_to(pkg).as_posix() for p in pkg.rglob("*")
                if p.is_file() and "__pycache__" not in p.parts and p.suffix.lower() not in ALLOWED_SUFFIXES]
     assert blocked == []
+
+
+def test_install_falls_back_to_file_by_file_when_folder_rename_is_refused(tmp_path, monkeypatch):
+    """Windows : renommer le dossier échoue si un antivirus y tient un fichier ouvert."""
+    import os
+    from aion_target import updater
+    proj, src = tmp_path / "app", tmp_path / "src"
+    (proj / "aion_target" / "assets").mkdir(parents=True)
+    (proj / "aion_target" / "__init__.py").write_text('__version__ = "1"')
+    (proj / "aion_target" / "obsolete.py").write_text("x = 1")
+    (src / "aion_target" / "assets").mkdir(parents=True)
+    (src / "aion_target" / "__init__.py").write_text('__version__ = "2"')
+    (src / "aion_target" / "assets" / "new.json").write_text("{}")
+    real = os.replace
+
+    def refuse_dirs(a, b):
+        if os.path.isdir(a):
+            raise PermissionError("dossier utilisé par un autre processus")
+        return real(a, b)
+    monkeypatch.setattr(updater.os, "replace", refuse_dirs)
+    updater.install_tree(src, proj)
+    assert (proj / "aion_target" / "__init__.py").read_text() == '__version__ = "2"'
+    assert (proj / "aion_target" / "assets" / "new.json").exists()
+    assert not (proj / "aion_target" / "obsolete.py").exists()
+    assert not (proj / "aion_target.new").exists() and not (proj / "aion_target.old").exists()
+
+
+def test_stale_lock_from_a_dead_process_does_not_block_updates(tmp_path, monkeypatch):
+    import os
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    monkeypatch.setenv("APPDATA", str(tmp_path))
+    from aion_target import updater
+    from aion_target.config import config_path
+    lock = config_path().parent / "events.lock"
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    import socket
+    lock.write_text(f"999999\nAion Target\n{socket.gethostname()}\n")    # instance morte
+    assert updater._other_instance_running() is False
+    assert updater.pid_alive(os.getpid()) and not updater.pid_alive(999999)
+    monkeypatch.setenv("AION_TARGET_WAIT_PID", "999999")
+    updater.wait_previous_instance(timeout=1)                             # ne bloque pas
+    assert "AION_TARGET_WAIT_PID" not in os.environ

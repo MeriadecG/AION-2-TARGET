@@ -47,6 +47,10 @@ def size_label(mb: float) -> str:
 STYLESHEET = theme.STYLESHEET
 
 
+class _UpdateSignal(QObject):
+    done = pyqtSignal(str, str)       # (statut, message) de la vérification de mise à jour
+
+
 class _ReadTestSignal(QObject):
     done = pyqtSignal(str)
     color = pyqtSignal(object)        # carré du test de latence : True / False / None (masqué)
@@ -370,6 +374,20 @@ class ControlWindow(QWidget):
         self.chk_update.setChecked(cfg.auto_update)
         self.chk_update.toggled.connect(self._auto_update_changed)
         app_card.addWidget(self.chk_update, 1, 0)
+        self.btn_check_update = QPushButton("Rechercher une mise à jour maintenant")
+        self.btn_check_update.clicked.connect(lambda: self._check_update(manual=True))
+        app_card.addWidget(self.btn_check_update, 2, 0)
+        import os as _os
+        self.update_label = QLabel(_os.environ.get("AION_TARGET_UPDATE_MSG", "") or
+                                   "Mise à jour : pas encore vérifiée.")
+        self.update_label.setObjectName("status")
+        self.update_label.setWordWrap(True)
+        self.update_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        app_card.addWidget(self.update_label, 3, 0)
+        self.btn_restart = ActionButton("Redémarrer pour utiliser la nouvelle version", "primary")
+        self.btn_restart.setVisible(False)
+        self.btn_restart.clicked.connect(self._restart)
+        app_card.addWidget(self.btn_restart, 4, 0)
 
         bottom = QHBoxLayout()
         self.btn_pause = ActionButton("Pause")
@@ -406,6 +424,14 @@ class ControlWindow(QWidget):
                 lambda *_: self.cfg.ui_theme == "system" and self.set_theme("system"))
         except Exception:
             pass
+
+        self._update_sig = _UpdateSignal()
+        self._update_sig.done.connect(self._update_done)
+        self._update_timer = QTimer(self)
+        self._update_timer.timeout.connect(self._check_update)
+        self._update_timer.start(self.UPDATE_EVERY_MS)
+        if os.environ.get("AION_TARGET_UPDATE_STATUS") in ("skipped", "offline", "error"):
+            QTimer.singleShot(90_000, self._check_update)     # le démarrage n'a pas pu mettre à jour
 
         # Puces d'état des modules (rafraîchies toutes les 1,5 s : aucune charge).
         self.register_status("read", "Lecture", self._read_state)
@@ -480,6 +506,61 @@ class ControlWindow(QWidget):
     def _auto_update_changed(self, on: bool):
         self.cfg.auto_update = on
         self.cfg.save()
+
+    # --- mise à jour pendant que l'appli tourne ---
+    UPDATE_EVERY_MS = 60 * 60 * 1000             # vérification discrète toutes les heures
+
+    def _check_update(self, manual: bool = False):
+        """Vérifie GitHub et INSTALLE la nouvelle version sur le disque (thread à part). Le code en
+        mémoire continue de tourner ; elle sert au prochain démarrage (bouton « Redémarrer »).
+        Ne dépend pas d'un redémarrage réussi ni du verrou « une seule instance »."""
+        import threading
+        if getattr(self, "_updating", False) or (not manual and not self.cfg.auto_update):
+            return
+        self._updating = True
+        self.btn_check_update.setEnabled(False)
+        self.update_label.setText("Mise à jour : vérification…")
+
+        def work():
+            try:
+                from . import updater
+                res = updater.check_and_update()
+                text, status = res.message, res.status
+            except Exception as e:                # jamais d'erreur bloquante
+                text, status = f"Mise à jour : erreur ({e})", "error"
+            self._update_sig.done.emit(status, text)
+        threading.Thread(target=work, name="update-check", daemon=True).start()
+
+    def _update_done(self, status: str, text: str):
+        self._updating = False
+        self.btn_check_update.setEnabled(True)
+        self.update_label.setText(text)
+        if status == "updated":
+            self.btn_restart.setVisible(True)
+            self.version.setText(self.version.text().split(" ")[0] + " → redémarrer")
+            self.version.setToolTip(text)
+            self.status.setText("● " + text + " Redémarre Aion Target pour l'utiliser.")
+
+    def _restart(self):
+        """Ferme puis relance l'appli ; la nouvelle instance attend la fermeture de celle-ci."""
+        import os
+        import subprocess
+        import sys
+        env = dict(os.environ, AION_TARGET_WAIT_PID=str(os.getpid()))
+        env.pop("AION_TARGET_UPDATE_MSG", None)
+        exe = os.environ.get("AION_TARGET_EXE")
+        try:
+            if exe and os.path.exists(exe):                       # Windows : « Aion Target.exe »
+                subprocess.Popen([exe], env=env, close_fds=True,
+                                 creationflags=getattr(subprocess, "DETACHED_PROCESS", 0))
+            else:
+                from .updater import PROJECT_DIR
+                subprocess.Popen([sys.executable, "-m", "aion_target"], cwd=str(PROJECT_DIR), env=env,
+                                 start_new_session=True)
+        except Exception as e:
+            self.update_label.setText(f"Relance impossible ({e}) : ferme et rouvre Aion Target.")
+            return
+        self.quit_app()
 
     # --- module Événements (onglet Notifications) ---
     def set_events(self, notifier):
