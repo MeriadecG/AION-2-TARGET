@@ -15,13 +15,16 @@ def app():
     return QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 
 
-def test_palette_matches_spec():
-    assert (theme.BG, theme.SURFACE, theme.TITLE, theme.ACCENT, theme.MUTED, theme.GOLD) == \
-        ("#ECF2F7", "#FFFFFF", "#163B5D", "#3C9FC9", "#637D95", "#DBA954")
+def test_palette_matches_aether_spec():
+    p = theme.PALETTES["light"]
+    assert (p["BG"], p["SURFACE"], p["SURFACE_ALT"], p["PRIMARY"], p["AETHER"], p["TEXT"], p["MUTED"],
+            p["BORDER"], p["OK"]) == ("#EAF0F6", "#FFFFFF", "#F4F7FB", "#285EB2", "#31AFC7", "#1B3655",
+                                      "#607891", "#D5E1EC", "#19835A")
+    assert set(theme.PALETTES["light"]) == set(theme.PALETTES["dark"])       # mêmes rôles
     qss = theme.stylesheet()
-    for color in ("#ECF2F7", "#163B5D", "#3C9FC9", "#637D95", "#DBA954"):
+    for color in ("#EAF0F6", "#285EB2", "#31AFC7", "#1B3655", "#607891"):
         assert color in qss
-    assert "#15171c" not in qss                                   # plus de fond noir
+    assert "#15171c" not in qss and "#000000" not in theme.PALETTES["dark"]["BG"]
 
 
 def _contrast(a: str, b: str) -> float:
@@ -34,21 +37,25 @@ def _contrast(a: str, b: str) -> float:
 
 
 def test_text_colors_are_readable_on_white():
-    for c in (theme.TITLE, theme.TEXT, theme.OK, theme.WARN, theme.ERR, theme.GOLD_TEXT):
-        assert _contrast(c, "#FFFFFF") >= 4.5, c                  # états critiques : AA
-    assert _contrast(theme.MUTED, "#FFFFFF") >= 4.0               # secondaire imposé (#637D95)
+    for c in (theme.TITLE, theme.TEXT, theme.MUTED, theme.OK, theme.WARN, theme.ERR, theme.GOLD_TEXT,
+              theme.PRIMARY, theme.AETHER_TEXT):
+        assert _contrast(c, "#FFFFFF") >= 4.5, c                  # WCAG AA sur les cartes
+    assert _contrast(theme.MUTED_BG, theme.BG) >= 4.5             # secondaire sur le fond de page
+    assert _contrast(theme.ON_ACCENT, theme.PRIMARY) >= 4.5       # texte des boutons principaux
 
 
 def test_dark_mode_palette_and_contrast():
     try:
         theme.set_mode("dark")
-        assert theme.MODE == "dark" and theme.BG != "#ECF2F7"
+        assert theme.MODE == "dark" and theme.BG != "#EAF0F6"
         for c in (theme.TITLE, theme.TEXT, theme.MUTED, theme.OK, theme.WARN, theme.ERR, theme.GOLD_TEXT,
-                  theme.ACCENT_DARK):
+                  theme.ACCENT_DARK, theme.PRIMARY, theme.AETHER_TEXT):
             assert _contrast(c, theme.SURFACE) >= 4.5, c          # lisible sur les cartes sombres
+        assert _contrast(theme.ON_ACCENT, theme.PRIMARY) >= 4.5
+        assert _contrast(theme.MUTED_BG, theme.BG) >= 4.5
         assert theme.LEVEL_COLORS["err"] == theme.ERR and theme.ERR in theme.dot("err")
         qss = theme.stylesheet()
-        assert theme.BG in qss and "#ECF2F7" not in qss
+        assert theme.BG in qss and "#EAF0F6" not in qss
         assert theme.resolve("system") in ("light", "dark") and theme.resolve("n'importe quoi") == "light"
     finally:
         theme.set_mode("light")
@@ -95,7 +102,7 @@ def test_control_window_tiles_and_chips(app):
     cfg = Config()
     cfg.save = lambda *a: None
     ctl = ControlWindow(cfg, Overlay(cfg), Worker(cfg), None, lambda: None)
-    assert "#ECF2F7" in ctl.styleSheet()
+    assert "#EAF0F6" in ctl.styleSheet()
     ctl._on_status("Corgoth", CharacterInfo("Corgoth", "eu-israphel", 3369, 229116, 45, "Templar", rank=23))
     assert ctl.t_cp.value.text().replace(" ", " ") == "229 116" and ctl.t_cp.sub.text() == "TOP 23"
     ctl._on_status("Krix", Ambiguous(["eu-siel", "eu-zikel"]))
@@ -121,3 +128,43 @@ def test_overlays_are_untouched_by_the_theme(app):
         assert w.isWindow() and w.parent() is None and w.styleSheet() == ""
     assert dps_ui.GOLD == "#C9A227"                                # or des overlays inchangé
     assert ROLE_COLORS["gs"].name() == "#f2c14e"
+
+
+def test_sidebar_navigation_and_collapsible_sections(app):
+    from aion_target.control import NAV, ControlWindow
+    from aion_target.overlay import Overlay, Worker
+    from aion_target.ui_kit import SectionCard
+    cfg = Config()
+    cfg.save = lambda *a: None
+    ctl = ControlWindow(cfg, Overlay(cfg), Worker(cfg), None, lambda: None)
+    assert ctl.tabs.tabBar().isHidden()                           # navigation = barre latérale
+    assert [k for k, *_ in NAV] == ["target", "dps", "events", "pets", "farm"]
+    ctl.nav_buttons[4].click()                                    # DPS
+    assert ctl.tabs.currentIndex() == 4 and cfg.control_tab == 4
+    assert ctl.nav_buttons[4].isChecked() and not ctl.nav_buttons[0].isChecked()
+    ctl.resize(600, 800)
+    ctl.resizeEvent(None) if False else None
+    from PyQt6.QtGui import QResizeEvent
+    from PyQt6.QtCore import QSize
+    ctl.resizeEvent(QResizeEvent(QSize(600, 800), QSize(900, 800)))
+    assert ctl.nav_buttons[0].compact and ctl.nav_buttons[0].text() == ""   # icônes seules
+    cards = [c for c in ctl.findChildren(SectionCard) if c.collapsible]
+    diag = next(c for c in cards if "DIAGNOSTIC" in c.header.text())
+    assert not diag.expanded                                      # avancé : replié par défaut
+    diag.set_expanded(True)
+    assert cfg.ui_collapsed.get("DIAGNOSTIC") is False            # choix mémorisé
+    ctl.register_status("farm", "Farm", lambda: ("ok", "en cours"))
+    assert ctl.nav_buttons[3].dot_level == "ok" and "farm" not in ctl._chips   # pastille de module
+
+
+def test_stat_card_and_progress(app):
+    from aion_target.ui_kit import EmptyState, ProgressIndicator, StatCard
+    c = StatCard("Kinah / minute", unit="/min")
+    c.set(None)
+    assert c.value.text() == "—" and c.unit.text() == ""          # pas d'unité sans valeur
+    c.set("1 500", trend="up")
+    assert c.unit.text() == "/min" and "▲" in c.trend.text()
+    p = ProgressIndicator()
+    p.set(140, 105, "Niveau 3 (maximum)")
+    assert p.bar.value() == 1000                                  # dépasse l'objectif : barre pleine
+    assert "Aucun" in EmptyState("Aucun combat en cours").text()

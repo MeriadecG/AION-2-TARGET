@@ -287,10 +287,11 @@ class EventsWindow(QWidget):
         prefs, cat = self.notifier.prefs, self.notifier.catalog
         bold = QFont()
         bold.setBold(True)
+        count = theme.mono_font(9)                 # comptes à rebours : monospace, chiffres alignés
         for key, label in CATEGORIES.items():
             top = QTreeWidgetItem([label])
             top.setFont(0, bold)
-            top.setForeground(0, QBrush(QColor(theme.GOLD_TEXT)))
+            top.setForeground(0, QBrush(QColor(theme.AETHER_TEXT)))
             top.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self.tree.addTopLevelItem(top)
             top.setFirstColumnSpanned(True)           # après l'ajout : sinon sans effet
@@ -302,6 +303,8 @@ class EventsWindow(QWidget):
             it = QTreeWidgetItem(parent, [name, "", "", SHORT_STATUS.get(e.status, e.status)])
             it.setData(0, ID_ROLE, e.id)
             it.setForeground(3, QBrush(QColor(status_color(e.status))))
+            it.setFont(2, count)
+            it.setTextAlignment(2, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             it.setToolTip(0, self._tooltip(e))
             for c in (1, 2, 3):
                 it.setToolTip(c, self._tooltip(e))

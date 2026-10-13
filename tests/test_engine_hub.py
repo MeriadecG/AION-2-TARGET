@@ -103,7 +103,7 @@ def test_ui_sections_share_the_hub(app):
     hub, cfg = hub_with_fake()
     cfg.dps_warning_ack = True                               # avertissement déjà accepté
 
-    def card(root, label):
+    def card(root, label, **kw):
         g = QtWidgets.QGridLayout()
         root.addLayout(g)
         return g

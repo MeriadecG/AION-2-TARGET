@@ -154,12 +154,14 @@ Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
 
 ## Fenêtre de contrôle : onglets
 
-Interface « Tactical Analytics » : **mode clair ou sombre** (bouton « ◐ » en haut, ou Target →
-Apparence → Thème : Clair / Sombre / Comme le système, mémorisé), thème froid (palette et feuille de style centralisées
-dans `aion_target/theme.py`, composants dans `aion_target/ui_kit.py`), tuiles de statistiques en
-chiffres tabulaires (valeurs réelles uniquement, « — » sinon), puces d'état des modules dans
-l'en-tête (Lecture, Moteur, Farm, Familiers). Les overlays affichés par-dessus le jeu ne sont pas
-concernés : apparence, position, transparence et comportement inchangés.
+Interface « **Aether Analytics** » : barre latérale (Target, DPS, Notifications, Familiers, Farm,
+icônes fines, pastille d'état par module, icônes seules si la fenêtre est étroite), en-tête compact
+(état de la lecture et du moteur, version), pages structurées (titre, statistiques, fonction
+principale, réglages avancés repliables et mémorisés), **mode clair ou sombre** (bouton en haut, ou
+Target → Apparence → Thème : Clair / Sombre / Comme le système). Polices Inter (interface),
+JetBrains Mono (chiffres, alignés) et Cinzel (nom) fournies. Palette, feuille de style et
+composants : `aion_target/theme.py`, `aion_target/ui_kit.py`. Les overlays affichés par-dessus le
+jeu ne sont pas concernés : apparence, position, transparence et comportement inchangés.
 
 - **Target** : GS / CP de la cible (cadres, mémoire, **détection et préchargement des joueurs**,
   apparence, diagnostic + **rapport de diagnostic exportable**).

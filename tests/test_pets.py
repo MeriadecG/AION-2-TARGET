@@ -91,7 +91,7 @@ def test_pets_tab_manual_and_overlay(app, tmp_path):
     c = Catalog.load()
     counter = KillCounter(c, store)
 
-    def card(root, label):
+    def card(root, label, **kw):
         g = QGridLayout()
         root.addLayout(g)
         return g

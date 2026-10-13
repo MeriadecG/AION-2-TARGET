@@ -247,7 +247,8 @@ class DpsTab(QWidget):
         self.t_fights = StatTile("Combats enregistrés")
         root.addWidget(tile_row(self.t_ping, self.t_time, self.t_total, self.t_fights))
 
-        g = card(root, "DPS METER (MODULE RÉSEAU PASSIF)")
+        g = card(root, "DPS METER (MODULE RÉSEAU PASSIF)",
+                 desc="Activation, cible suivie et remise à zéro du combat.")
         self.chk = QCheckBox("Activer le DPS meter")
         self.chk.setChecked(cfg.dps_enabled)
         self.chk.toggled.connect(self._toggle)
@@ -276,7 +277,7 @@ class DpsTab(QWidget):
                              "observable et n'est pas inclus.")
         g.addWidget(self.ping, 5, 0, 1, 3)
 
-        o = card(root, "OVERLAY DPS")
+        o = card(root, "OVERLAY DPS", collapsed=True, desc="Affichage par-dessus le jeu : position, lignes, opacité.")
         self.chk_ov = QCheckBox("Afficher par-dessus le jeu")
         self.chk_ov.setChecked(cfg.dps_overlay)
         self.chk_ov.toggled.connect(self._overlay_toggled)
@@ -298,15 +299,20 @@ class DpsTab(QWidget):
         self.sp_op.valueChanged.connect(self._overlay_opacity)
         o.addWidget(self.sp_op, 3, 1)
 
-        live = card(root, "COMBAT EN COURS")
+        live = card(root, "COMBAT EN COURS", desc="Classement en direct : DPS, dégâts et part de chacun.")
         self.live_title = QLabel("—")
         self.live_title.setObjectName("status")
         live.addWidget(self.live_title, 0, 0)
         self.table = _tree(["Joueur", "Classe", "DPS", "Dégâts", "%"])
         self.table.setMinimumHeight(150)
+        self.table.setVisible(False)
+        from .ui_kit import EmptyState
+        self.live_empty = EmptyState("Aucun combat en cours",
+                                     "Les dégâts apparaissent ici dès que le moteur voit un combat.")
         live.addWidget(self.table, 1, 0)
+        live.addWidget(self.live_empty, 2, 0)
 
-        hist = card(root, "HISTORIQUE")
+        hist = card(root, "HISTORIQUE", desc="Combats de boss enregistrés et joueurs rencontrés.")
         self.htabs = QTabWidget()
         hist.addWidget(self.htabs, 0, 0)
         # Combats
@@ -435,13 +441,23 @@ class DpsTab(QWidget):
         self.live_title.setText(f"{tgt.get('name') or 'Cible'} · {fmt_duration(d.get('battle_ms') or 0)} · "
                                 f"total {fmt_short(d.get('total'))}")
         self.table.clear()
-        for row in d.get("rows") or []:
+        rows = d.get("rows") or []
+        self.table.setVisible(bool(rows))
+        self.live_empty.setVisible(not rows)
+        bold = QFont(self.table.font())
+        bold.setWeight(QFont.Weight.DemiBold)
+        right = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        for row in rows:
             it = QTreeWidgetItem([row.get("name", "?"), job_fr(row.get("job", "")),
                                   fmt_short(row.get("dps")), fmt_short(row.get("damage")),
                                   f"{round((row.get('share') or 0) * 100)} %"])
+            for c in (2, 3, 4):
+                it.setTextAlignment(c, right)
+            it.setFont(2, bold)                     # le DPS, valeur la plus lue
             if row.get("me"):
                 for c in range(5):
                     it.setForeground(c, QBrush(QColor(theme.GOLD_TEXT)))
+                it.setFont(0, bold)
             self.table.addTopLevelItem(it)
 
     def _stale_check(self):

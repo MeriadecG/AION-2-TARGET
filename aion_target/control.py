@@ -3,13 +3,28 @@ from __future__ import annotations
 
 from PyQt6.QtCore import QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt6.QtGui import QColor, QDesktopServices, QFont
-from PyQt6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QFontComboBox, QFrame, QGridLayout,
+from PyQt6.QtWidgets import (QSizePolicy, QCheckBox, QColorDialog, QComboBox, QFontComboBox, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QScrollArea,
                              QSystemTrayIcon, QTabWidget, QVBoxLayout, QWidget)
 
 from . import theme
 from .style import fmt
-from .ui_kit import StatTile, StatusChip, tile_row
+from .ui_kit import (ActionButton, EmptyState, NavButton, PageHeader, SectionCard, StatTile, StatusChip,
+                     fade_in, tile_row)
+
+# Navigation : ordre de la barre latérale → index de la page (l'ordre interne des pages ne change
+# pas : préférences, raccourcis et code existant restent valables).
+NAV = [("target", "Target", "target", 0), ("dps", "DPS", "dps", 4), ("events", "Notifications", "bell", 1),
+       ("pets", "Familiers", "pets", 2), ("farm", "Farm", "farm", 3)]
+PAGES = {
+    0: ("Target", "Score de la cible (GS / CP), lecture à l'écran, mémoire des joueurs et préchargement."),
+    1: ("Notifications", "Calendrier des événements, comptes à rebours et alertes."),
+    2: ("Familiers", "Collection, progression des âmes et monstres tués."),
+    3: ("Farm", "Monnaie suivie, Kinah / minute et session de farm."),
+    4: ("DPS", "Dégâts en direct, ping et historiques (capture réseau passive)."),
+}
+COMPACT_BELOW = 760          # largeur de fenêtre sous laquelle la barre latérale n'a que des icônes
+NAV_STATUS = {"farm": 3, "pets": 2, "dps": 4}   # états affichés en pastille dans la barre latérale
 
 GOLD = theme.GOLD
 CACHE_SIZES_MB = [25, 100, 500, 1024, 5120]
@@ -82,7 +97,7 @@ class ControlWindow(QWidget):
         theme.set_mode(cfg.ui_theme)
         self.setStyleSheet(theme.full_stylesheet())
         self.setFont(theme.ui_font(9.5))
-        self.setMinimumWidth(420)
+        self.setMinimumWidth(460)
 
         # En-tête, onglets et boutons du bas TOUJOURS visibles ; le contenu des onglets défile.
         outer = QVBoxLayout(self)
@@ -98,13 +113,13 @@ class ControlWindow(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setWidget(body)
 
-        # --- en-tête : marque, version, état des modules ---
+        # --- en-tête : marque, état de l'application et du moteur, version ---
         from . import __version__
         header = QFrame()
         header.setObjectName("header")
         hl = QHBoxLayout(header)
-        hl.setContentsMargins(12, 10, 12, 10)
-        hl.setSpacing(10)
+        hl.setContentsMargins(14, 10, 14, 10)
+        hl.setSpacing(12)
         bar = QFrame()
         bar.setObjectName("accentBar")
         bar.setFixedWidth(3)
@@ -116,37 +131,68 @@ class ControlWindow(QWidget):
         tf = QFont(theme.BRAND_FONT, 15)
         tf.setWeight(QFont.Weight.Bold)
         title.setFont(tf)
-        sub = QLabel(f"TACTICAL ANALYTICS · v{__version__}")
+        sub = QLabel("AETHER ANALYTICS")
         sub.setObjectName("brandSub")
-        sub.setFont(theme.tabular(sub.font()))
         brand.addWidget(title)
         brand.addWidget(sub)
         hl.addLayout(brand)
-        hl.addStretch(1)
+        hl.addSpacing(8)
+        self._status_slot = QVBoxLayout()           # état de l'application (cible, pause, réglage)
+        hl.addLayout(self._status_slot, 1)
         self._chips: dict[str, tuple[StatusChip, object]] = {}
-        self._chip_box = QGridLayout()
-        self._chip_box.setHorizontalSpacing(6)
-        self._chip_box.setVerticalSpacing(5)
+        self._nav_status: dict[str, tuple[int, object]] = {}
+        self._chip_box = QHBoxLayout()
+        self._chip_box.setSpacing(6)
         hl.addLayout(self._chip_box)
+        self.ver_label = QLabel(f"v{__version__}")
+        self.ver_label.setObjectName("version")
+        self.ver_label.setFont(theme.mono_font(8, bold=False))
+        hl.addWidget(self.ver_label)
         self.btn_theme = QPushButton()
         self.btn_theme.setObjectName("chip")
         self.btn_theme.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_theme.clicked.connect(self._toggle_theme)
-        hl.addWidget(self.btn_theme, 0, Qt.AlignmentFlag.AlignTop)
+        hl.addWidget(self.btn_theme)
         self.status = QLabel("Démarrage…")
         self.status.setObjectName("status")
         self.status.setWordWrap(True)
         self.btn_sheet = QPushButton("Ouvrir la fiche de la cible")
         self.btn_sheet.setEnabled(False)
         self.btn_sheet.clicked.connect(self._open_sheet)
+        self.status.setWordWrap(False)
+        self.status.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        self._status_slot.addWidget(self.status)
         outer.addWidget(header)
-        outer.addWidget(self.status)
+        # barre latérale (navigation) + contenu
+        mid = QHBoxLayout()
+        mid.setSpacing(12)
+        self.sidebar = QFrame()
+        self.sidebar.setObjectName("sidebar")
+        sl = QVBoxLayout(self.sidebar)
+        sl.setContentsMargins(8, 10, 8, 10)
+        sl.setSpacing(3)
+        self.nav_title = QLabel("MODULES")
+        self.nav_title.setObjectName("navSection")
+        sl.addWidget(self.nav_title)
+        self.nav_buttons: dict[int, NavButton] = {}
+        for key, label, icon, index in NAV:
+            btn = NavButton(key, label, icon)
+            btn.clicked.connect(lambda _=False, i=index: self.tabs.setCurrentIndex(i))
+            self.nav_buttons[index] = btn
+            sl.addWidget(btn)
+        sl.addStretch(1)
+        self._side = sl
+        mid.addWidget(self.sidebar)
+        content = QVBoxLayout()
+        content.setSpacing(8)
+        mid.addLayout(content, 1)
+        outer.addLayout(mid, 1)
 
         # --- onglets : Target (GS/CP) · Notifications · Familiers · Farm ---
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
         self.tabs.tabBar().setDrawBase(False)
-        self.tabs.tabBar().setExpanding(False)
+        self.tabs.tabBar().hide()                 # navigation : barre latérale
         target = QWidget()
         target.setObjectName("body")
         tl = QVBoxLayout(target)
@@ -160,17 +206,17 @@ class ControlWindow(QWidget):
         tl.addWidget(tile_row(self.t_target, self.t_gs, self.t_cp, self.t_speed))
         tl.addWidget(self.btn_sheet)
         tl.addWidget(scroll, 1)
-        self.tabs.addTab(target, "Target")
+        self.tabs.addTab(self._page(0, target), "Target")
         self._notifier = None
         self._events_tab = self._placeholder("Module Événements en cours de démarrage…")
-        self.tabs.addTab(self._events_tab, "Notifications")
+        self.tabs.addTab(self._page(1, self._events_tab), "Notifications")
         self._pets_tab = self._placeholder("Familiers : chargement…")
-        self.tabs.addTab(self._pets_tab, "Familiers")
+        self.tabs.addTab(self._page(2, self._pets_tab), "Familiers")
         self._farm_tab = self._placeholder("Farm : chargement…")
-        self.tabs.addTab(self._farm_tab, "Farm")
+        self.tabs.addTab(self._page(3, self._farm_tab), "Farm")
         self._dps_tab = self._placeholder("DPS : chargement…")
-        self.tabs.addTab(self._dps_tab, "DPS")
-        outer.addWidget(self.tabs, 1)
+        self.tabs.addTab(self._page(4, self._dps_tab), "DPS")
+        content.addWidget(self.tabs, 1)
 
         # --- zone ---
         zone = self._card(root, "CADRES (LECTURE · GS · CP · DÉTAILS · TOP)")
@@ -251,7 +297,8 @@ class ControlWindow(QWidget):
         self._observe_box.setSpacing(10)
         root.addLayout(self._observe_box)
 
-        look = self._card(root, "APPARENCE")
+        look = self._card(root, "APPARENCE", collapsed=True,
+                          desc="Couleurs et police des cadres en jeu, thème de cette fenêtre.")
         look.addWidget(QLabel("Thème de la fenêtre"), 8, 0)
         self.theme_box = QComboBox()
         for key, label in (("light", "Clair"), ("dark", "Sombre"), ("system", "Comme le système")):
@@ -282,7 +329,8 @@ class ControlWindow(QWidget):
 
         # --- bas ---
         # --- diagnostic ---
-        diag = self._card(root, "DIAGNOSTIC (SANS BORDURE…)")
+        diag = self._card(root, "DIAGNOSTIC", collapsed=True,
+                          desc="Tests d'affichage et de lecture, retard de capture, rapports à envoyer.")
         btn_show = QPushButton("Test affichage")
         btn_show.clicked.connect(self._test_display)
         self.btn_read = QPushButton("Test lecture")
@@ -313,31 +361,32 @@ class ControlWindow(QWidget):
         self._latency_running = False
         self._read_countdown = 0
 
+        app_card = self._card(root, "APPLICATION", collapsed=True,
+                              desc="Raccourci et mises à jour automatiques.")
         self.btn_shortcut = QPushButton("Créer un raccourci (menu + bureau)")
         self.btn_shortcut.clicked.connect(self._make_shortcut)
-        root.addWidget(self.btn_shortcut)
+        app_card.addWidget(self.btn_shortcut, 0, 0)
         self.chk_update = QCheckBox("Mise à jour automatique au lancement (GitHub)")
         self.chk_update.setChecked(cfg.auto_update)
         self.chk_update.toggled.connect(self._auto_update_changed)
-        root.addWidget(self.chk_update)
+        app_card.addWidget(self.chk_update, 1, 0)
 
         bottom = QHBoxLayout()
-        self.btn_pause = QPushButton("Pause")
+        self.btn_pause = ActionButton("Pause")
         self.btn_pause.setCheckable(True)
         self.btn_pause.toggled.connect(self._update_pause)
-        btn_quit = QPushButton("Quitter")
+        btn_quit = ActionButton("Quitter", "danger")
         btn_quit.setToolTip("Ferme Aion Target (overlays et modules compris).")
         btn_quit.setObjectName("danger")
         btn_quit.clicked.connect(self.quit_app)
-        bottom.addWidget(self.btn_pause)
-        bottom.addWidget(btn_quit)
+        # Pause / Quitter : en bas de la barre latérale (toujours visibles, hors du défilement).
+        self.btn_quit = btn_quit
+        self._side.addWidget(self.btn_pause)
+        self._side.addWidget(btn_quit)
         root.addStretch(1)
-        outer.addLayout(bottom)
         import os
-        self.version = QLabel(f"Version {__version__}")
-        self.version.setObjectName("version")
-        self.version.setToolTip(os.environ.get("AION_TARGET_UPDATE_MSG", ""))
-        outer.addWidget(self.version)
+        self.version = self.ver_label             # version réelle, dans l'en-tête
+        self.version.setToolTip(os.environ.get("AION_TARGET_UPDATE_MSG", "") or f"Version {__version__}")
         self._fit_to_screen(body)
 
         self.tabs.setCurrentIndex(min(max(0, cfg.control_tab), self.tabs.count() - 1))
@@ -373,10 +422,10 @@ class ControlWindow(QWidget):
         avail = screen.availableGeometry() if screen else None
         want = body.sizeHint().height() + 170          # + en-tête et boutons du bas
         height = min(want, avail.height() - 60) if avail else want
-        self.resize(560, max(480, height))
+        self.resize(900, max(560, height))
 
     # --- onglets ---
-    TAB_WIDTH = {0: 560, 1: 680, 2: 680, 3: 600, 4: 680}                 # largeur confortable par onglet
+    TAB_WIDTH: dict = {}                       # la barre latérale s'adapte : plus d'élargissement forcé                 # largeur confortable par onglet
 
     def _placeholder(self, text: str) -> QWidget:
         w = QWidget()
@@ -391,19 +440,39 @@ class ControlWindow(QWidget):
         lay.addStretch(2)
         return w
 
+    def _page(self, index: int, widget: QWidget) -> QWidget:
+        """Page d'un module : titre + description, puis le contenu du module."""
+        page = QWidget()
+        page.setObjectName("page")
+        lay = QVBoxLayout(page)
+        lay.setContentsMargins(0, 4, 0, 0)
+        lay.setSpacing(10)
+        title, desc = PAGES[index]
+        lay.addWidget(PageHeader(title, desc))
+        lay.addWidget(widget, 1)
+        return page
+
     def _replace_tab(self, index: int, old: QWidget, new: QWidget, label: str):
         current = self.tabs.currentIndex()
         self.tabs.blockSignals(True)
+        wrapper = self.tabs.widget(index)
         self.tabs.removeTab(index)
-        self.tabs.insertTab(index, new, label)
+        if wrapper is not None and wrapper is not old:
+            wrapper.deleteLater()
+        self.tabs.insertTab(index, self._page(index, new), label)
         self.tabs.setCurrentIndex(current)
         self.tabs.blockSignals(False)
         old.deleteLater()
 
     def _tab_changed(self, index: int, save: bool = True):
-        want = self.TAB_WIDTH.get(index)
-        if want and self.width() < want:
-            self.resize(want, max(self.height(), 640))
+        for i, btn in self.nav_buttons.items():
+            btn.setChecked(i == index)
+            btn.refresh()
+        page = self.tabs.widget(index)
+        head = page.findChild(PageHeader) if page is not None else None
+        if save and head is not None:
+            fade_in(head)          # transition discrète (150 ms) sur le titre seulement : jamais
+                                   # d'effet graphique sur les tableaux (coût et artefacts)
         if save:
             self.cfg.control_tab = index
             self.cfg.save()
@@ -459,6 +528,8 @@ class ControlWindow(QWidget):
             except Exception:
                 pass
         self._theme_label()
+        for btn in self.nav_buttons.values():
+            btn.refresh()
         self._refresh_chips()
 
     def on_theme_change(self, fn):
@@ -470,10 +541,13 @@ class ControlWindow(QWidget):
     # --- puces d'état ---
     def register_status(self, key: str, label: str, fn):
         """fn() → (niveau « ok » / « warn » / « err » / « idle », texte court[, infobulle])."""
+        if key in NAV_STATUS:                      # état d'un module : pastille dans la navigation
+            self._nav_status[key] = (NAV_STATUS[key], fn)
+            self._refresh_chips()
+            return
         chip = StatusChip(label)
-        n = len(self._chips)
         self._chips[key] = (chip, fn)
-        self._chip_box.addWidget(chip, n // 2, n % 2)
+        self._chip_box.addWidget(chip)
         self._refresh_chips()
 
     def _refresh_chips(self):
@@ -483,6 +557,16 @@ class ControlWindow(QWidget):
             except Exception:
                 level, text, tip = "idle", "—", []
             chip.set_state(level, text, tip[0] if tip else "")
+        for index, fn in self._nav_status.values():
+            try:
+                level, text, *tip = fn()
+            except Exception:
+                level, text, tip = "idle", "—", []
+            btn = self.nav_buttons.get(index)
+            if btn:
+                btn.set_dot(level)
+                btn.setToolTip(f"{btn.label_text} : {text}")
+        self._sync_nav()
         self._refresh_speed()
 
     def _read_state(self):
@@ -541,18 +625,24 @@ class ControlWindow(QWidget):
                      "idle": "inactif"}[st], "Compteur Kinah / minute")
         self.register_status("farm", "Farm", farm_chip)
 
-    def _card(self, root, label: str) -> QGridLayout:
-        lab = QLabel(label)
-        lab.setObjectName("section")
-        root.addWidget(lab)
-        card = QFrame()
-        card.setObjectName("card")
-        grid = QGridLayout(card)
-        grid.setContentsMargins(10, 10, 10, 10)
-        grid.setHorizontalSpacing(10)
-        grid.setVerticalSpacing(8)
+    def _card(self, root, label: str, collapsed: bool | None = None, desc: str | None = None) -> QGridLayout:
+        """Carte de section. collapsed=None : toujours ouverte ; True / False : repliable (paramètres
+        avancés), état mémorisé par l'utilisateur."""
+        memo = getattr(self.cfg, "ui_collapsed", None)
+        if collapsed is not None and isinstance(memo, dict) and label in memo:
+            collapsed = bool(memo[label])
+        card = SectionCard(label, desc, collapsible=collapsed is not None, collapsed=bool(collapsed))
+        if collapsed is not None:
+            card.toggled.connect(lambda on, k=label: self._remember_fold(k, not on))
         root.addWidget(card)
-        return grid
+        return card.grid
+
+    def _remember_fold(self, key: str, folded: bool):
+        memo = dict(getattr(self.cfg, "ui_collapsed", None) or {})
+        if memo.get(key) != folded:
+            memo[key] = folded
+            self.cfg.ui_collapsed = memo
+            self.cfg.save()
 
     def _swatch(self, grid: QGridLayout, row: int, label: str, attr: str) -> QPushButton:
         grid.addWidget(QLabel(label), row, 0)
@@ -870,7 +960,10 @@ class ControlWindow(QWidget):
     def _update_pause(self, *_):
         paused = self.btn_pause.isChecked() or self.overlay.edit_mode or self._picker is not None
         self.worker.paused = paused
-        self.btn_pause.setText("Reprendre" if self.btn_pause.isChecked() else "Pause")
+        compact = getattr(self, "_compact", False)
+        self.btn_pause.setText(("▶" if compact else "Reprendre") if self.btn_pause.isChecked()
+                               else ("‖" if compact else "Pause"))
+        self.btn_pause.setToolTip("Suspendre / reprendre la lecture du nom de la cible")
         if self.btn_pause.isChecked():
             self.status.setText("● En pause")
         elif self.overlay.edit_mode:
@@ -925,6 +1018,27 @@ class ControlWindow(QWidget):
         text = self.status.text()
         if name in text and " s" not in text[-3:]:
             self.status.setText(f"{text} · {secs} s")
+
+    def resizeEvent(self, e):
+        super().resizeEvent(e)
+        compact = self.width() < COMPACT_BELOW
+        if getattr(self, "_compact", None) != compact:
+            self._compact = compact
+            for btn in self.nav_buttons.values():
+                btn.set_compact(compact)
+            self.nav_title.setVisible(not compact)
+            self.sidebar.setFixedWidth(60 if compact else 178)
+            self.btn_pause.setText(("‖" if compact else "Pause") if not self.btn_pause.isChecked()
+                                   else ("▶" if compact else "Reprendre"))
+            self.btn_quit.setText("✕" if compact else "Quitter")
+
+    def _sync_nav(self):
+        """Libellés de la navigation = titres des pages (ex. « Notifications (3) »)."""
+        for i, btn in self.nav_buttons.items():
+            text = self.tabs.tabText(i)
+            if text and text != btn.label_text:
+                btn.label_text = text
+                btn.refresh()
 
     def show_and_raise(self):
         self.showNormal()

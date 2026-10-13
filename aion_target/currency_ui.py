@@ -246,7 +246,7 @@ class FarmTab(QWidget):
         self.t_last = StatTile("Dernière mesure")
         root.addWidget(tile_row(self.t_net, self.t_rate, self.t_time, self.t_last))
 
-        g = card(root, "MONNAIE CALCULÉE")
+        g = card(root, "MONNAIE CALCULÉE", desc="Lecture de la barre des monnaies et calcul A − B.")
         self.chk = QCheckBox("Afficher en permanence à l'écran")
         self.chk.setChecked(cfg.currency_enabled)
         self.chk.toggled.connect(self._enabled)
@@ -307,7 +307,8 @@ class FarmTab(QWidget):
         g.addWidget(hint, 6, 0, 1, 4)
 
         # --- 2e emplacement ---
-        ga = card(root, "2E EMPLACEMENT (MENU EN HAUT À DROITE)")
+        ga = card(root, "2E EMPLACEMENT (MENU EN HAUT À DROITE)", collapsed=True,
+                  desc="Lecture de secours quand la barre est cachée.")
         self.chk_alt = QCheckBox("Lire aussi le menu quand la barre est cachée ou illisible")
         self.chk_alt.setChecked(cfg.currency_alt_enabled)
         self.chk_alt.toggled.connect(self._alt_enabled)
@@ -334,7 +335,7 @@ class FarmTab(QWidget):
         ga.addWidget(hint2, 2, 0, 1, 4)
 
         # --- affichage ---
-        gd = card(root, "AFFICHAGE À L'ÉCRAN")
+        gd = card(root, "AFFICHAGE À L'ÉCRAN", collapsed=True, desc="Valeurs montrées dans le cadre en jeu.")
         self.field_boxes = {}
         for i, (key, label) in enumerate((("a", "Valeur A"), ("b", "Valeur B"), ("diff", "A − B"),
                                           ("rate", "Kinah / minute"))):
@@ -345,7 +346,7 @@ class FarmTab(QWidget):
             gd.addWidget(box, i // 2, i % 2)
 
         # --- Kinah / minute ---
-        gk = card(root, "KINAH / MINUTE (SOLDE NET OBSERVÉ)")
+        gk = card(root, "KINAH / MINUTE (SOLDE NET OBSERVÉ)", desc="Session de farm : démarrer, mettre en pause, réinitialiser.")
         gk.addWidget(QLabel("Solde suivi"), 0, 0)
         self.track = QComboBox()
         for key, label in (("a", "Valeur A"), ("b", "Valeur B"), ("diff", "A − B")):
@@ -355,6 +356,7 @@ class FarmTab(QWidget):
         gk.addWidget(self.track, 0, 1, 1, 3)
         btns = QHBoxLayout()
         self.btn_start = QPushButton("Démarrer")
+        self.btn_start.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_pause = QPushButton("Pause")
         self.btn_reset = QPushButton("Réinitialiser")
         self.btn_reset.setObjectName("danger")
@@ -377,6 +379,12 @@ class FarmTab(QWidget):
         note.setWordWrap(True)
         gk.addWidget(note, 3, 0, 1, 4)
         root.addStretch(1)
+        # Ordre de la page : statistiques → session Kinah / minute → lecture → réglages avancés.
+        from .ui_kit import card_of
+        kc = card_of(gk)
+        if kc is not None:
+            root.removeWidget(kc)
+            root.insertWidget(1, kc)
 
         self.session = KinahSession.from_dict(cfg.farm_session)
         overlay.rate = self.session.per_minute

@@ -129,7 +129,7 @@ def test_farm_tab_session_and_overlay(app, tmp_path):
     w.start = lambda: None
     ov = CurrencyOverlay(cfg, w)
 
-    def card(root, label):
+    def card(root, label, **kw):
         g = QGridLayout()
         root.addLayout(g)
         return g

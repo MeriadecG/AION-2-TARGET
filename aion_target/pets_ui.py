@@ -188,7 +188,11 @@ class PetsTab(QWidget):
             f.addWidget(plus, row, 3)
         self.progress = QLabel()
         self.progress.setObjectName("status")
-        f.addWidget(self.progress, 4, 0, 1, 4)
+        from .ui_kit import ProgressIndicator
+        self.progress_bar = ProgressIndicator()
+        self.progress_bar.set(None, None, "Choisis un familier pour voir sa progression.")
+        f.addWidget(self.progress_bar, 4, 0, 1, 4)
+        f.addWidget(self.progress, 8, 0, 1, 4)
         self.chk_track = QCheckBox("Suivre sur l'overlay")
         self.chk_track.toggled.connect(self._track)
         self.chk_auto_pet = QCheckBox("Compter automatiquement les morts de ce familier")
@@ -205,7 +209,7 @@ class PetsTab(QWidget):
         f.addWidget(warn, 7, 0, 1, 4)
 
         # --- paliers ---
-        lv = card(root, "PALIERS DE NIVEAU (ÂMES CUMULÉES)")
+        lv = card(root, "PALIERS DE NIVEAU (ÂMES CUMULÉES)", collapsed=True)
         self.edition = QComboBox()
         for key, th in catalog.thresholds().items():
             self.edition.addItem(th.get("label", key), key)
@@ -223,7 +227,7 @@ class PetsTab(QWidget):
         lv.addWidget(note, 1, 0, 1, 4)
 
         # --- overlay ---
-        o = card(root, "OVERLAY DES FAMILIERS SUIVIS")
+        o = card(root, "OVERLAY DES FAMILIERS SUIVIS", collapsed=True)
         self.chk_ov = QCheckBox("Afficher par-dessus le jeu")
         self.chk_ov.setChecked(cfg.pets_overlay)
         self.chk_ov.toggled.connect(self._overlay_toggled)
@@ -261,7 +265,8 @@ class PetsTab(QWidget):
         a.addWidget(rule, 3, 0, 1, 2)
 
         # --- journal ---
-        j = card(root, "JOURNAL DES MORTS (DIAGNOSTIC)")
+        j = card(root, "JOURNAL DES MORTS (DIAGNOSTIC)", collapsed=True,
+                 desc="Pourquoi chaque mort a été comptée, ignorée ou jugée incertaine.")
         self.journal = _tree(["Heure", "Monstre", "Décision", "Raison"])
         self.journal.setMinimumHeight(140)
         j.addWidget(self.journal, 0, 0)
@@ -346,8 +351,12 @@ class PetsTab(QWidget):
         self.spin_kills.setValue(prog["kills"])
         self.chk_track.setChecked(prog["tracked"])
         self.chk_auto_pet.setChecked(prog.get("auto", True))
-        self.progress.setText(progress_text(prog, self.store.levels(self.catalog))
-                              + f" · paliers {'/'.join(map(str, self.store.levels(self.catalog)))}")
+        levels = self.store.levels(self.catalog)
+        self.progress.setText(f"Paliers {'/'.join(map(str, levels))} âmes cumulées · morts {prog['kills']}")
+        lvl, nxt = level_of(prog["souls"], levels)
+        self.progress_bar.set(prog["souls"], nxt or levels[-1],
+                              f"Niveau {lvl} · {prog['souls']} / {nxt} âmes vers le niveau {lvl + 1}" if nxt else
+                              f"Niveau {lvl} (maximum) · {prog['souls']} âmes")
         self._loading = False
 
     # --- édition ---
