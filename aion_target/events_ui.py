@@ -17,42 +17,23 @@ from PyQt6.QtWidgets import (QCheckBox, QComboBox, QFileDialog, QHBoxLayout, QHe
                              QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem,
                              QVBoxLayout, QWidget)
 
+from . import theme
 from .events import CATEGORIES, DAYS, STATUS_LABELS, UTC, Event, next_occurrence
 
 PARIS = ZoneInfo("Europe/Paris")
-GOLD = "#C9A227"
+GOLD = theme.GOLD
 SHORT_STATUS = {"confirmed": "confirmé", "to_verify": "à vérifier", "unconfirmed": "—"}
-STATUS_COLORS = {"confirmed": "#3DD68C", "to_verify": "#E8B04B", "unconfirmed": "#8a8f99"}
+STATUS_COLORS = {"confirmed": theme.OK, "to_verify": theme.WARN, "unconfirmed": theme.MUTED}
 DAY_FR = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 DAY_FR_LONG = {"mon": "lun", "tue": "mar", "wed": "mer", "thu": "jeu", "fri": "ven", "sat": "sam", "sun": "dim"}
 REMINDER_CHOICES = [60, 720, 1440]          # 1 h, 12 h, 24 h
 ID_ROLE = Qt.ItemDataRole.UserRole
 PICK = "__pick__"
 
+# Styles propres à cet onglet (le reste vient du thème commun, theme.py).
 EXTRA_STYLE = f"""
-QWidget#events {{ background: #15171c; }}
-QTreeWidget {{
-    background: #1d2027; color: #d6d6d6; border: 1px solid #2b2f38; border-radius: 8px;
-    alternate-background-color: #20232b; outline: none;
-}}
 QTreeWidget::item {{ padding: 3px 2px; }}
-QTreeWidget::item:selected {{ background: #2a2d36; color: #f2d98a; }}
-QHeaderView::section {{
-    background: #1d2027; color: #8a8f99; border: none; border-bottom: 1px solid #2b2f38;
-    padding: 4px 6px; font-size: 8pt; letter-spacing: 1px;
-}}
-QTreeWidget::indicator {{
-    width: 13px; height: 13px; border: 1px solid #555b67; border-radius: 3px; background: #262a33;
-}}
-QTreeWidget::indicator:hover {{ border-color: {GOLD}; }}
-QTreeWidget::indicator:checked {{ background: {GOLD}; border-color: {GOLD}; }}
-QPushButton#chip {{ padding: 2px 8px; border-radius: 10px; font-size: 8pt; }}
-QLabel#next {{ color: #f2d98a; }}
-QSlider::groove:horizontal {{ height: 4px; background: #353a45; border-radius: 2px; }}
-QSlider::sub-page:horizontal {{ background: {GOLD}; border-radius: 2px; }}
-QSlider::handle:horizontal {{
-    background: #e6e6e6; width: 12px; margin: -5px 0; border-radius: 6px;
-}}
+QLabel#next {{ color: {theme.GOLD_TEXT}; font-weight: 600; }}
 """
 
 
@@ -297,7 +278,7 @@ class EventsWindow(QWidget):
         for key, label in CATEGORIES.items():
             top = QTreeWidgetItem([label])
             top.setFont(0, bold)
-            top.setForeground(0, QBrush(QColor(GOLD)))
+            top.setForeground(0, QBrush(QColor(theme.GOLD_TEXT)))
             top.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self.tree.addTopLevelItem(top)
             top.setFirstColumnSpanned(True)           # après l'ajout : sinon sans effet
@@ -308,7 +289,7 @@ class EventsWindow(QWidget):
             name = ("↳ " + e.name) if e.kind == "reset_item" and e.group in ("daily", "weekly") else e.name
             it = QTreeWidgetItem(parent, [name, "", "", SHORT_STATUS.get(e.status, e.status)])
             it.setData(0, ID_ROLE, e.id)
-            it.setForeground(3, QBrush(QColor(STATUS_COLORS.get(e.status, "#8a8f99"))))
+            it.setForeground(3, QBrush(QColor(STATUS_COLORS.get(e.status, theme.MUTED))))
             it.setToolTip(0, self._tooltip(e))
             for c in (1, 2, 3):
                 it.setToolTip(c, self._tooltip(e))
@@ -322,7 +303,7 @@ class EventsWindow(QWidget):
                 it.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
                 it.setText(1, "Horaire à confirmer")
                 for c in (0, 1, 2):
-                    it.setForeground(c, QBrush(QColor("#7d828c")))
+                    it.setForeground(c, QBrush(QColor("#9FB2C3")))
             self._items[e.id] = it
         self.tree.expandAll()
         for (group, minutes), b in self.reminder_btns.items():
@@ -394,7 +375,7 @@ class EventsWindow(QWidget):
             top.setText(0, f"{CATEGORIES[key]}   ·   {n_on}/{total} activé{'s' if n_on > 1 else ''}")
         svc = self.notifier.service
         ok = svc.active is not None
-        dot = "#3DD68C" if ok else "#E5484D"
+        dot = theme.OK if ok else theme.ERR
         self.backend.setText(f"<span style='color:{dot}'>●</span> Notifications : {svc.detail}"
                              f"<br>Heures affichées : Europe/Paris (heure d'été / d'hiver automatique) · "
                              f"calendrier vérifié le {cat.verified_on}")
@@ -518,7 +499,7 @@ class EventsWindow(QWidget):
             self._refresh_header()
             if not ok:
                 self.backend.setText(self.backend.text()
-                                     + f"<br><span style='color:#E5484D'>Échec du test : {err}</span>")
+                                     + f"<br><span style='color:{theme.ERR}'>Échec du test : {err}</span>")
 
         self.notifier.test(done)
 

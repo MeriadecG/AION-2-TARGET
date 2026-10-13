@@ -154,6 +154,12 @@ Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
 
 ## Fenêtre de contrôle : onglets
 
+Interface « Tactical Analytics » : thème clair et froid (palette et feuille de style centralisées
+dans `aion_target/theme.py`, composants dans `aion_target/ui_kit.py`), tuiles de statistiques en
+chiffres tabulaires (valeurs réelles uniquement, « — » sinon), puces d'état des modules dans
+l'en-tête (Lecture, Moteur, Farm, Familiers). Les overlays affichés par-dessus le jeu ne sont pas
+concernés : apparence, position, transparence et comportement inchangés.
+
 - **Target** : GS / CP de la cible (cadres, mémoire, **détection et préchargement des joueurs**,
   apparence, diagnostic + **rapport de diagnostic exportable**).
 - **Notifications** : calendrier des événements (ci-dessous).

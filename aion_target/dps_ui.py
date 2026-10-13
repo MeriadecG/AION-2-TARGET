@@ -10,10 +10,12 @@ from PyQt6.QtWidgets import (QAbstractItemView, QCheckBox, QComboBox, QHBoxLayou
                              QLineEdit, QMessageBox, QPushButton, QSpinBox, QTabWidget, QTreeWidget,
                              QTreeWidgetItem, QVBoxLayout, QWidget)
 
+from . import theme
 from .engine_client import grant_capture_command, has_capture_capability, job_fr
+from .ui_kit import StatTile, tile_row
 from .style import fmt
 
-GOLD = "#C9A227"
+GOLD = "#C9A227"          # overlay DPS (dessiné à la main, au-dessus du jeu) : inchangé
 MODES = [("bossTargets", "Boss"), ("lastHitByMe", "Dernière cible frappée"),
          ("mostDamage", "Cible la plus touchée"), ("allTargets", "Toutes les cibles"),
          ("trainTargets", "Mannequins d'entraînement")]
@@ -48,8 +50,7 @@ def describe_state(st: dict, enabled: bool, mode: str) -> tuple[str, str | None]
     if not enabled:
         return ("Désactivé ici." + (" " + shared.strip() if shared else
                                     " Aucune capture, aucune ressource utilisée.")), None
-    red, amber, green = ("<span style='color:#E5484D'>●</span>", "<span style='color:#E8B04B'>●</span>",
-                         "<span style='color:#3DD68C'>●</span>")
+    red, amber, green = theme.dot("err"), theme.dot("warn"), theme.dot("ok")
     if state == "missing_engine":
         return f"{red} {st.get('detail') or STATE_LABELS[state]}", None
     if state == "missing_library":
@@ -225,9 +226,7 @@ def _tree(headers: list[str]) -> QTreeWidget:
     t.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
     for c in range(1, len(headers)):
         t.header().setSectionResizeMode(c, QHeaderView.ResizeMode.ResizeToContents)
-    t.setStyleSheet("QTreeWidget { background: #1d2027; color: #d6d6d6; border: 1px solid #2b2f38;"
-                    " border-radius: 6px; alternate-background-color: #20232b; }"
-                    "QHeaderView::section { background: #1d2027; color: #8a8f99; border: none; padding: 3px; }")
+    t.setFont(theme.tabular(t.font()))         # colonnes de chiffres alignées (style : thème commun)
     return t
 
 
@@ -241,6 +240,12 @@ class DpsTab(QWidget):
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 6, 0)
         root.setSpacing(10)
+
+        self.t_ping = StatTile("Ping", tooltip="Aller-retour mesuré PC ↔ serveur du jeu.")
+        self.t_time = StatTile("Combat")
+        self.t_total = StatTile("Total dégâts", important=True)
+        self.t_fights = StatTile("Combats enregistrés")
+        root.addWidget(tile_row(self.t_ping, self.t_time, self.t_total, self.t_fights))
 
         g = card(root, "DPS METER (MODULE RÉSEAU PASSIF)")
         self.chk = QCheckBox("Activer le DPS meter")
@@ -319,6 +324,7 @@ class DpsTab(QWidget):
         self.detail.setRootIsDecorated(True)
         fl.addWidget(self.detail, 3)
         btn_del = QPushButton("Supprimer ce combat")
+        btn_del.setObjectName("danger")
         btn_del.clicked.connect(self._delete_fight)
         fl.addWidget(btn_del)
         self.htabs.addTab(fw, "Combats")
@@ -346,6 +352,7 @@ class DpsTab(QWidget):
         b_fav = QPushButton("★ Favori")
         b_fav.clicked.connect(self._toggle_fav)
         b_del = QPushButton("Supprimer")
+        b_del.setObjectName("danger")
         b_del.clicked.connect(self._delete_enc)
         row2.addWidget(b_fav)
         row2.addWidget(b_del)
@@ -421,6 +428,9 @@ class DpsTab(QWidget):
         self._last_dps = time.monotonic()
         self.overlay.show_data(d)
         self.ping.setText(f"Ping du jeu : {ping_text(d.get('ping_ms'))} (aller-retour mesuré)")
+        self.t_ping.set(ping_text(d.get("ping_ms")))
+        self.t_time.set(fmt_duration(d.get("battle_ms") or 0), (d.get("target") or {}).get("name") or "")
+        self.t_total.set(fmt_short(d.get("total")), f"{len(d.get('rows') or [])} joueur(s)")
         tgt = d.get("target") or {}
         self.live_title.setText(f"{tgt.get('name') or 'Cible'} · {fmt_duration(d.get('battle_ms') or 0)} · "
                                 f"total {fmt_short(d.get('total'))}")
@@ -431,12 +441,13 @@ class DpsTab(QWidget):
                                   f"{round((row.get('share') or 0) * 100)} %"])
             if row.get("me"):
                 for c in range(5):
-                    it.setForeground(c, QBrush(QColor("#f2d98a")))
+                    it.setForeground(c, QBrush(QColor(theme.GOLD_TEXT)))
             self.table.addTopLevelItem(it)
 
     def _stale_check(self):
         if self.hub.client and self.hub.client.running and time.monotonic() - self._last_dps > 10:
             self.ping.setText("Ping du jeu : — (pas de données récentes)")
+            self.t_ping.set(None, "pas de données récentes")
 
     def _on_fight(self, record: dict):
         if self.history.add_fight(record, self.hub.ping_ms):
@@ -446,7 +457,9 @@ class DpsTab(QWidget):
     # --- historique ---
     def refresh_fights(self):
         self.fights.clear()
-        for f in self.history.fights(self.f_search.text().strip()):
+        fights = self.history.fights(self.f_search.text().strip())
+        self.t_fights.set(str(self.history.fight_count()), "historique local")
+        for f in fights:
             it = QTreeWidgetItem([f["boss"] or "?", time.strftime("%d/%m %H:%M", time.localtime(f["started_ms"] / 1000)),
                                   fmt_duration(f["duration_ms"]), fmt_short(f["total"]), ping_text(f["ping_ms"])])
             it.setData(0, Qt.ItemDataRole.UserRole, f["id"])

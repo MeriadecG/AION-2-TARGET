@@ -7,9 +7,11 @@ from PyQt6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QFontComboBox, 
                              QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QScrollArea,
                              QSystemTrayIcon, QTabWidget, QVBoxLayout, QWidget)
 
+from . import theme
 from .style import fmt
+from .ui_kit import StatTile, StatusChip, tile_row
 
-GOLD = "#C9A227"
+GOLD = theme.GOLD
 CACHE_SIZES_MB = [25, 100, 500, 1024, 5120]
 IMPORT_CHOICES = [("Import shugo.gg : toute la région", -1), ("Import shugo.gg : top 5 000", 5000),
                   ("Import shugo.gg : top 1 000", 1000), ("Import shugo.gg : désactivé", 0)]
@@ -26,47 +28,8 @@ def size_label(mb: float) -> str:
         return f"{mb / 1024:.0f} Go" if mb % 1024 == 0 else f"{mb / 1024:.1f} Go".replace(".", ",")
     return f"{mb:.0f} Mo" if mb >= 10 or mb == int(mb) else f"{mb:.1f} Mo".replace(".", ",")
 
-STYLESHEET = f"""
-QWidget#root, QWidget#body {{ background: #15171c; }}
-QScrollArea {{ border: none; background: #15171c; }}
-QScrollBar:vertical {{ background: #15171c; width: 10px; }}
-QScrollBar::handle:vertical {{ background: #353a45; border-radius: 4px; min-height: 30px; }}
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
-QLabel {{ color: #d6d6d6; }}
-QLabel#title {{ color: {GOLD}; }}
-QLabel#section {{ color: #8a8f99; font-size: 9pt; letter-spacing: 1px; }}
-QLabel#status {{ color: #9aa0aa; }}
-QFrame#card {{ background: #1d2027; border: 1px solid #2b2f38; border-radius: 8px; }}
-QPushButton {{
-    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
-    border-radius: 6px; padding: 6px 10px;
-}}
-QPushButton:hover {{ border-color: {GOLD}; }}
-QPushButton:checked {{ background: #3a3220; border-color: {GOLD}; color: #f2d98a; }}
-QPushButton#danger:hover {{ border-color: #d06060; }}
-QPushButton#swatch {{ min-width: 54px; padding: 4px; border-radius: 5px; }}
-QLineEdit, QFontComboBox, QComboBox {{
-    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
-    border-radius: 5px; padding: 3px 6px;
-}}
-QCheckBox {{ color: #d6d6d6; }}
-QProgressBar {{
-    background: #262a33; border: 1px solid #353a45; border-radius: 4px;
-    color: #e6e6e6; text-align: center; height: 14px; font-size: 8pt;
-}}
-QProgressBar::chunk {{ background: {GOLD}; border-radius: 3px; }}
-QTabWidget::pane {{ border: none; }}
-QTabBar::tab {{
-    background: transparent; color: #8a8f99; padding: 6px 10px; margin-right: 2px;
-    border: none; border-bottom: 2px solid transparent;
-}}
-QTabBar::tab:hover {{ color: #d6d6d6; }}
-QTabBar::tab:selected {{ color: #f2d98a; border-bottom: 2px solid {GOLD}; }}
-QSpinBox {{
-    background: #262a33; color: #e6e6e6; border: 1px solid #353a45;
-    border-radius: 5px; padding: 2px 4px;
-}}
-"""
+# Thème « Tactical Analytics » (fenêtre de contrôle seulement) : voir theme.py.
+STYLESHEET = theme.STYLESHEET
 
 
 class _ReadTestSignal(QObject):
@@ -116,8 +79,9 @@ class ControlWindow(QWidget):
 
         self.setObjectName("root")
         self.setWindowTitle("Aion Target")
-        self.setStyleSheet(STYLESHEET)
-        self.setMinimumWidth(320)
+        self.setStyleSheet(theme.full_stylesheet())
+        self.setFont(theme.ui_font(9.5))
+        self.setMinimumWidth(420)
 
         # En-tête, onglets et boutons du bas TOUJOURS visibles ; le contenu des onglets défile.
         outer = QVBoxLayout(self)
@@ -133,29 +97,61 @@ class ControlWindow(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setWidget(body)
 
-        # --- en-tête ---
+        # --- en-tête : marque, version, état des modules ---
+        from . import __version__
+        header = QFrame()
+        header.setObjectName("header")
+        hl = QHBoxLayout(header)
+        hl.setContentsMargins(12, 10, 12, 10)
+        hl.setSpacing(10)
+        bar = QFrame()
+        bar.setObjectName("accentBar")
+        bar.setFixedWidth(3)
+        hl.addWidget(bar)
+        brand = QVBoxLayout()
+        brand.setSpacing(0)
         title = QLabel("AION TARGET")
         title.setObjectName("title")
-        tf = QFont(cfg.font_family if cfg.font_family else "Cinzel", 15)
+        tf = QFont(theme.BRAND_FONT, 15)
         tf.setWeight(QFont.Weight.Bold)
         title.setFont(tf)
+        sub = QLabel(f"TACTICAL ANALYTICS · v{__version__}")
+        sub.setObjectName("brandSub")
+        sub.setFont(theme.tabular(sub.font()))
+        brand.addWidget(title)
+        brand.addWidget(sub)
+        hl.addLayout(brand)
+        hl.addStretch(1)
+        self._chips: dict[str, tuple[StatusChip, object]] = {}
+        self._chip_box = QGridLayout()
+        self._chip_box.setHorizontalSpacing(6)
+        self._chip_box.setVerticalSpacing(5)
+        hl.addLayout(self._chip_box)
         self.status = QLabel("Démarrage…")
         self.status.setObjectName("status")
         self.status.setWordWrap(True)
         self.btn_sheet = QPushButton("Ouvrir la fiche de la cible")
         self.btn_sheet.setEnabled(False)
         self.btn_sheet.clicked.connect(self._open_sheet)
-        outer.addWidget(title)
+        outer.addWidget(header)
         outer.addWidget(self.status)
 
         # --- onglets : Target (GS/CP) · Notifications · Familiers · Farm ---
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
+        self.tabs.tabBar().setDrawBase(False)
+        self.tabs.tabBar().setExpanding(False)
         target = QWidget()
         target.setObjectName("body")
         tl = QVBoxLayout(target)
         tl.setContentsMargins(0, 8, 0, 0)
         tl.setSpacing(8)
+        self.t_target = StatTile("Cible")
+        self.t_gs = StatTile("GS", important=True)
+        self.t_cp = StatTile("CP", important=True)
+        self.t_speed = StatTile("Affichage p50", tooltip="Temps médian réel entre l'apparition du nom "
+                                "et les cadres peints (joueurs en mémoire), sur cette session.")
+        tl.addWidget(tile_row(self.t_target, self.t_gs, self.t_cp, self.t_speed))
         tl.addWidget(self.btn_sheet)
         tl.addWidget(scroll, 1)
         self.tabs.addTab(target, "Target")
@@ -173,6 +169,7 @@ class ControlWindow(QWidget):
         # --- zone ---
         zone = self._card(root, "CADRES (LECTURE · GS · CP · DÉTAILS · TOP)")
         self.btn_pick = QPushButton("Placer sur une capture (3 s)")
+        self.btn_pick.setObjectName("primary")
         self.btn_move = QPushButton("Ajuster en direct")
         self.btn_move.setCheckable(True)
         self.btn_move.toggled.connect(self._toggle_move)
@@ -220,6 +217,7 @@ class ControlWindow(QWidget):
         self.import_stats.setObjectName("status")
         self.import_stats.setWordWrap(True)
         btn_clear = QPushButton("Vider")
+        btn_clear.setObjectName("danger")
         btn_clear.clicked.connect(self._clear_cache)
         self.size_box.setToolTip("Taille maximale de la mémoire (pas de limite de durée)")
         mem.addWidget(self.size_box, 0, 0, 1, 2)
@@ -314,16 +312,16 @@ class ControlWindow(QWidget):
         self.btn_pause.setCheckable(True)
         self.btn_pause.toggled.connect(self._update_pause)
         btn_quit = QPushButton("Quitter")
+        btn_quit.setToolTip("Ferme Aion Target (overlays et modules compris).")
         btn_quit.setObjectName("danger")
         btn_quit.clicked.connect(self.quit_app)
         bottom.addWidget(self.btn_pause)
         bottom.addWidget(btn_quit)
         root.addStretch(1)
         outer.addLayout(bottom)
-        from . import __version__
         import os
         self.version = QLabel(f"Version {__version__}")
-        self.version.setObjectName("status")
+        self.version.setObjectName("version")
         self.version.setToolTip(os.environ.get("AION_TARGET_UPDATE_MSG", ""))
         outer.addWidget(self.version)
         self._fit_to_screen(body)
@@ -338,6 +336,13 @@ class ControlWindow(QWidget):
         overlay.edit_changed.connect(self._on_edit_changed)
         self._update_pause()
 
+        # Puces d'état des modules (rafraîchies toutes les 1,5 s : aucune charge).
+        self.register_status("read", "Lecture", self._read_state)
+        self._chip_timer = QTimer(self)
+        self._chip_timer.timeout.connect(self._refresh_chips)
+        self._chip_timer.start(1500)
+        self._refresh_chips()
+
     # --- construction ---
     def _fit_to_screen(self, body: QWidget):
         """Taille de départ : tout le contenu si possible, jamais plus haut que l'écran."""
@@ -346,10 +351,10 @@ class ControlWindow(QWidget):
         avail = screen.availableGeometry() if screen else None
         want = body.sizeHint().height() + 170          # + en-tête et boutons du bas
         height = min(want, avail.height() - 60) if avail else want
-        self.resize(360, max(420, height))
+        self.resize(560, max(480, height))
 
     # --- onglets ---
-    TAB_WIDTH = {1: 680, 2: 640, 3: 560, 4: 640}                 # largeur confortable par onglet
+    TAB_WIDTH = {0: 560, 1: 680, 2: 680, 3: 600, 4: 680}                 # largeur confortable par onglet
 
     def _placeholder(self, text: str) -> QWidget:
         w = QWidget()
@@ -389,7 +394,7 @@ class ControlWindow(QWidget):
     def set_events(self, notifier):
         from .events_ui import EventsWindow, bell_icon
         self._notifier = notifier
-        win = EventsWindow(notifier, STYLESHEET, embedded=True)
+        win = EventsWindow(notifier, theme.full_stylesheet(), embedded=True)
         self._replace_tab(1, self._events_tab, win, "Notifications")
         self._events_tab = win
         self.tabs.setTabIcon(1, bell_icon())
@@ -400,6 +405,37 @@ class ControlWindow(QWidget):
         n = self._notifier
         k = sum(1 for e in n.catalog.events if e.schedulable and n.prefs.is_enabled(e.id))
         self.tabs.setTabText(1, f"Notifications ({k})" if k else "Notifications")
+
+    # --- puces d'état ---
+    def register_status(self, key: str, label: str, fn):
+        """fn() → (niveau « ok » / « warn » / « err » / « idle », texte court[, infobulle])."""
+        chip = StatusChip(label)
+        n = len(self._chips)
+        self._chips[key] = (chip, fn)
+        self._chip_box.addWidget(chip, n // 2, n % 2)
+        self._refresh_chips()
+
+    def _refresh_chips(self):
+        for chip, fn in self._chips.values():
+            try:
+                level, text, *tip = fn()
+            except Exception:
+                level, text, tip = "idle", "—", []
+            chip.set_state(level, text, tip[0] if tip else "")
+        self._refresh_speed()
+
+    def _read_state(self):
+        if self.btn_pause.isChecked():
+            return "warn", "en pause"
+        if self.overlay.edit_mode or self._picker is not None:
+            return "warn", "réglage"
+        return "ok", "active"
+
+    def _refresh_speed(self):
+        from .metrics import STATS
+        s = STATS.summary("paint_first_cache")
+        if s:
+            self.t_speed.set(f"{s['p50']:.0f} ms", f"p95 {s['p95']:.0f} ms · n={s['n']}")
 
     def set_observation(self, section):
         """Section « Détection et préchargement des joueurs » de l'onglet Target."""
@@ -432,6 +468,13 @@ class ControlWindow(QWidget):
         self._replace_tab(3, self._farm_tab, scroll, "Farm")
         self._farm_tab = scroll
 
+        def farm_chip():
+            st = tab.session.state
+            return ({"running": "ok", "paused": "warn", "interrupted": "warn"}.get(st, "idle"),
+                    {"running": "en cours", "paused": "pause", "interrupted": "à reprendre",
+                     "idle": "inactif"}[st], "Compteur Kinah / minute")
+        self.register_status("farm", "Farm", farm_chip)
+
     def _card(self, root, label: str) -> QGridLayout:
         lab = QLabel(label)
         lab.setObjectName("section")
@@ -457,10 +500,10 @@ class ControlWindow(QWidget):
 
     @staticmethod
     def _paint_swatch(btn: QPushButton, color: str):
-        btn.setStyleSheet(f"background:{color}; border:1px solid #555;")
+        btn.setStyleSheet(f"background:{color}; border:1px solid {theme.BORDER_STRONG};")
         btn.setText(color.upper())
         dark = QColor(color).lightness() > 140
-        btn.setStyleSheet(btn.styleSheet() + f"color:{'#111' if dark else '#eee'};")
+        btn.setStyleSheet(btn.styleSheet() + f"color:{theme.TITLE if dark else '#FFFFFF'};")
 
     # --- actions ---
     def _pick_color(self, btn, attr, label):
@@ -772,6 +815,7 @@ class ControlWindow(QWidget):
         self.btn_sheet.setEnabled(isinstance(info, CharacterInfo) and bool(info.url))
         if self.worker.paused:
             return
+        self._update_tiles(name, info)
         if isinstance(info, CharacterInfo):
             self.status.setText(f"● {name} · GS {fmt(info.gear_score)} · CP {fmt(info.combat_power)}")
         elif info == "loading":
@@ -785,6 +829,30 @@ class ControlWindow(QWidget):
             self.status.setText(f"● {name}")
         elif not name:
             self.status.setText("● En lecture · aucune cible")
+
+    def _update_tiles(self, name: str, info):
+        from .shugo import CharacterInfo
+        if isinstance(info, CharacterInfo):
+            server = info.server.split("-", 1)[-1].replace("-", " ").title()
+            self.t_target.set(name, " · ".join(p for p in (info.char_class, server) if p))
+            self.t_gs.set(fmt(info.gear_score), f"Nv {info.level}" if info.level else "")
+            self.t_cp.set(fmt(info.combat_power), f"TOP {info.rank}" if info.rank and info.rank <= 1000 else "")
+        elif type(info).__name__ == "Ambiguous":
+            self.t_target.set(name, f"homonymes ({len(info.servers)} serveurs)", "warn")
+            self.t_gs.set(None, "non attribué")
+            self.t_cp.set(None, "non attribué")
+        elif info == "loading":
+            self.t_target.set(name, "recherche…")
+            self.t_gs.set(None)
+            self.t_cp.set(None)
+        elif info == "notfound":
+            self.t_target.set(name, "PNJ ou introuvable")
+            self.t_gs.set(None)
+            self.t_cp.set(None)
+        elif not name:
+            self.t_target.set(None, "aucune cible")
+            self.t_gs.set(None)
+            self.t_cp.set(None)
 
     def _on_timing(self, name: str, seconds: float):
         secs = f"{seconds:.1f}".replace(".", ",")

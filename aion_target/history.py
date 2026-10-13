@@ -134,6 +134,10 @@ class History:
         self._trim_fights()
         return True
 
+    def fight_count(self) -> int:
+        with self._lock:
+            return self._db.execute("SELECT COUNT(*) FROM fights").fetchone()[0]
+
     def fights(self, search: str = "", limit: int = 200) -> list[dict]:
         q = "SELECT id, started_ms, duration_ms, boss, total, ping_ms FROM fights"
         args: list = []

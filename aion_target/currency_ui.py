@@ -12,7 +12,9 @@ from PyQt6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QFrame, QGridLa
                              QWidget)
 
 from .currency import Stabilizer, compute, fmt_amount
+from . import theme
 from .farm import KinahSession, fmt_elapsed, fmt_rate
+from .ui_kit import StatTile, tile_row
 from .overlay import HANDLE, draw_segments, overlay_flags
 
 ZONE_COLOR = QColor(0, 170, 255)
@@ -238,6 +240,12 @@ class FarmTab(QWidget):
         root.setContentsMargins(0, 0, 6, 0)
         root.setSpacing(10)
 
+        self.t_net = StatTile("Gain net observé")
+        self.t_rate = StatTile("Kinah / minute", important=True)
+        self.t_time = StatTile("Durée active")
+        self.t_last = StatTile("Dernière mesure")
+        root.addWidget(tile_row(self.t_net, self.t_rate, self.t_time, self.t_last))
+
         g = card(root, "MONNAIE CALCULÉE")
         self.chk = QCheckBox("Afficher en permanence à l'écran")
         self.chk.setChecked(cfg.currency_enabled)
@@ -349,6 +357,8 @@ class FarmTab(QWidget):
         self.btn_start = QPushButton("Démarrer")
         self.btn_pause = QPushButton("Pause")
         self.btn_reset = QPushButton("Réinitialiser")
+        self.btn_reset.setObjectName("danger")
+        self.btn_start.setObjectName("primary")
         self.btn_start.clicked.connect(self._start)
         self.btn_pause.clicked.connect(self._pause_resume)
         self.btn_reset.clicked.connect(self._reset)
@@ -483,6 +493,7 @@ class FarmTab(QWidget):
         if stale != self.ov.stale:
             self.ov.stale = stale
             self.ov.apply()
+        self._render_tiles()
         if self.session.state == "running":
             self._render_session()
             if "rate" in (self.cfg.farm_overlay_fields or []):
@@ -506,11 +517,30 @@ class FarmTab(QWidget):
             if s.initial is None:
                 lines.append("En attente de deux lectures identiques du solde…")
             if age is not None:
-                old = " — <span style='color:#E8B04B'>ancienne</span>" if age > STALE_AFTER else ""
+                old = " — " + theme.colored("ancienne", "warn") if age > STALE_AFTER else ""
                 lines.append(f"Dernière mesure valide : il y a {int(age)} s{old}")
             if s.rejected:
                 lines.append(f"Lectures rejetées (format invalide) : {s.rejected}")
         self.session_label.setText("<br>".join(lines))
+        self._render_tiles()
+
+    def _render_tiles(self):
+        s = self.session
+        net = s.net()
+        state = {"idle": "pas de session", "running": "en cours", "paused": "en pause",
+                 "interrupted": "interrompue"}[s.state]
+        self.t_net.set(fmt_amount(net) if net is not None else None, state,
+                       ("ok" if net > 0 else "err" if net < 0 else None) if net is not None else None)
+        rate = s.per_minute()
+        self.t_rate.set(fmt_rate(rate) if rate is not None else None,
+                        f"{fmt_rate(s.per_hour())} / h" if rate is not None else "≥ 30 s actives requises")
+        self.t_time.set(fmt_elapsed(s.elapsed()) if s.state != "idle" else None, "pauses exclues")
+        age = None if self._last_valid_t is None else time.time() - self._last_valid_t
+        if age is None:
+            self.t_last.set(None, "aucune lecture valide")
+        else:
+            stale = age > STALE_AFTER
+            self.t_last.set(f"{int(age)} s", "ancienne" if stale else "valide", "warn" if stale else None)
 
     def _formula(self):
         self.cfg.currency_a, self.cfg.currency_b = self.spin_a.value(), self.spin_b.value()
@@ -528,7 +558,8 @@ class FarmTab(QWidget):
     def _paint_color(self):
         col = self.cfg.currency_color
         dark = QColor(col).lightness() > 140
-        self.btn_color.setStyleSheet(f"background:{col}; border:1px solid #555; color:{'#111' if dark else '#eee'};")
+        self.btn_color.setStyleSheet(f"background:{col}; border:1px solid {theme.BORDER_STRONG}; "
+                                     f"color:{theme.TITLE if dark else '#FFFFFF'};")
         self.btn_color.setText(col.upper())
 
     def _place(self, on: bool):

@@ -844,6 +844,17 @@ def run(cfg: Config) -> int:
         from .observe_ui import ObservationSection
         control.set_observation(ObservationSection(cfg, hub, prefetcher, control._card, log))
         app._aion_hub = hub
+        from .engine_hub import STATE_LABELS
+
+        def engine_chip():
+            st = hub.state()
+            level = {"active": "ok", "searching": "warn", "starting": "warn", "off": "idle"}.get(st, "err")
+            modes = ", ".join(sorted(hub.modes)) or "aucun module"
+            short = {"active": "actif", "searching": "recherche", "starting": "démarrage", "off": "arrêté",
+                     "missing_engine": "absent", "missing_library": "Npcap", "no_permission": "permission",
+                     "stopped": "arrêté", "error": "erreur"}.get(st, st)
+            return level, short, f"Moteur réseau partagé : {STATE_LABELS.get(st, st)} ({modes})"
+        control.register_status("engine", "Moteur", engine_chip)
         from . import diag
 
         def engine_section(_names):
@@ -865,6 +876,14 @@ def run(cfg: Config) -> int:
             pets_tab = PetsTab(cfg, catalog, store, counter, hub, control._card, log)
             control.set_pets(pets_tab)
             app._aion_pets = pets_tab
+
+            def pets_chip():
+                n = len(store.tracked())
+                if store.data.get("auto"):
+                    ok = hub.state() == "active"
+                    return ("ok" if ok else "warn"), f"{n} · auto", f"{n} familier(s) suivi(s), comptage auto"
+                return ("ok" if n else "idle"), f"{n} suivi{'s' if n > 1 else ''}", "Familiers suivis sur l'overlay"
+            control.register_status("pets", "Familiers", pets_chip)
 
             def pets_section(_names):
                 c = counter.counts

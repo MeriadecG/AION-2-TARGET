@@ -6,11 +6,13 @@ import sys
 import time
 
 from PyQt6.QtCore import QPoint, QRectF, Qt, QTimer
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPen
+from PyQt6.QtGui import QBrush, QColor, QFont, QFontMetrics, QPainter, QPen
 from PyQt6.QtWidgets import (QCheckBox, QComboBox, QHBoxLayout, QInputDialog, QLabel, QLineEdit,
                              QMessageBox, QPushButton, QSpinBox, QTreeWidgetItem, QVBoxLayout, QWidget)
 
+from . import theme
 from .dps_ui import GOLD, _tree, ack_capture, describe_state, fix_capture
+from .ui_kit import StatTile, tile_row
 from .pets import GENUS_FR, level_of, parse_levels
 
 AUTO_UNAVAILABLE = ("Comptage automatique indisponible : le moteur réseau doit tourner (onglet DPS ou "
@@ -126,6 +128,12 @@ class PetsTab(QWidget):
         root.setContentsMargins(0, 0, 6, 0)
         root.setSpacing(10)
 
+        self.t_cat = StatTile("Catalogue")
+        self.t_tracked = StatTile("Suivis", important=True)
+        self.t_kills = StatTile("Morts comptées", tooltip="Comptage automatique, cette session.")
+        self.t_levels = StatTile("Paliers d'âmes")
+        root.addWidget(tile_row(self.t_cat, self.t_tracked, self.t_kills, self.t_levels))
+
         # --- catalogue ---
         g = card(root, "CATALOGUE DES FAMILIERS")
         top = QHBoxLayout()
@@ -188,6 +196,7 @@ class PetsTab(QWidget):
         f.addWidget(self.chk_track, 5, 0, 1, 2)
         f.addWidget(self.chk_auto_pet, 5, 2, 1, 2)
         self.btn_reset = QPushButton("Remettre ce familier à zéro…")
+        self.btn_reset.setObjectName("danger")
         self.btn_reset.clicked.connect(self._reset)
         f.addWidget(self.btn_reset, 6, 0, 1, 4)
         warn = QLabel("Les âmes restent manuelles : une mort ne donne pas forcément une âme.")
@@ -289,9 +298,24 @@ class PetsTab(QWidget):
                                   "★" if pet.id in tracked else ""])
             it.setData(0, Qt.ItemDataRole.UserRole, pet.id)
             self.table.addTopLevelItem(it)
+            if pet.id in tracked:
+                it.setForeground(4, QBrush(QColor(theme.GOLD_TEXT)))
             if pet.id == self._current:
                 it.setSelected(True)
         self.table.setUpdatesEnabled(True)
+        self._render_tiles()
+
+    def _render_tiles(self):
+        tracked = self.store.tracked()
+        n_fr = sum(1 for p in self.catalog.pets if p.name_fr)
+        self.t_cat.set(str(len(self.catalog.pets)), f"{n_fr} noms FR")
+        self.t_tracked.set(str(len(tracked)), "sur l'overlay" if self.cfg.pets_overlay else "overlay masqué")
+        c = self.counter.counts
+        self.t_kills.set(str(c["counted"]), f"ignorées {c['ignored']} · incert. {c['uncertain']}"
+                         if self.store.data.get("auto") else "comptage auto désactivé")
+        self.t_levels.set("/".join(map(str, self.store.levels(self.catalog))),
+                          {"global": "client global", "kr_tw": "Corée / Taïwan",
+                           "custom": "personnalisés"}.get(self.store.data.get("edition"), ""))
 
     def _selected(self):
         items = self.table.selectedItems()
@@ -372,7 +396,7 @@ class PetsTab(QWidget):
         if ed == "custom":
             levels = parse_levels(self.custom_levels.text())
             if levels is None:
-                self.custom_levels.setStyleSheet("border: 1px solid #E5484D;")
+                self.custom_levels.setStyleSheet(f"border: 1px solid {theme.ERR};")
                 return
             self.custom_levels.setStyleSheet("")
             self.store.data["custom_levels"] = levels
@@ -432,7 +456,7 @@ class PetsTab(QWidget):
             if st.get("state") not in ("active", "searching"):
                 text += "<br>" + AUTO_UNAVAILABLE
             elif feats is not None and "kills" not in feats:
-                text += ("<br><span style='color:#E8B04B'>●</span> Moteur installé trop ancien : il ne "
+                text += ("<br>" + theme.dot("warn") + " Moteur installé trop ancien : il ne "
                          "signale pas les morts. Comptage automatique indisponible jusqu'à la mise à jour "
                          "du moteur (automatique au lancement) ; le compteur manuel fonctionne.")
         self.auto_state.setText(text)
@@ -446,6 +470,7 @@ class PetsTab(QWidget):
             if self._current:
                 self._show_current()
         self._render_auto({"state": self.hub.state(), "modes": sorted(self.hub.modes)})
+        self._render_tiles()
 
     def _refresh_journal(self):
         self.journal.setUpdatesEnabled(False)
