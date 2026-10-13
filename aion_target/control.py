@@ -79,6 +79,7 @@ class ControlWindow(QWidget):
 
         self.setObjectName("root")
         self.setWindowTitle("Aion Target")
+        theme.set_mode(cfg.ui_theme)
         self.setStyleSheet(theme.full_stylesheet())
         self.setFont(theme.ui_font(9.5))
         self.setMinimumWidth(420)
@@ -127,6 +128,11 @@ class ControlWindow(QWidget):
         self._chip_box.setHorizontalSpacing(6)
         self._chip_box.setVerticalSpacing(5)
         hl.addLayout(self._chip_box)
+        self.btn_theme = QPushButton()
+        self.btn_theme.setObjectName("chip")
+        self.btn_theme.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_theme.clicked.connect(self._toggle_theme)
+        hl.addWidget(self.btn_theme, 0, Qt.AlignmentFlag.AlignTop)
         self.status = QLabel("Démarrage…")
         self.status.setObjectName("status")
         self.status.setWordWrap(True)
@@ -246,6 +252,14 @@ class ControlWindow(QWidget):
         root.addLayout(self._observe_box)
 
         look = self._card(root, "APPARENCE")
+        look.addWidget(QLabel("Thème de la fenêtre"), 8, 0)
+        self.theme_box = QComboBox()
+        for key, label in (("light", "Clair"), ("dark", "Sombre"), ("system", "Comme le système")):
+            self.theme_box.addItem(label, key)
+        self.theme_box.setCurrentIndex(max(0, self.theme_box.findData(cfg.ui_theme)))
+        self.theme_box.currentIndexChanged.connect(lambda _: self.set_theme(self.theme_box.currentData()))
+        self.theme_box.setToolTip("Fenêtre de contrôle seulement : les overlays du jeu ne changent pas.")
+        look.addWidget(self.theme_box, 8, 1)
         self.sw_gs = self._swatch(look, 0, "Couleur GS", "gs_color")
         self.sw_cp = self._swatch(look, 1, "Couleur CP", "cp_color")
         self.sw_det = self._swatch(look, 2, "Couleur détails", "detail_color")
@@ -336,6 +350,14 @@ class ControlWindow(QWidget):
         overlay.edit_changed.connect(self._on_edit_changed)
         self._update_pause()
 
+        self._theme_label()
+        try:                                    # « Comme le système » : suit le changement en direct
+            from PyQt6.QtWidgets import QApplication
+            QApplication.instance().styleHints().colorSchemeChanged.connect(
+                lambda *_: self.cfg.ui_theme == "system" and self.set_theme("system"))
+        except Exception:
+            pass
+
         # Puces d'état des modules (rafraîchies toutes les 1,5 s : aucune charge).
         self.register_status("read", "Lecture", self._read_state)
         self._chip_timer = QTimer(self)
@@ -406,6 +428,45 @@ class ControlWindow(QWidget):
         k = sum(1 for e in n.catalog.events if e.schedulable and n.prefs.is_enabled(e.id))
         self.tabs.setTabText(1, f"Notifications ({k})" if k else "Notifications")
 
+    # --- thème clair / sombre ---
+    def _theme_label(self):
+        dark = theme.MODE == "dark"
+        self.btn_theme.setText("◐ Clair" if dark else "◐ Sombre")
+        self.btn_theme.setToolTip("Passer en mode clair" if dark else "Passer en mode sombre")
+
+    def _toggle_theme(self):
+        self.set_theme("light" if theme.MODE == "dark" else "dark")
+
+    def set_theme(self, choice: str):
+        """Applique le thème à TOUTE la fenêtre de contrôle (jamais aux overlays) et l'enregistre."""
+        self.cfg.ui_theme = choice
+        self.cfg.save()
+        theme.set_mode(choice)
+        self.setStyleSheet(theme.full_stylesheet())
+        if self.theme_box.currentData() != choice:
+            self.theme_box.blockSignals(True)
+            self.theme_box.setCurrentIndex(max(0, self.theme_box.findData(choice)))
+            self.theme_box.blockSignals(False)
+        for btn, attr in ((self.sw_gs, "gs_color"), (self.sw_cp, "cp_color"), (self.sw_det, "detail_color"),
+                          (self.sw_rank, "rank_color")):
+            self._paint_swatch(btn, getattr(self.cfg, attr))
+        apply = getattr(self._events_tab, "apply_theme", None)
+        if apply:
+            apply(theme.full_stylesheet())
+        for hook in list(getattr(self, "_theme_hooks", [])):
+            try:
+                hook()
+            except Exception:
+                pass
+        self._theme_label()
+        self._refresh_chips()
+
+    def on_theme_change(self, fn):
+        """Les onglets qui colorent eux-mêmes des éléments se redessinent au changement de thème."""
+        if not hasattr(self, "_theme_hooks"):
+            self._theme_hooks = []
+        self._theme_hooks.append(fn)
+
     # --- puces d'état ---
     def register_status(self, key: str, label: str, fn):
         """fn() → (niveau « ok » / « warn » / « err » / « idle », texte court[, infobulle])."""
@@ -448,6 +509,8 @@ class ControlWindow(QWidget):
         scroll.setWidget(tab)
         self._replace_tab(2, self._pets_tab, scroll, "Familiers")
         self._pets_tab = scroll
+        self.on_theme_change(tab.refresh)
+        self.on_theme_change(tab._refresh_journal)
 
     # --- monnaie (onglet Farm) ---
     def set_dps(self, tab):
@@ -457,6 +520,7 @@ class ControlWindow(QWidget):
         scroll.setWidget(tab)
         self._replace_tab(4, self._dps_tab, scroll, "DPS")
         self._dps_tab = scroll
+        self.on_theme_change(tab.refresh_fights)
 
     def set_currency(self, currency_overlay):
         from .currency_ui import FarmTab
@@ -467,6 +531,8 @@ class ControlWindow(QWidget):
         scroll.setWidget(tab)
         self._replace_tab(3, self._farm_tab, scroll, "Farm")
         self._farm_tab = scroll
+        self.on_theme_change(tab._paint_color)
+        self.on_theme_change(tab._render_session)
 
         def farm_chip():
             st = tab.session.state
@@ -503,7 +569,7 @@ class ControlWindow(QWidget):
         btn.setStyleSheet(f"background:{color}; border:1px solid {theme.BORDER_STRONG};")
         btn.setText(color.upper())
         dark = QColor(color).lightness() > 140
-        btn.setStyleSheet(btn.styleSheet() + f"color:{theme.TITLE if dark else '#FFFFFF'};")
+        btn.setStyleSheet(btn.styleSheet() + f"color:{theme.ON_LIGHT if dark else '#FFFFFF'};")
 
     # --- actions ---
     def _pick_color(self, btn, attr, label):

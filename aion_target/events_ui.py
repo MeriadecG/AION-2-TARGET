@@ -23,7 +23,9 @@ from .events import CATEGORIES, DAYS, STATUS_LABELS, UTC, Event, next_occurrence
 PARIS = ZoneInfo("Europe/Paris")
 GOLD = theme.GOLD
 SHORT_STATUS = {"confirmed": "confirmé", "to_verify": "à vérifier", "unconfirmed": "—"}
-STATUS_COLORS = {"confirmed": theme.OK, "to_verify": theme.WARN, "unconfirmed": theme.MUTED}
+def status_color(status: str) -> str:
+    """Couleur du statut dans le thème ACTIF (clair ou sombre)."""
+    return {"confirmed": theme.OK, "to_verify": theme.WARN}.get(status, theme.MUTED)
 DAY_FR = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
 DAY_FR_LONG = {"mon": "lun", "tue": "mar", "wed": "mer", "thu": "jeu", "fri": "ven", "sat": "sam", "sun": "dim"}
 REMINDER_CHOICES = [60, 720, 1440]          # 1 h, 12 h, 24 h
@@ -31,10 +33,14 @@ ID_ROLE = Qt.ItemDataRole.UserRole
 PICK = "__pick__"
 
 # Styles propres à cet onglet (le reste vient du thème commun, theme.py).
-EXTRA_STYLE = f"""
-QTreeWidget::item {{ padding: 3px 2px; }}
-QLabel#next {{ color: {theme.GOLD_TEXT}; font-weight: 600; }}
-"""
+def extra_style() -> str:
+    return f"""
+QTreeWidget::item {{{{ padding: 3px 2px; }}}}
+QLabel#next {{{{ color: {theme.GOLD_TEXT}; font-weight: 600; }}}}
+""".replace("{{", "{").replace("}}", "}")
+
+
+EXTRA_STYLE = extra_style()
 
 
 def bell_icon(color: str = GOLD, size: int = 64) -> QIcon:
@@ -122,7 +128,7 @@ class EventsWindow(QWidget):
         self.setObjectName("events")
         self.setWindowTitle("Aion Target — Événements")
         self.setWindowIcon(bell_icon())
-        self.setStyleSheet(base_stylesheet + EXTRA_STYLE)
+        self.setStyleSheet(base_stylesheet + extra_style())
         self.resize(700, 680)
         self.setMinimumSize(460, 420)
 
@@ -266,6 +272,12 @@ class EventsWindow(QWidget):
         self.populate()
 
     # --- construction ---
+    def apply_theme(self, base_stylesheet: str):
+        """Changement clair / sombre : nouvelle feuille de style et couleurs des lignes."""
+        self.setStyleSheet(base_stylesheet + extra_style())
+        self.populate()
+        self._refresh_header()
+
     def populate(self):
         self._loading = True
         self.tree.clear()
@@ -289,7 +301,7 @@ class EventsWindow(QWidget):
             name = ("↳ " + e.name) if e.kind == "reset_item" and e.group in ("daily", "weekly") else e.name
             it = QTreeWidgetItem(parent, [name, "", "", SHORT_STATUS.get(e.status, e.status)])
             it.setData(0, ID_ROLE, e.id)
-            it.setForeground(3, QBrush(QColor(STATUS_COLORS.get(e.status, theme.MUTED))))
+            it.setForeground(3, QBrush(QColor(status_color(e.status))))
             it.setToolTip(0, self._tooltip(e))
             for c in (1, 2, 3):
                 it.setToolTip(c, self._tooltip(e))
@@ -303,7 +315,7 @@ class EventsWindow(QWidget):
                 it.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
                 it.setText(1, "Horaire à confirmer")
                 for c in (0, 1, 2):
-                    it.setForeground(c, QBrush(QColor("#9FB2C3")))
+                    it.setForeground(c, QBrush(QColor(theme.DISABLED)))
             self._items[e.id] = it
         self.tree.expandAll()
         for (group, minutes), b in self.reminder_btns.items():

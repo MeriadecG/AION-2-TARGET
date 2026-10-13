@@ -128,6 +128,7 @@ class Config:
     dps_prefetch: bool = True           # précharger GS/CP des joueurs observés (serveur connu)
     history_max_fights: int = 500
     history_max_encounters: int = 20000
+    ui_theme: str = "light"            # fenêtre de contrôle : light, dark ou system
     control_tab: int = 0            # dernier onglet ouvert dans la fenêtre de contrôle
 
     # Monnaie calculée (onglet Farm) : valeur A − valeur B de la barre des monnaies du jeu.

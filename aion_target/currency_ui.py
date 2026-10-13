@@ -559,7 +559,7 @@ class FarmTab(QWidget):
         col = self.cfg.currency_color
         dark = QColor(col).lightness() > 140
         self.btn_color.setStyleSheet(f"background:{col}; border:1px solid {theme.BORDER_STRONG}; "
-                                     f"color:{theme.TITLE if dark else '#FFFFFF'};")
+                                     f"color:{theme.ON_LIGHT if dark else '#FFFFFF'};")
         self.btn_color.setText(col.upper())
 
     def _place(self, on: bool):

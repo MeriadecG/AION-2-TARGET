@@ -39,6 +39,42 @@ def test_text_colors_are_readable_on_white():
     assert _contrast(theme.MUTED, "#FFFFFF") >= 4.0               # secondaire imposé (#637D95)
 
 
+def test_dark_mode_palette_and_contrast():
+    try:
+        theme.set_mode("dark")
+        assert theme.MODE == "dark" and theme.BG != "#ECF2F7"
+        for c in (theme.TITLE, theme.TEXT, theme.MUTED, theme.OK, theme.WARN, theme.ERR, theme.GOLD_TEXT,
+                  theme.ACCENT_DARK):
+            assert _contrast(c, theme.SURFACE) >= 4.5, c          # lisible sur les cartes sombres
+        assert theme.LEVEL_COLORS["err"] == theme.ERR and theme.ERR in theme.dot("err")
+        qss = theme.stylesheet()
+        assert theme.BG in qss and "#ECF2F7" not in qss
+        assert theme.resolve("system") in ("light", "dark") and theme.resolve("n'importe quoi") == "light"
+    finally:
+        theme.set_mode("light")
+
+
+def test_switching_theme_keeps_everything(app):
+    from aion_target.control import ControlWindow
+    from aion_target.overlay import Overlay, Worker
+    cfg = Config()
+    saved = []
+    cfg.save = lambda *a: saved.append(cfg.ui_theme)
+    ov = Overlay(cfg)
+    overlay_sheets = [w.styleSheet() for w in ov.windows.values()]
+    ctl = ControlWindow(cfg, ov, Worker(cfg), None, lambda: None)
+    try:
+        light = ctl.styleSheet()
+        ctl._toggle_theme()
+        assert cfg.ui_theme == "dark" and saved[-1] == "dark" and ctl.styleSheet() != light
+        assert ctl.theme_box.currentData() == "dark" and "Clair" in ctl.btn_theme.text()
+        assert [w.styleSheet() for w in ov.windows.values()] == overlay_sheets   # overlays : rien
+        ctl.theme_box.setCurrentIndex(ctl.theme_box.findData("light"))
+        assert cfg.ui_theme == "light" and ctl.styleSheet() == light
+    finally:
+        theme.set_mode("light")
+
+
 def test_components(app):
     from aion_target.ui_kit import StatTile, StatusChip
     t = StatTile("CP", important=True)

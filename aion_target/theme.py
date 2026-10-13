@@ -10,28 +10,66 @@ from __future__ import annotations
 
 from pathlib import Path
 
-# --- palette ------------------------------------------------------------------------------
-BG = "#ECF2F7"          # fond général gris glacier
-SURFACE = "#FFFFFF"     # cartes, champs
-SURFACE_ALT = "#F5F8FB"  # lignes alternées, en-têtes de tableau
-BORDER = "#D3DFE9"
-BORDER_STRONG = "#B9CBDA"
-TITLE = "#163B5D"       # titres bleu acier, texte principal
-TEXT = "#1E3550"
-MUTED = "#637D95"       # texte secondaire
-ACCENT = "#3C9FC9"      # cyan : interaction, sélection
-ACCENT_DARK = "#2A7FA6"
-ACCENT_SOFT = "#E3F2F9"
-GOLD = "#DBA954"        # or discret : éléments importants (traits, repères)
-GOLD_TEXT = "#8A6420"   # or lisible sur fond blanc (texte)
-GOLD_SOFT = "#FBF4E6"
+# --- palettes ------------------------------------------------------------------------------
+# Clair (par défaut) et sombre : mêmes rôles, mêmes contrastes (texte ≥ 4,5:1 sur les cartes,
+# sauf le gris secondaire imposé #637D95 en clair). Les overlays n'en dépendent pas.
+PALETTES = {
+    "light": {
+        "BG": "#ECF2F7", "SURFACE": "#FFFFFF", "SURFACE_ALT": "#F5F8FB", "HOVER": "#EEF6FB",
+        "BORDER": "#D3DFE9", "BORDER_STRONG": "#B9CBDA", "SCROLL": "#C3D2DF", "SCROLL_HOVER": "#A6BBCD",
+        "TITLE": "#163B5D", "TEXT": "#1E3550", "MUTED": "#637D95", "DISABLED": "#9FB2C3",
+        "ACCENT": "#3C9FC9", "ACCENT_DARK": "#2A7FA6", "ACCENT_SOFT": "#E3F2F9", "ON_ACCENT": "#FFFFFF",
+        "GOLD": "#DBA954", "GOLD_TEXT": "#8A6420", "GOLD_SOFT": "#FBF4E6",
+        "OK": "#17804F", "WARN": "#A85F00", "ERR": "#B8322B", "DANGER_BORDER": "#E9C3BF",
+        "DANGER_HOVER": "#FCF1F0", "TOOLTIP_BG": "#163B5D", "TOOLTIP_FG": "#FFFFFF",
+    },
+    "dark": {
+        "BG": "#0E1621", "SURFACE": "#152130", "SURFACE_ALT": "#1A2839", "HOVER": "#1E3044",
+        "BORDER": "#253649", "BORDER_STRONG": "#34495F", "SCROLL": "#34495F", "SCROLL_HOVER": "#47607A",
+        "TITLE": "#E4EDF5", "TEXT": "#C8D6E3", "MUTED": "#8DA2B6", "DISABLED": "#56697D",
+        "ACCENT": "#4DB3DD", "ACCENT_DARK": "#7CCBEB", "ACCENT_SOFT": "#17344A", "ON_ACCENT": "#0B1520",
+        "GOLD": "#DBA954", "GOLD_TEXT": "#E2B868", "GOLD_SOFT": "#2A2418",
+        "OK": "#4CC38A", "WARN": "#E3A53E", "ERR": "#F07468", "DANGER_BORDER": "#6B3430",
+        "DANGER_HOVER": "#2E1B1B", "TOOLTIP_BG": "#E4EDF5", "TOOLTIP_FG": "#0E1621",
+    },
+}
+ON_LIGHT = "#13283F"     # texte posé sur une couleur claire choisie par l'utilisateur (pastilles)
+MODE = "light"
 
-# États fonctionnels (contraste ≥ 4,5:1 sur blanc pour le texte)
-OK = "#17804F"
-WARN = "#A85F00"
-ERR = "#B8322B"
-IDLE = MUTED
-LEVEL_COLORS = {"ok": OK, "warn": WARN, "err": ERR, "idle": IDLE, "info": ACCENT_DARK}
+
+def _apply(mode: str):
+    """Rend la palette `mode` active (variables du module lues au moment de dessiner)."""
+    global MODE, LEVEL_COLORS, IDLE
+    MODE = mode if mode in PALETTES else "light"
+    globals().update(PALETTES[MODE])
+    IDLE = PALETTES[MODE]["MUTED"]
+    LEVEL_COLORS = {"ok": OK, "warn": WARN, "err": ERR, "idle": IDLE, "info": ACCENT_DARK}  # noqa: F821
+
+
+def system_mode() -> str:
+    """Clair ou sombre selon le réglage du système (Qt ≥ 6.5), clair si inconnu."""
+    try:
+        from PyQt6.QtCore import Qt
+        from PyQt6.QtGui import QGuiApplication
+        app = QGuiApplication.instance()
+        if app and app.styleHints().colorScheme() == Qt.ColorScheme.Dark:
+            return "dark"
+    except Exception:
+        pass
+    return "light"
+
+
+def resolve(choice: str) -> str:
+    return system_mode() if choice == "system" else (choice if choice in PALETTES else "light")
+
+
+def set_mode(choice: str) -> str:
+    """Active « light », « dark » ou « system ». Renvoie le mode réellement appliqué."""
+    _apply(resolve(choice))
+    return MODE
+
+
+_apply("light")
 
 # Polices : la première disponible (lisible, chiffres nets) ; titre de marque en Cinzel (fourni).
 UI_FONTS = ["Inter", "Segoe UI Variable Text", "Segoe UI", "Noto Sans", "Cantarell", "Ubuntu",
@@ -82,6 +120,8 @@ def _icons_dir() -> Path:
 
 
 def _make_icons(d: Path) -> dict[str, str]:
+    d = d / MODE
+    d.mkdir(parents=True, exist_ok=True)
     from PyQt6.QtCore import QPointF, Qt
     from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPolygonF
     out = {}
@@ -99,7 +139,7 @@ def _make_icons(d: Path) -> dict[str, str]:
         out[name] = path.as_posix()
 
     def check(p):
-        pen = QPen(QColor("#FFFFFF"), 2.0, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap,
+        pen = QPen(QColor(ON_ACCENT), 2.0, Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap,
                    Qt.PenJoinStyle.RoundJoin)
         p.setPen(pen)
         p.drawPolyline(QPolygonF([QPointF(3.5, 8.5), QPointF(6.5, 11.5), QPointF(12.5, 4.5)]))
@@ -151,7 +191,7 @@ QLabel#section {{ color: {MUTED}; font-size: 8pt; font-weight: 600; letter-spaci
 QLabel#status {{ color: {MUTED}; }}
 QLabel#next {{ color: {GOLD_TEXT}; font-weight: 600; }}
 QLabel#version {{ color: {MUTED}; font-size: 8pt; }}
-QToolTip {{ background: {TITLE}; color: #FFFFFF; border: none; padding: 5px 7px; }}
+QToolTip {{ background: {TOOLTIP_BG}; color: {TOOLTIP_FG}; border: none; padding: 5px 7px; }}
 
 /* ---- cartes ---- */
 QFrame#card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 10px; }}
@@ -185,14 +225,14 @@ QPushButton {{
     background: {SURFACE}; color: {TITLE}; border: 1px solid {BORDER_STRONG};
     border-radius: 7px; padding: 6px 12px; font-weight: 600;
 }}
-QPushButton:hover {{ border-color: {ACCENT}; background: #F7FBFD; }}
+QPushButton:hover {{ border-color: {ACCENT}; background: {HOVER}; }}
 QPushButton:pressed {{ background: {ACCENT_SOFT}; }}
-QPushButton:disabled {{ color: #9FB2C3; border-color: {BORDER}; background: {SURFACE_ALT}; }}
+QPushButton:disabled {{ color: {DISABLED}; border-color: {BORDER}; background: {SURFACE_ALT}; }}
 QPushButton:checked {{ background: {ACCENT_SOFT}; border-color: {ACCENT}; color: {ACCENT_DARK}; }}
-QPushButton#primary {{ background: {ACCENT}; color: #FFFFFF; border-color: {ACCENT}; }}
+QPushButton#primary {{ background: {ACCENT}; color: {ON_ACCENT}; border-color: {ACCENT}; }}
 QPushButton#primary:hover {{ background: {ACCENT_DARK}; border-color: {ACCENT_DARK}; }}
-QPushButton#danger {{ color: {ERR}; border-color: #E9C3BF; }}
-QPushButton#danger:hover {{ background: #FCF1F0; border-color: {ERR}; }}
+QPushButton#danger {{ color: {ERR}; border-color: {DANGER_BORDER}; }}
+QPushButton#danger:hover {{ background: {DANGER_HOVER}; border-color: {ERR}; }}
 QPushButton#swatch {{ min-width: 54px; padding: 4px; border-radius: 6px; font-weight: 500; }}
 QPushButton#chip {{ padding: 2px 9px; border-radius: 10px; font-size: 8pt; }}
 
@@ -200,10 +240,10 @@ QPushButton#chip {{ padding: 2px 9px; border-radius: 10px; font-size: 8pt; }}
 QLineEdit, QComboBox, QFontComboBox, QSpinBox {{
     background: {SURFACE}; color: {TEXT}; border: 1px solid {BORDER_STRONG};
     border-radius: 6px; padding: 4px 7px; selection-background-color: {ACCENT};
-    selection-color: #FFFFFF;
+    selection-color: {ON_ACCENT};
 }}
 QLineEdit:focus, QComboBox:focus, QFontComboBox:focus, QSpinBox:focus {{ border-color: {ACCENT}; }}
-QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled {{ color: #9FB2C3; background: {SURFACE_ALT}; }}
+QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled {{ color: {DISABLED}; background: {SURFACE_ALT}; }}
 QComboBox::drop-down, QFontComboBox::drop-down {{ border: none; width: 22px; }}
 QComboBox::down-arrow, QFontComboBox::down-arrow {{ {arrow} }}
 QComboBox QAbstractItemView {{
@@ -217,7 +257,7 @@ QSpinBox::down-arrow {{ {down} }}
 /* ---- cases à cocher ---- */
 QCheckBox {{ color: {TEXT}; spacing: 8px; }}
 QCheckBox::indicator, QTreeWidget::indicator {{
-    width: 15px; height: 15px; border: 1px solid #9DB3C6; border-radius: 4px; background: {SURFACE};
+    width: 15px; height: 15px; border: 1px solid {BORDER_STRONG}; border-radius: 4px; background: {SURFACE};
 }}
 QCheckBox::indicator:hover, QTreeWidget::indicator:hover {{ border-color: {ACCENT}; }}
 QCheckBox::indicator:checked, QTreeWidget::indicator:checked {{
@@ -231,7 +271,7 @@ QTreeWidget, QListWidget, QTableWidget {{
     alternate-background-color: {SURFACE_ALT}; outline: none;
 }}
 QTreeWidget::item {{ padding: 3px 2px; border: none; }}
-QTreeWidget::item:hover {{ background: #EEF6FB; }}
+QTreeWidget::item:hover {{ background: {HOVER}; }}
 QTreeWidget::item:selected {{ background: {ACCENT_SOFT}; color: {TITLE}; }}
 QHeaderView::section {{
     background: {SURFACE_ALT}; color: {MUTED}; border: none; border-bottom: 1px solid {BORDER};
@@ -251,11 +291,11 @@ QSlider::handle:horizontal {{
     margin: -6px 0; border-radius: 8px;
 }}
 QScrollBar:vertical {{ background: transparent; width: 10px; margin: 2px; }}
-QScrollBar::handle:vertical {{ background: #C3D2DF; border-radius: 4px; min-height: 30px; }}
-QScrollBar::handle:vertical:hover {{ background: #A6BBCD; }}
+QScrollBar::handle:vertical {{ background: {SCROLL}; border-radius: 4px; min-height: 30px; }}
+QScrollBar::handle:vertical:hover {{ background: {SCROLL_HOVER}; }}
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
 QScrollBar:horizontal {{ background: transparent; height: 10px; margin: 2px; }}
-QScrollBar::handle:horizontal {{ background: #C3D2DF; border-radius: 4px; min-width: 30px; }}
+QScrollBar::handle:horizontal {{ background: {SCROLL}; border-radius: 4px; min-width: 30px; }}
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 
 /* ---- dialogues (questions, saisie, fichiers) ---- */
@@ -265,12 +305,11 @@ QMessageBox QLabel {{ color: {TEXT}; }}
 
 
 STYLESHEET = stylesheet()        # sans icônes (import sans application Qt) ; voir full_stylesheet()
-_FULL: str | None = None
+_FULL: dict[str, str] = {}
 
 
 def full_stylesheet() -> str:
-    """Feuille de style complète (avec icônes générées) — à appeler une fois l'application créée."""
-    global _FULL
-    if _FULL is None:
-        _FULL = stylesheet(icons())
-    return _FULL
+    """Feuille de style complète du mode actif (avec icônes générées), mise en cache par mode."""
+    if MODE not in _FULL:
+        _FULL[MODE] = stylesheet(icons())
+    return _FULL[MODE]

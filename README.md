@@ -154,7 +154,8 @@ Plan de la version 2.0 (DPS meter, ping, historiques) : `docs/PLAN_2.0.md`.
 
 ## Fenêtre de contrôle : onglets
 
-Interface « Tactical Analytics » : thème clair et froid (palette et feuille de style centralisées
+Interface « Tactical Analytics » : **mode clair ou sombre** (bouton « ◐ » en haut, ou Target →
+Apparence → Thème : Clair / Sombre / Comme le système, mémorisé), thème froid (palette et feuille de style centralisées
 dans `aion_target/theme.py`, composants dans `aion_target/ui_kit.py`), tuiles de statistiques en
 chiffres tabulaires (valeurs réelles uniquement, « — » sinon), puces d'état des modules dans
 l'en-tête (Lecture, Moteur, Farm, Familiers). Les overlays affichés par-dessus le jeu ne sont pas
