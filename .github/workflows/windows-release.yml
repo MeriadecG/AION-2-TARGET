@@ -114,6 +114,11 @@ jobs:
           cp artifacts/engine-linux/aion-engine dist/engine/aion-engine-linux-x86_64
           cp artifacts/engine-windows/aion-engine.exe dist/engine/aion-engine-windows-x86_64.exe
           python tools/sign_engine.py dist/engine
+      - name: Manifeste de l'appli signé (code Python, commit exact)
+        if: steps.exists.outputs.skip != 'true'
+        env:
+          ENGINE_SIGNING_KEY: ${{ secrets.ENGINE_SIGNING_KEY }}
+        run: python tools/sign_app.py dist/app
       - name: Publication
         if: steps.exists.outputs.skip != 'true'
         env:
@@ -122,6 +127,7 @@ jobs:
           V="${{ steps.v.outputs.version }}"
           FILES="dist/AionTarget-Setup.exe dist/AionTarget-Windows.zip dist/engine/aion-engine-linux-x86_64 dist/engine/aion-engine-windows-x86_64.exe"
           [ -f dist/engine/engine-manifest.json ] && FILES="$FILES dist/engine/engine-manifest.json dist/engine/engine-manifest.sig"
+          [ -f dist/app/app-manifest.json ] && FILES="$FILES dist/app/app-manifest.json dist/app/app-manifest.sig"
           gh release create "v$V" $FILES --title "Aion Target $V" --latest \
             --notes "Windows : télécharge **AionTarget-Setup.exe**, double-clic, Suivant, Installer.
           Si Windows affiche « Windows a protégé votre ordinateur » : Informations complémentaires → Exécuter quand même (programme non signé).

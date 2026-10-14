@@ -769,6 +769,22 @@ def run(cfg: Config) -> int:
                            if reason == QSystemTrayIcon.ActivationReason.Trigger else None)
     tray.setToolTip("Aion Target")
     tray.show()
+
+    # Fichier de réglages endommagé, restauré ou corrigé : l'utilisateur est prévenu (journal,
+    # fenêtre de contrôle, notification), jamais de remise à zéro silencieuse.
+    def storage_notices():
+        from . import storage
+        notices = storage.pop_notices()
+        for n in notices:
+            log(n)
+        if notices:
+            control.show_storage_notice(" ".join(notices))
+            try:
+                tray.showMessage("Aion Target — réglages", " ".join(notices),
+                                 QSystemTrayIcon.MessageIcon.Warning, 10_000)
+            except Exception:
+                pass
+    QTimer.singleShot(3000, storage_notices)
     control._tray = tray
 
     # Module Événements : indépendant de la détection GS/CP et du jeu (tourne même jeu fermé).
@@ -925,7 +941,28 @@ def run(cfg: Config) -> int:
         log(f"DPS / historique : module indisponible ({e})")
 
     _install_hotkeys(cfg, overlay, quit_app)
+
+    # Mise à jour à l'essai : confirmée après quelques secondes de fonctionnement normal, ou à une
+    # fermeture normale. Sans confirmation (plantage), le lancement suivant revient en arrière.
+    def confirm_update():
+        try:
+            from . import updater
+            res = updater.confirm_update()
+            if res:
+                log(res.message)
+                if control is not None and hasattr(control, "update_label"):
+                    control.update_label.setText(res.message)
+        except Exception as e:
+            log(f"Mise à jour : confirmation impossible ({e})")
+    if os.environ.get("AION_TARGET_UPDATE_STATUS") in ("updated", "trial"):
+        QTimer.singleShot(_confirm_delay_ms(), confirm_update)
+        app.aboutToQuit.connect(confirm_update)
     return app.exec()
+
+
+def _confirm_delay_ms() -> int:
+    from .updater import CONFIRM_AFTER_MS
+    return CONFIRM_AFTER_MS
 
 
 class _HotkeyBridge(QObject):

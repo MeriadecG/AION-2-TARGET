@@ -258,13 +258,35 @@ barre est cachée (menu), la dernière valeur reste affichée, même après red�
 
 ## Mise à jour automatique
 
-À chaque lancement, l'appli compare sa version à celle du dépôt GitHub
-`MeriadecG/AION-2-TARGET` (branche `main`, 3 s max). Si elle est plus récente :
-téléchargement (~1 Mo), vérification (version, compilation de tout le code), nouvelles
-bibliothèques installées si besoin, puis remplacement du dossier `aion_target` et démarrage
-direct sur la nouvelle version. Hors ligne : lancement normal. Jamais dans un dossier git
-(développement). Désactivable dans l'onglet Target (« Mise à jour automatique »).
-Publier une version = augmenter `__version__` dans `aion_target/__init__.py` et pousser sur `main`.
+Transactionnelle : la version en service n'est **jamais** modifiée pendant que l'appli tourne,
+et une installation incomplète n'est jamais considérée comme réussie (détails : `docs/MISE_A_JOUR.md`).
+
+1. **Préparation** (au lancement, toutes les heures, ou « Rechercher une mise à jour maintenant ») :
+   version publiée sur `main` (3 s max) → archive téléchargée dans un dossier temporaire →
+   extraction contrôlée (chemins, liens, tailles, noms Windows) → manifeste **signé** vérifié
+   s'il est publié (Ed25519, archive du commit exact, SHA-256 de chaque fichier) → compilation,
+   compatibilité du moteur, dépendances → chargement de tous les modules dans un processus à part
+   → copie dans `.update-staged/`. État : « prête à installer ».
+2. **Bascule** au démarrage suivant (bouton « Redémarrer », ou prochain lancement), avant de
+   charger l'appli : `aion_target` → `aion_target.prev` (gardée), copie préparée → `aion_target`.
+   Fichier encore utilisé (Windows) : rien ne change, nouvel essai au lancement suivant.
+3. **Essai** : la nouvelle version est confirmée après 15 s de fonctionnement (ou à une fermeture
+   normale). Erreur au chargement, ou deux lancements sans confirmation → retour automatique à la
+   version précédente ; la version fautive n'est plus réinstallée automatiquement.
+
+Hors ligne : lancement normal. Jamais dans un dossier git (développement). Désactivable dans
+l'onglet Target (« Mise à jour automatique ») ; une version préparée à la main est installée au
+redémarrage. Publier une version = augmenter `__version__` dans `aion_target/__init__.py` et
+pousser sur `main`.
+
+## Réglages et données
+
+`config.json`, `events.json`, `events_state.json`, `pets.json` (`~/.config/aion-target`,
+`%APPDATA%\aion-target`) : écriture atomique (fichier temporaire + fsync + remplacement), la
+version précédente valide est gardée en `.bak`. Fichier endommagé : mis de côté en
+`.corrupt-DATE` (jamais supprimé), sauvegarde restaurée, message dans la fenêtre de contrôle
+(Target › Application) et notification. Valeur invalide (type, bornes) : remplacée par la valeur
+par défaut pour ce seul réglage, et signalée. Fichier illisible (droits) : jamais écrasé.
 
 ## Événements et notifications
 

@@ -44,8 +44,52 @@ os.environ["AION_TARGET_EXE"] = os.path.join(here, "Aion Target.exe")
 sys.path.insert(0, os.path.join(here, "app"))
 sys.argv[0] = "aion_target"
 
+
+def _restore_previous(app):
+    # Filet de sécurité de la mise à jour : si la version installée ne peut même pas être
+    # chargée (dossier absent ou cassé) et qu'une version précédente existe, on la remet.
+    cur = os.path.join(app, "aion_target")
+    prev = os.path.join(app, "aion_target.prev")
+    if not os.path.isfile(os.path.join(prev, "__init__.py")):
+        return False
+    bad = os.path.join(app, "aion_target.bad")
+    try:
+        if os.path.isdir(bad):
+            import shutil
+            shutil.rmtree(bad, ignore_errors=True)
+        if os.path.exists(cur):
+            os.replace(cur, bad)
+        os.replace(prev, cur)
+    except OSError:
+        return False
+    for name in [m for m in sys.modules if m == "aion_target" or m.startswith("aion_target.")]:
+        del sys.modules[name]
+    try:                                         # état de mise à jour : version écartée
+        import json
+        path = os.path.join(app, "update-state.json")
+        try:
+            with open(path, encoding="utf-8") as f:
+                state = json.load(f)
+        except (OSError, ValueError):
+            state = {}
+        keep = {k: state[k] for k in ("signed_seen", "confirmed") if k in state}
+        keep.update(status="rolled_back", bad_version=state.get("version"),
+                    message="chargement impossible (lanceur)")
+        with open(path + ".tmp", "w", encoding="utf-8") as f:
+            json.dump(keep, f)
+        os.replace(path + ".tmp", path)
+    except Exception:
+        pass
+    return True
+
+
 try:
-    from aion_target.__main__ import main
+    try:
+        from aion_target.__main__ import main
+    except Exception:
+        if not _restore_previous(os.path.join(here, "app")):
+            raise
+        from aion_target.__main__ import main
     sys.exit(main())
 except SystemExit:
     raise
