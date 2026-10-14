@@ -114,6 +114,14 @@ def parse_levels(text: str) -> list[int] | None:
     return vals
 
 
+def _valid_store(data):
+    if not isinstance(data, dict):
+        raise ValueError("objet JSON attendu")
+    if not isinstance(data.get("progress", {}), dict) or not isinstance(data.get("custom", []), list):
+        raise ValueError("progression illisible")
+    return data
+
+
 class PetStore:
     """Progression persistante (pets.json) : morts, âmes, suivi, paliers, ajouts manuels."""
 
@@ -121,18 +129,19 @@ class PetStore:
         self.path, self.clock = Path(path), clock
         self.data = {"version": 1, "progress": {}, "custom": [], "edition": "global",
                      "custom_levels": None, "auto": False}
-        try:
-            loaded = json.loads(self.path.read_text(encoding="utf-8"))
-            if isinstance(loaded, dict):
-                self.data.update(loaded)
-        except (OSError, ValueError):
-            pass
+        from . import storage
+        res = storage.load_json(self.path, validate=_valid_store, label="Progression des familiers (pets.json)")
+        if res.data:
+            self.data.update(res.data)
+        # Fichier présent mais illisible (droits) : on ne l'écrase pas avec une progression vide.
+        self._writable = res.writable
 
     def save(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = self.path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(self.data, ensure_ascii=False, indent=1), encoding="utf-8")
-        tmp.replace(self.path)                     # écriture atomique : jamais de fichier coupé
+        """Écriture atomique (storage.py) ; la version précédente valide est gardée en .bak."""
+        if not self._writable:
+            return
+        from . import storage
+        storage.atomic_write_json(self.path, self.data, indent=1, validate=_valid_store)
 
     def get(self, pet_id: str) -> dict:
         p = self.data["progress"].setdefault(pet_id, {})
@@ -193,10 +202,16 @@ class KillCounter:
 
     def _load_journal(self):
         try:
-            for line in self.journal_path.read_text(encoding="utf-8").splitlines()[-JOURNAL_MAX:]:
-                self.journal.append(json.loads(line))
-        except (OSError, ValueError):
-            pass
+            lines = self.journal_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            return
+        for line in lines[-JOURNAL_MAX:]:          # ligne coupée (arrêt brutal) : ignorée seule
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(entry, dict):
+                self.journal.append(entry)
 
     def _log(self, entry: dict):
         self.journal.append(entry)
@@ -207,8 +222,9 @@ class KillCounter:
             with self.journal_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")
             if self.journal_path.stat().st_size > 1_000_000:      # rotation simple
+                from . import storage
                 lines = self.journal_path.read_text(encoding="utf-8").splitlines()[-JOURNAL_MAX:]
-                self.journal_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+                storage.atomic_write_bytes(self.journal_path, ("\n".join(lines) + "\n").encode("utf-8"))
         except OSError:
             pass
 

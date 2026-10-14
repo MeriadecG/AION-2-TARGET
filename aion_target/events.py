@@ -16,7 +16,6 @@ Logique pure (aucune dépendance à Qt) : testable et indépendante du module GS
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
@@ -221,11 +220,21 @@ def next_occurrence(event: Event, after: datetime, blackouts=None) -> datetime |
 
 # --- préférences & état ----------------------------------------------------------------
 
-def _atomic_write(path: Path, data: dict):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, path)                # pas de fichier à moitié écrit en cas de coupure
+def _atomic_write(path: Path, data: dict, backup: bool = True):
+    """Écriture atomique + sauvegarde de la version précédente (storage.py)."""
+    from . import storage
+    storage.atomic_write_json(Path(path), data, backup=backup, validate=_require_object)
+
+
+def _require_object(data):
+    if not isinstance(data, dict):
+        raise ValueError("objet JSON attendu")
+    return data
+
+
+def _load_object(path: Path, label: str):
+    from . import storage
+    return storage.load_json(Path(path), validate=_require_object, label=label)
 
 
 @dataclass
@@ -240,12 +249,11 @@ class EventPrefs:
 
     @classmethod
     def load(cls, path: Path) -> "EventPrefs":
-        try:
-            data = json.loads(Path(path).read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            data = {}
-        p = cls(path=Path(path))
-        p.enabled = {k: bool(v) for k, v in data.get("enabled", {}).items()}
+        res = _load_object(path, "Préférences des notifications (events.json)")
+        data = res.data or {}
+        p = cls(path=Path(path) if res.writable else None)
+        enabled = data.get("enabled", {})
+        p.enabled = {str(k): bool(v) for k, v in enabled.items()} if isinstance(enabled, dict) else {}
         p.sound = bool(data.get("sound", False))
         if isinstance(data.get("sound_id"), str) and data["sound_id"]:
             p.sound_id = data["sound_id"]
@@ -253,11 +261,18 @@ class EventPrefs:
             p.volume = max(0, min(100, int(data.get("volume", 80))))
         except (TypeError, ValueError):
             p.volume = 80
-        p.lead_minutes = max(1, int(data.get("lead_minutes", 1)))
+        try:
+            p.lead_minutes = max(1, min(24 * 60, int(data.get("lead_minutes", 1))))
+        except (TypeError, ValueError):
+            p.lead_minutes = 1
         rr = data.get("reset_reminders", {})
+        rr = rr if isinstance(rr, dict) else {}
         for g in ("daily", "weekly"):
             if isinstance(rr.get(g), list):
-                p.reset_reminders[g] = sorted({int(x) for x in rr[g] if int(x) > 0})
+                try:
+                    p.reset_reminders[g] = sorted({int(x) for x in rr[g] if int(x) > 0})
+                except (TypeError, ValueError):
+                    pass
         return p
 
     def save(self):
@@ -280,11 +295,12 @@ class EventState:
     sent: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        if self.path and Path(self.path).exists():
-            try:
-                self.sent = dict(json.loads(Path(self.path).read_text(encoding="utf-8")).get("sent", {}))
-            except (OSError, ValueError):
-                self.sent = {}
+        if self.path:
+            res = _load_object(Path(self.path), "Historique des alertes (events_state.json)")
+            sent = (res.data or {}).get("sent", {})
+            self.sent = dict(sent) if isinstance(sent, dict) else {}
+            if not res.writable:
+                self.path = None
 
     def was_sent(self, key: str) -> bool:
         return key in self.sent
@@ -295,13 +311,18 @@ class EventState:
 
     def prune(self, now: datetime, keep: timedelta = timedelta(days=3)):
         limit = now - keep
-        self.sent = {k: v for k, v in self.sent.items()
-                     if datetime.fromisoformat(v[0] if isinstance(v, list) else v) >= limit}
+        def keep_entry(v) -> bool:
+            try:
+                when = datetime.fromisoformat(v[0] if isinstance(v, list) else v)
+                return when >= limit
+            except (TypeError, ValueError, IndexError):
+                return False                     # entrée illisible : oubliée
+        self.sent = {k: v for k, v in self.sent.items() if keep_entry(v)}
         self.save()
 
     def save(self):
         if self.path:
-            _atomic_write(Path(self.path), {"version": 1, "sent": self.sent})
+            _atomic_write(Path(self.path), {"version": 1, "sent": self.sent}, backup=False)
 
 
 # --- planification ---------------------------------------------------------------------

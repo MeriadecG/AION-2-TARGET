@@ -1,11 +1,15 @@
 """Configuration persistée dans un JSON (zone de capture, serveurs, raccourcis)."""
 from __future__ import annotations
 
-import json
+import math
 import os
+import re
 import sys
-from dataclasses import asdict, dataclass, field
+import threading
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
+
+from . import storage
 
 # Serveurs EU vus sur shugo.gg. Mets ton serveur en premier : il est essayé d'abord.
 EU_SERVERS = [
@@ -179,19 +183,147 @@ class Config:
 
     @classmethod
     def load(cls, path: Path | None = None) -> "Config":
+        """Lecture tolérante : sauvegarde restaurée si le fichier est endommagé, réglage invalide
+        remplacé par sa valeur par défaut (et signalé), clés inconnues CONSERVÉES (réglages d'une
+        version plus récente, ex. après un retour arrière de mise à jour)."""
         path = path or config_path()
-        if path.exists():
-            data = json.loads(path.read_text(encoding="utf-8"))
-            known = {k: v for k, v in data.items() if k in cls.__dataclass_fields__}
-            cfg = cls(**migrate(known))
-            if data.get("version") != CONFIG_VERSION:
+        res = storage.load_json(path, validate=_require_object, label="Réglages (config.json)")
+        if res.data is None:
+            cfg = cls()
+            cfg._writable = res.writable
+            if res.writable:
                 cfg.save(path)
             return cfg
-        cfg = cls()
-        cfg.save(path)
+        data = res.data
+        migrated = migrate(data)                 # sur TOUT le fichier : une clé retirée disparaît
+        extra = {k: v for k, v in migrated.items() if k not in cls.__dataclass_fields__}
+        known = {k: v for k, v in migrated.items() if k in cls.__dataclass_fields__}
+        clean, bad = validate_fields(known)
+        cfg = cls(**clean)
+        cfg._extra = extra
+        if bad:
+            storage.notify("Réglages : valeur invalide remplacée par la valeur par défaut pour "
+                           + ", ".join(sorted(bad)) + ".")
+        if data.get("version") != CONFIG_VERSION or bad:
+            cfg.save(path)
         return cfg
 
+    def to_dict(self) -> dict:
+        data = dict(getattr(self, "_extra", {}) or {})
+        data.update(asdict(self))
+        return data
+
     def save(self, path: Path | None = None):
+        """Écriture atomique (fichier temporaire + fsync + remplacement), version précédente
+        valide gardée en config.json.bak. Jamais d'écriture si le fichier n'a pas pu être lu."""
+        if not getattr(self, "_writable", True) and path is None:
+            return
         path = path or config_path()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(asdict(self), indent=2, ensure_ascii=False), encoding="utf-8")
+        with _SAVE_LOCK:
+            storage.atomic_write_json(path, self.to_dict(), validate=_require_object)
+
+
+_SAVE_LOCK = threading.Lock()
+
+
+def _require_object(data):
+    if not isinstance(data, dict):
+        raise ValueError("objet JSON attendu")
+    return data
+
+
+# --- validation des types et des bornes ---------------------------------------------------
+
+_COLOR = re.compile(r"#[0-9A-Fa-f]{6}")
+_COORD = 1_000_000           # coordonnées écran : multi-écrans et valeurs négatives acceptés
+# (min, max) des nombres ; hors bornes → valeur par défaut
+_BOUNDS = {
+    "poll_interval_ms": (10, 10_000), "poll_idle_ms": (5, 10_000), "stable_reads": (1, 20),
+    "ocr_min_confidence": (0.0, 1.0), "lookup_fanout": (1, 50), "cache_max_mb": (1, 100_000),
+    "import_max_players": (-1, 10_000_000), "dps_overlay_opacity": (0.05, 1.0),
+    "pets_overlay_opacity": (0.05, 1.0), "dps_overlay_rows": (1, 50),
+    "history_max_fights": (1, 10_000_000), "history_max_encounters": (1, 100_000_000),
+    "control_tab": (0, 100), "currency_a": (1, 20), "currency_b": (1, 20),
+    "currency_alt_a": (1, 20), "currency_alt_b": (1, 20), "version": (1, 10_000),
+}
+_CHOICES = {"ui_theme": {"light", "dark", "system"}, "farm_value": {"a", "b", "diff"},
+            "capture_backend": {"auto", "mss", "portal"}}
+# rectangles [x, y, largeur, hauteur] ; ceux qui peuvent être vides (= calculés) sont marqués
+_RECTS = {"capture": False, "frame_gs": True, "frame_cp": True, "frame_details": True,
+          "frame_rank": True, "dps_overlay_rect": False, "currency_zone": False,
+          "frame_currency": False, "currency_zone_alt": False, "pets_overlay_rect": False}
+
+
+def _valid_rect(v, may_be_empty: bool):
+    if isinstance(v, list) and not v and may_be_empty:
+        return []
+    if not isinstance(v, list) or len(v) != 4:
+        raise ValueError
+    out = []
+    for n in v:
+        if isinstance(n, bool) or not isinstance(n, (int, float)) or not math.isfinite(n):
+            raise ValueError
+        out.append(int(n))
+    if any(abs(n) > _COORD for n in out) or out[2] < 1 or out[3] < 1:
+        raise ValueError
+    return out
+
+
+def _is_number(v) -> bool:
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def validate_fields(data: dict) -> tuple[dict, set[str]]:
+    """Garde les valeurs du bon type et dans les bornes ; renvoie (valeurs gardées, champs rejetés).
+    Un champ rejeté prend sa valeur par défaut. Les positions valides ne sont jamais modifiées."""
+    defaults = Config()
+    clean, bad = {}, set()
+    for f in fields(Config):
+        if f.name not in data:
+            continue
+        v, d = data[f.name], getattr(defaults, f.name)
+        try:
+            if f.name in _RECTS:
+                v = _valid_rect(v, _RECTS[f.name])
+            elif f.name == "currency_last":
+                if v is not None and (not isinstance(v, int) or isinstance(v, bool)):
+                    raise ValueError
+            elif isinstance(d, bool):
+                if not isinstance(v, bool):
+                    raise ValueError
+            elif isinstance(d, int):
+                if isinstance(v, float) and v.is_integer():
+                    v = int(v)
+                if not isinstance(v, int) or isinstance(v, bool):
+                    raise ValueError
+            elif isinstance(d, float):
+                if not _is_number(v):
+                    raise ValueError
+                v = float(v)
+            elif isinstance(d, str):
+                if not isinstance(v, str):
+                    raise ValueError
+            elif isinstance(d, list):
+                if not isinstance(v, list):
+                    raise ValueError
+                if f.name in ("servers", "blacklist", "farm_overlay_fields") and \
+                        not all(isinstance(x, str) for x in v):
+                    raise ValueError
+            elif isinstance(d, dict):
+                if not isinstance(v, dict):
+                    raise ValueError
+            if f.name in _BOUNDS:
+                lo, hi = _BOUNDS[f.name]
+                if not lo <= v <= hi:
+                    raise ValueError
+            if f.name in _CHOICES and v not in _CHOICES[f.name]:
+                raise ValueError
+            if f.name.endswith("_color") and not _COLOR.fullmatch(v):
+                raise ValueError
+            if f.name == "servers" and not v:
+                raise ValueError
+        except (ValueError, TypeError):
+            bad.add(f.name)
+            continue
+        clean[f.name] = v
+    return clean, bad
