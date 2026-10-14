@@ -47,6 +47,50 @@ def make_key(name: str, server: str) -> str:
     return f"{name.casefold()}@{server}"
 
 
+def _known(v):
+    """Valeur exploitable : None, 0, négatif ou chaîne vide = inconnue (jamais « 0 » affiché)."""
+    if v is None or v == "":
+        return None
+    if isinstance(v, (int, float)) and not isinstance(v, bool) and v <= 0:
+        return None
+    return v
+
+
+def merge_profile(old: CharacterInfo | None, old_ts: float | None, new: CharacterInfo,
+                  new_ts: float, prefer_new_on_tie: bool = False) -> tuple[tuple[CharacterInfo, float], bool]:
+    """Règle UNIQUE de fusion d'un profil (même nom, MÊME serveur) — RAM et SQLite.
+
+    - une valeur absente ne remplace jamais une valeur connue ;
+    - une donnée plus récente remplace champ par champ les valeurs connues ;
+    - une donnée plus ancienne (import du classement…) ne fait que compléter les champs vides ;
+    - le rang régional vient toujours de la dernière donnée qui en fournit un ;
+    - l'horodatage reste celui de la donnée la plus récente.
+    Renvoie ((profil, horodatage), True si la donnée est nouvelle ou plus récente)."""
+    fields = ("gear_score", "combat_power", "level", "char_class", "url")
+    incoming = {f: _known(getattr(new, f)) for f in fields}
+    if old is not None and old.server != new.server:
+        raise ValueError("fusion de deux serveurs différents")
+    if old is None:
+        ts, newer = new_ts, True
+        vals = incoming
+        name = new.name
+    else:
+        newer = new_ts > old_ts or (prefer_new_on_tie and new_ts == old_ts)
+        previous = {f: _known(getattr(old, f)) for f in fields}
+        if newer:
+            vals = {f: incoming[f] if incoming[f] is not None else previous[f] for f in fields}
+            ts, name = new_ts, new.name
+        else:
+            vals = {f: previous[f] if previous[f] is not None else incoming[f] for f in fields}
+            ts, name = old_ts, old.name
+    rank = _known(new.rank)
+    if rank is None and old is not None:
+        rank = _known(old.rank)
+    info = CharacterInfo(name, new.server, vals["gear_score"], vals["combat_power"], vals["level"],
+                         vals["char_class"], vals["url"] or "", rank, updated=ts)
+    return (info, ts), newer
+
+
 
 class PlayerCache:
     def __init__(self, path: Path | str, clock=time.time, max_bytes: int = DEFAULT_MAX_BYTES):
@@ -60,6 +104,7 @@ class PlayerCache:
         # de celui de SQLite : une lecture n'attend jamais une écriture disque.
         self._ram: dict[str, dict[str, tuple[CharacterInfo, float]]] = {}
         self._ram_lock = threading.Lock()
+        self.last_error: str | None = None
         with self._lock, self._db:
             self._db.executescript(_SCHEMA)
             cols = {r[1] for r in self._db.execute("PRAGMA table_info(players)")}
@@ -74,38 +119,14 @@ class PlayerCache:
     # -- index RAM --
     def reload_ram(self):
         """(Re)charge tout l'index RAM depuis SQLite (~20 000 joueurs : quelques dizaines de ms)."""
-        with self._lock:
+        with self._lock:                         # aucune écriture ne peut se glisser entre les deux
             rows = self._db.execute(f"SELECT {self._COLS} FROM players").fetchall()
-        ram: dict[str, dict[str, tuple[CharacterInfo, float]]] = {}
-        for r in rows:
-            info = CharacterInfo(r[0], r[1], r[2], r[3], r[4], r[5], r[6] or "", r[8], updated=r[7])
-            ram.setdefault(r[0].casefold(), {})[r[1]] = (info, r[7])
-        with self._ram_lock:
-            self._ram = ram
-
-    def _ram_put(self, info: CharacterInfo, ts: float, only_newer: bool = False, keep_rank: bool = True):
-        k = info.name.casefold()
-        with self._ram_lock:
-            per = self._ram.setdefault(k, {})
-            old = per.get(info.server)
-            if old and only_newer and ts <= old[1]:
-                if info.rank and old[0].rank != info.rank:     # le rang du classement, toujours
-                    o = old[0]
-                    per[info.server] = (CharacterInfo(o.name, o.server, o.gear_score, o.combat_power,
-                                                      o.level, o.char_class, o.url, info.rank,
-                                                      updated=o.updated), old[1])
-                return
-            o = old[0] if old else None
-            rank = info.rank if info.rank is not None or not keep_rank or not o else o.rank
-            gs, cp = info.gear_score, info.combat_power
-            if keep_rank and o:        # écriture partielle (groupe, fiche sans GS) : on garde ce qu'on savait
-                level, cls, url = info.level or o.level, info.char_class or o.char_class, info.url or o.url
-                gs = gs if gs is not None else o.gear_score
-                cp = cp if cp is not None else o.combat_power
-            else:
-                level, cls, url = info.level, info.char_class, info.url or ""
-            per[info.server] = (CharacterInfo(info.name, info.server, gs, cp,
-                                              level, cls, url, rank, updated=ts), ts)
+            ram: dict[str, dict[str, tuple[CharacterInfo, float]]] = {}
+            for r in rows:
+                info = CharacterInfo(r[0], r[1], r[2], r[3], r[4], r[5], r[6] or "", r[8], updated=r[7])
+                ram.setdefault(r[0].casefold(), {})[r[1]] = (info, r[7])
+            with self._ram_lock:
+                self._ram = ram
 
     def _migrate(self, path: Path):
         """v1 (clé = nom seul) → v2 (clé = nom@serveur). Copie de sécurité avant toute écriture."""
@@ -162,43 +183,50 @@ class PlayerCache:
         return info.server if info else None
 
     def put(self, info: CharacterInfo):
-        ts = self.clock()
-        self._ram_put(info, ts)
-        with self._lock, self._db:
-            # La fiche shugo.gg ne donne pas le rang : on garde celui de l'import.
-            self._db.execute(
-                "INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                "ON CONFLICT(key) DO UPDATE SET name=excluded.name, server=excluded.server, "
-                "gs=COALESCE(excluded.gs, players.gs), cp=COALESCE(excluded.cp, players.cp), "
-                "level=COALESCE(excluded.level, players.level), "
-                "class=COALESCE(excluded.class, players.class), "
-                "url=COALESCE(NULLIF(excluded.url, ''), players.url), updated=excluded.updated, "
-                "rank=COALESCE(excluded.rank, players.rank)",
-                (make_key(info.name, info.server), info.name, info.server, info.gear_score, info.combat_power,
-                 info.level, info.char_class, info.url, ts, info.rank))
-        self._writes += 1
-        if self._writes % PURGE_EVERY == 0:
-            self.purge()
+        """Observation en direct (fiche, groupe, réseau) : horodatée maintenant."""
+        self._write([(info, self.clock())], live=True)
 
     def put_many(self, items: list[tuple[CharacterInfo, float]]) -> int:
-        """Écrit en lot des profils horodatés (import). Ne remplace JAMAIS un profil local
-        plus récent (ex. joueur rafraîchi en jeu il y a 5 min). Renvoie le nombre écrit."""
-        for i, ts in items:
-            self._ram_put(i, ts, only_newer=True, keep_rank=False)
-        with self._lock, self._db:
-            before = self._db.total_changes
-            self._db.executemany(
-                "INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                "ON CONFLICT(key) DO UPDATE SET name=excluded.name, server=excluded.server, "
-                "gs=excluded.gs, cp=excluded.cp, level=excluded.level, class=excluded.class, "
-                "url=excluded.url, updated=excluded.updated, rank=excluded.rank "
-                "WHERE excluded.updated > players.updated",
-                [(make_key(i.name, i.server), i.name, i.server, i.gear_score, i.combat_power, i.level,
-                  i.char_class, i.url, ts, i.rank) for i, ts in items])
-            written = self._db.total_changes - before
-            # Le rang du classement est toujours le plus récent, même si le score local l'est aussi.
-            self._db.executemany("UPDATE players SET rank = ? WHERE key = ?",
-                                 [(i.rank, make_key(i.name, i.server)) for i, _ in items if i.rank])
+        """Écrit en lot des profils horodatés (import, base shugo.gg). Ne remplace JAMAIS une
+        valeur locale plus récente ; ne fait que compléter ce qui manque. Renvoie le nombre de
+        profils nouveaux ou plus récents que la mémoire."""
+        return self._write(items, live=False)
+
+    def _write(self, items: list[tuple[CharacterInfo, float]], live: bool) -> int:
+        """Seul chemin d'écriture : même règle (merge_profile) pour l'index RAM et SQLite.
+
+        Les écritures sont sérialisées par le verrou SQLite ; la RAM est mise à jour APRÈS la
+        base, sous ce même verrou : deux écritures concurrentes ne peuvent pas se croiser et la
+        RAM reflète exactement la base. Les lectures (index RAM) n'attendent jamais ce verrou."""
+        if not items:
+            return 0
+        written = 0
+        with self._lock:
+            merged: dict[tuple[str, str], tuple[CharacterInfo, float]] = {}
+            with self._ram_lock:
+                for info, ts in items:
+                    if not info.name or not info.server:
+                        continue                         # jamais de profil sans serveur
+                    key = (info.name.casefold(), info.server)
+                    old = merged.get(key) or (self._ram.get(key[0]) or {}).get(key[1])
+                    m, newer = merge_profile(old[0] if old else None, old[1] if old else None,
+                                             info, float(ts), prefer_new_on_tie=live)
+                    written += newer
+                    merged[key] = m
+            rows = [(make_key(i.name, i.server), i.name, i.server, i.gear_score, i.combat_power,
+                     i.level, i.char_class, i.url, ts, i.rank) for i, ts in merged.values()]
+            try:
+                with self._db:
+                    self._db.executemany("INSERT OR REPLACE INTO players VALUES "
+                                         "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows)
+                self.last_error = None
+            except sqlite3.Error as e:
+                # Disque plein, base verrouillée… : l'affichage garde la donnée (RAM), la base
+                # sera réécrite à la prochaine observation. Jamais d'exception vers la cible.
+                self.last_error = f"{type(e).__name__}: {e}"
+            with self._ram_lock:
+                for (k, server), entry in merged.items():
+                    self._ram.setdefault(k, {})[server] = entry
         self._writes += len(items)
         if self._writes >= PURGE_EVERY:
             self._writes = 0
